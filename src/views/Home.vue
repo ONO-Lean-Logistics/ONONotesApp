@@ -17,13 +17,11 @@
           id="searchInput"
           @input="handleSearchInput"
         />
-        <i
-          v-if="searchQuery"
-          class="fas fa-times-circle clear-icon"
-          @click="clearSearch"
-        ></i>
+        <!--Clear search-->
+        <button @click="clearSearch" class="clear-button">
+        <img src="../assets/X_icon.svg" alt="Clear" />
+      </button>
       </div>
-      
     </div>
     <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
@@ -206,8 +204,9 @@ export default {
     },
     // Clear search query
     clearSearch() {
-      this.searchQuery = "";
-    },
+        this.searchQuery = '';
+        this.$emit('input', this.searchQuery);
+      },
     // Handle input in the search bar
     handleSearchInput() {
       // Adjust the search input width based on content
@@ -565,6 +564,13 @@ export default {
 
   .search-input {
     margin-left: 0; /* Adjust to ensure proper spacing */
+  }
+  button.clear-button {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
   }
 }
 </style>
