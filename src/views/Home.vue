@@ -376,6 +376,14 @@ export default {
   flex-shrink: 0; /* Prevent shrinking */
 }
 
+.header button.clear-button {
+  margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
 /* Search container */
 .search-container {
   display: flex;
@@ -567,11 +575,5 @@ export default {
     margin-left: 0; /* Adjust to ensure proper spacing */
   }
 
-  button.clear-button {
-    margin-left: 10px;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
 }
 </style>
