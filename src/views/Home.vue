@@ -70,6 +70,7 @@
               :utente="note.utente"
               :note-id="note.id"
               :index="index"
+              :refresh="false"
               @update-note="updateNote(index, $event.action, $event.data)"
             />
             <ListNote
@@ -79,6 +80,7 @@
               :timestamp="note.timestamp"
               :utente="note.utente"
               :note-id="note.id"
+              :refresh="false"
               @update-note="updateNote(index, $event.action, $event.data)"
             />
           </template>
@@ -131,7 +133,21 @@ export default {
       noteDragging: null,
       searchQuery: "",
       utente: "",
+      refresh: false,
     };
+  },
+  watch: {
+    notes: {
+      handler(newValue){
+        newValue.forEach((note, id) => {
+          if(note.refresh){
+            this.refreshQuery(id)
+            this.$set(this.notes, id, { ...notes, refresh: false });
+          }
+        });
+      },
+      deep: true
+    }
   },
   computed: {
     // Filtered notes based on search query
@@ -153,29 +169,31 @@ export default {
     },
   },
 
-  async mounted() {
-    // Retrieve user information from session storage
-    let operatorName = sessionStorage.getItem("operatorName");
-    let operatorSurname = sessionStorage.getItem("operatorSurname");
-    this.utente = `${operatorName} ${operatorSurname}`;
-    // Load notes from server
-    try {
-      const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-      this.notes = response.notes;
-      if (this.notes.length > 0) {
-        const lastId = Math.max(...this.notes.map((note) => note.id));
-        this.nextId = lastId + 1;
-      } else {
-        this.nextId = 1; // Start from 1 if no notes exist
-      }
-    } catch (error) {
-      console.error("Error loading notes:", error);
-    }
-  },
   methods: {
-    // Refresh page function
-    refreshPage() {
-      window.location.reload();
+    // Refresh query function
+    refreshQuery() {
+     
+        // Retrieve user information from session storage
+        let operatorName = sessionStorage.getItem("operatorName");
+        let operatorSurname = sessionStorage.getItem("operatorSurname");
+        this.utente = `${operatorName} ${operatorSurname}`;
+        // Load notes from server
+        try {
+          const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
+          console.log(`Before filtering: ${response.notes}`)
+          let resNotes = response.notes
+          if(resNotes != null &&  resNotes.length>0) {
+            console.log(`After filtering: ${response.notes}`)
+            this.notes = resNotes; 
+            this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
+          }else{
+            console.log("No filtering")
+            this.nextId = 1; // Start from 1 if no notes exist
+          }
+        } catch (error) {
+          console.error("Error loading notes:", error);
+        }
+    }
     },
     // Save all notes function
     async saveAllNotes() {
@@ -306,6 +324,7 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
+          refresh: false,
           type: "classic", // Marking it as a classic note
         };
       } else if (addingNoteType === "List") {
@@ -315,25 +334,28 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
+          refresh: false,
           type: "list", // Marking it as a list note
         };
       }
 
       this.nextId++; // Increment the next ID
-      this.notes.push(newNote); // Add the note to the list
+      if(newNote != null){
+        console.log(newNote);
+        this.notes.push(newNote); // Add the note to the list
 
       try {
         // Save the new note using updateNotes function
         await updateNotes(newNote.id, newNote);
 
         // Refresh the page after saving
-        //this.refreshPage();
       } catch (error) {
         console.error("Error saving the new note:", error);
       }
+      }
+      
     },
-  },
-};
+  };
 </script>
 
 <style scoped>

@@ -175,6 +175,7 @@ export default {
         items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
+        refresh: this.refresh
       };
 
       try {
