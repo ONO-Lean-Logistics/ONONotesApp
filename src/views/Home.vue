@@ -569,7 +569,6 @@ export default {
 
   button.clear-button {
     margin-left: 10px;
-    background: none;
     border: none;
     cursor: pointer;
     padding: 0;
