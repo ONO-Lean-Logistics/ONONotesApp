@@ -24,7 +24,7 @@ export async function loadNotes() {
     if (
       responseArray &&
       Array.isArray(responseArray) &&
-      responseArray.length === 0
+      responseArray.length === 2
     ) {
       const notes = responseArray[0]; // Array of notes
       const occupancyStatus = responseArray[1][0]?.isOccupied || false; // Extract isOccupied value, default to false if not present
