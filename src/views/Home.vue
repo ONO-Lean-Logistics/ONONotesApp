@@ -340,6 +340,14 @@ export default {
 /* Import main styles */
 @import "../assets/main.css";
 
+/* App container */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  
+}
+
 /* Home container */
 .home {
   flex-grow: 1;
@@ -353,7 +361,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 15px;
-  background-color: #2c3e50;
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
   margin-bottom: 1.5%;
   height: 40px; /* Ensure height allows alignment */
   position: relative;
