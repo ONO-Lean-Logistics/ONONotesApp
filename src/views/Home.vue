@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="header">
       <!-- Title -->
-      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshPage">
+      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
         Memo
       </h1>
       <!-- Search bar with search functionality -->

@@ -123,9 +123,6 @@ export default {
     this.isEditing = false;
   },
   methods: {
-    refreshPage() {
-      window.location.reload();
-    },
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -143,7 +140,7 @@ export default {
         console.error("Failed to save note:", error);
       }
       this.isEditing = false;
-      this.refreshPage();
+      this.refresh = true;
     },
     // Delete the note
     async deleteNote() {
@@ -156,13 +153,13 @@ export default {
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.refreshPage();
+      this.refresh = true;
     },
     cancelEdit() {
       this.newTitle = this.title;
       this.newContent = this.content;
       this.showEditIcon = false;
-      this.refreshPage();
+      this.refresh = true;    
     },
     startEdit() {
       this.isEditing = true;
