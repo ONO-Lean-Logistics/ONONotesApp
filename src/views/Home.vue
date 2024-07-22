@@ -18,10 +18,10 @@
           @input="handleSearchInput"
         />
         <!--Clear search-->
-        <button @click="clearSearch" class="clear-button">
+      </div>
+      <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-      </div>
     </div>
     <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
@@ -340,15 +340,6 @@ export default {
 /* Import main styles */
 @import "../assets/main.css";
 
-/* App container */
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: var(--background-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
 /* Home container */
 .home {
   flex-grow: 1;
@@ -362,6 +353,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 15px;
+  background-color: #2c3e50;
   margin-bottom: 1.5%;
   height: 40px; /* Ensure height allows alignment */
   position: relative;
@@ -565,6 +557,7 @@ export default {
   .search-input {
     margin-left: 0; /* Adjust to ensure proper spacing */
   }
+
   button.clear-button {
     margin-left: 10px;
     background: none;
