@@ -67,7 +67,7 @@ export async function saveNotes(notes, isOccupiedFromServer) {
           type: note.type,
         };
       }
-      return null; // Gestione caso in cui il tipo di nota non è riconosciuto
+      
     });
     // Prepara i dati da salvare
     const dataToSave = {
