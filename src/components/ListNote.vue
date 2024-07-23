@@ -476,9 +476,9 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
+  background-color: var(
     --note-background-color
-  );
+  );;
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
