@@ -28,7 +28,7 @@
       class="delete-btn"
       @click.stop="deleteNote"
     >
-      <i class="fa-solid fa-trash-can"></i>
+    <img src="../assets/delete.svg" alt="Clear" />
     </button>
     <!-- Edit Modal -->
   </div>
@@ -54,10 +54,10 @@
       <!-- Edit actions: Delete, Cancel, Save buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
-          <i class="fa-solid fa-trash-can"></i>
+          <img src="../assets/delete.svg" alt="Clear" />
         </button>
         <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
-        <button @click.stop="saveEdit" class="save-btn">Save</button>
+        <button @click.stop="saveEdit" class="save-btn"><img src="../assets/save.svg" alt="Clear" /></button>
       </div>
     </div>
   </div>
@@ -385,20 +385,24 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color: var(
+    --note-background-color
+  );
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
 .delete-btn-modal{
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
-  right: 80px;
+  left: 5px;
   font-size: 16px;
   padding: 10px 15px;
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color: var(
+    --note-background-color
+  );;
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
@@ -414,7 +418,9 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color:var(
+    --note-background-color
+  );
   border-radius: 0;
   transition: background-color 0.3s ease; 
 }
