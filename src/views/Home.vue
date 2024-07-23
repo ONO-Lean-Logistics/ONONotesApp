@@ -70,8 +70,8 @@
               :utente="note.utente"
               :note-id="note.id"
               :index="index"
-              :refresh="false"
               @update-note="updateNote(index, $event.action, $event.data)"
+              @save="refreshQuery()"
             />
             <ListNote
               v-else-if="note.type === 'list'"
@@ -80,8 +80,8 @@
               :timestamp="note.timestamp"
               :utente="note.utente"
               :note-id="note.id"
-              :refresh="false"
               @update-note="updateNote(index, $event.action, $event.data)"
+              @save="refreshQuery()"
             />
           </template>
           <template v-else-if="note && note.isAddButton">
@@ -132,23 +132,10 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: "",
-      refresh: false,
+      utente: ""
     };
   },
-  watch: {
-    notes: {
-      handler(newValue){
-        newValue.forEach((note, id) => {
-          if(note.refresh){
-            this.refreshQuery(id)
-            this.$set(this.notes, id, { ...notes, refresh: false });
-          }
-        });
-      },
-      deep: true
-    }
-  },
+ 
   computed: {
     // Filtered notes based on search query
     filteredNotes() {
@@ -167,34 +154,43 @@ export default {
       notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
       return notesWithAddButton;
     },
+  
+  },
+  created(){
+    this.refreshQuery();
   },
 
   methods: {
-    // Refresh query function
-    refreshQuery() {
-     
-        // Retrieve user information from session storage
-        let operatorName = sessionStorage.getItem("operatorName");
-        let operatorSurname = sessionStorage.getItem("operatorSurname");
-        this.utente = `${operatorName} ${operatorSurname}`;
-        // Load notes from server
-        try {
-          const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-          console.log(`Before filtering: ${response.notes}`)
-          let resNotes = response.notes
-          if(resNotes != null &&  resNotes.length>0) {
-            console.log(`After filtering: ${response.notes}`)
-            this.notes = resNotes; 
-            this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
-          }else{
-            console.log("No filtering")
-            this.nextId = 1; // Start from 1 if no notes exist
-          }
-        } catch (error) {
-          console.error("Error loading notes:", error);
+    async refreshQuery() {
+      
+      // Retrieve user information from session storage
+      let operatorName = sessionStorage.getItem("operatorName");
+      let operatorSurname = sessionStorage.getItem("operatorSurname");
+      this.utente = `${operatorName} ${operatorSurname}`;
+      console.log(`Before filtering:`)
+      // Load notes from server
+      try {
+        
+        const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
+        console.log(`Before filtering: ${response}`)
+        let resNotes = response.notes
+
+        if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
+          // Filter out any notes that do not have an id property
+          resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
-    }
-    },
+        if(resNotes != null &&  resNotes.length>0) {
+          console.log(`After filtering: ${response.notes}`)
+          this.notes = resNotes; 
+          this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
+        }else{
+          console.log("No filtering")
+          this.nextId = 1; // Start from 1 if no notes exist
+        }
+      } catch (error) {
+        console.error("Error loading notes:", error);
+      }
+  },
     // Save all notes function
     async saveAllNotes() {
       try {
@@ -324,7 +320,6 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-          refresh: false,
           type: "classic", // Marking it as a classic note
         };
       } else if (addingNoteType === "List") {
@@ -334,7 +329,6 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-          refresh: false,
           type: "list", // Marking it as a list note
         };
       }
@@ -355,6 +349,7 @@ export default {
       }
       
     },
+  }
   };
 </script>
 

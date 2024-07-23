@@ -18,6 +18,7 @@ const apiClient = axios.create({
 // Load notes from the server
 export async function loadNotes() {
   try {
+    console.log(`Before filtering`)
     const notesResponse = await getAllNotes(); // Fetch notes from API
 
     const responseArray = JSON.parse(notesResponse.data);
@@ -28,6 +29,7 @@ export async function loadNotes() {
     ) {
       const notes = responseArray[0]; // Array of notes
       const occupancyStatus = responseArray[1][0]?.isOccupied || false; // Extract isOccupied value, default to false if not present
+      console.log(`Before filtering 2`)
       return {
         notes,
         occupancyStatus,
@@ -43,10 +45,13 @@ export async function loadNotes() {
 }
 // Save notes to the server
 export async function saveNotes(notes, isOccupiedFromServer) {
+  console.log(`before try/catch save`)
   try {
     // Prepara i dati delle note
-    const allNotes = notes.map((note) => {
+    const validNotes = notes.filter(note => note !== null && note !== undefined);
+    const allNotes = validNotes.map((note) => {
       if (note.type === "classic") {
+        console.log(`Save note`)
         return {
           id: note.id,
           title: note.title,
@@ -57,6 +62,7 @@ export async function saveNotes(notes, isOccupiedFromServer) {
           type: note.type,
         };
       } else if (note.type === "list") {
+        console.log(`save list`)
         return {
           id: note.id,
           title: note.title,
@@ -101,7 +107,9 @@ export async function updateNotes(noteId, updatedNote) {
     await saveNotes(notes, true);
     // Find index of the note to update
 
-    const noteIndex = notes.findIndex((note) => note.id === noteId);
+    const validNotes = notes.filter(note => note !== null && note !== undefined);
+
+    const noteIndex = validNotes.findIndex((note) => note.id === noteId);
     if (noteIndex === -1) {
       notes.push(updatedNote);
     }

@@ -172,7 +172,6 @@ export default {
         items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
-        refresh: this.refresh
       };
 
       try {
@@ -180,10 +179,11 @@ export default {
 
         this.isEditing = false;
         this.showEditIcon = false;
+        
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.refresh = true;
+      this.$emit("save")
     },
     // Delete note
     async deleteNote() {
@@ -193,10 +193,11 @@ export default {
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
         this.showEditIcon = false;
+        
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.refresh = true;
+      this.$emit("save")
     },
     // Cancel editing
     cancelEdit() {
@@ -204,7 +205,7 @@ export default {
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
-      this.refresh = true;
+      this.$emit("save")
     },
     // Start editing
     startEdit() {

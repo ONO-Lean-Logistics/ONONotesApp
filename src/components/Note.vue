@@ -134,32 +134,37 @@ export default {
 
       try {
         // Update the note using API service
+
         await updateNotes(this.noteId, editedNote); // Update only the specific note
         this.showEditIcon = false;
+        this.isEditing = false;
+        
       } catch (error) {
         console.error("Failed to save note:", error);
-      }
-      this.isEditing = false;
-      this.refresh = true;
+      };
+      this.$emit("save")
     },
     // Delete the note
     async deleteNote() {
-      try {
+      try {     
         // Load all notes, filter out the deleted note, and save
+
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
+        this.$emit("save")
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.refresh = true;
+
     },
     cancelEdit() {
+
       this.newTitle = this.title;
       this.newContent = this.content;
       this.showEditIcon = false;
-      this.refresh = true;    
+      this.$emit("save")
     },
     startEdit() {
       this.isEditing = true;
