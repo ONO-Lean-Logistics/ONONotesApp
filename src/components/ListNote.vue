@@ -32,6 +32,7 @@
       </ul>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
+      <div class="type">{{ type }}</div>
     </div>
     <!-- Delete Button -->
     <button
@@ -121,6 +122,13 @@ export default {
       type: Array,
       required: true,
     },
+    type: {
+      type: String,
+      required: true,
+      validator(value) {
+        return ['classic', 'list'].includes(value);
+      },
+    },
     utente: {
       type: String,
       required: true,
@@ -175,6 +183,7 @@ export default {
         items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
+        type: this.type,
       };
 
       try {
@@ -504,6 +513,13 @@ li {
 
 .cancel-btn:hover {
   background-color: #b9b9b9c5;
+}
+.type{
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
 }
 
 .utente {
