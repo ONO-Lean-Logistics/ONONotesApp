@@ -344,8 +344,6 @@ export default {
       try {
         // Save the new note using updateNotes function
         await updateNotes(newNote.id, newNote);
-
-        // Refresh the page after saving
       } catch (error) {
         console.error("Error saving the new note:", error);
       }
