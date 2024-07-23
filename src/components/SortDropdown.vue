@@ -1,30 +1,25 @@
 <template>
-  <div class="dropdown" ref="dropdown">
+  <div class="button-group" ref="buttonGroup">
     <button
-      class="btn btn-primary dropdown-toggle"
-      type="button"
-      id="sortDropdown"
-      @click="toggleDropdown"
+      class="btn btn-primary"
+      :class="{ active: selectedCriteria.includes('Time') }"
+      @click="setSortCriteria('Time')"
       :disabled="isOccupied"
     >
-      {{ printCriteria(selectedCriteria) }}
+      Time
+      <span v-if="selectedCriteria === 'Recent'"> ⭡</span>
+      <span v-if="selectedCriteria === 'Oldest'"> ⭣</span>
     </button>
-    <ul
-      class="dropdown-menu"
-      :class="{ show: dropdownVisible }"
-      aria-labelledby="sortDropdown"
+    <button
+      class="btn btn-primary"
+      :class="{ active: selectedCriteria.includes('Length') }"
+      @click="setSortCriteria('Length')"
+      :disabled="isOccupied"
     >
-      <li>
-        <a class="dropdown-item" @click.stop="toggleSortCriteriaTime()"
-          >Time</a
-        >
-      </li>
-      <li>
-        <a class="dropdown-item" @click.stop="toggleSortCriteriaLength()"
-          >Length</a
-        >
-      </li>
-    </ul>
+      Length
+      <span v-if="selectedCriteria === 'Most'"> ⭡</span>
+      <span v-if="selectedCriteria === 'Least'"> ⭣</span>
+    </button>
   </div>
 </template>
 
@@ -38,69 +33,32 @@ export default {
   },
   data() {
     return {
-      dropdownVisible: false,
-      selectedCriteria: localStorage.getItem("sortCriteria") || "Oldest", // Default to Recent if no criteria is set
+      selectedCriteria: localStorage.getItem("sortCriteria") || "Oldest", // Default to "Oldest" if no criteria is set
     };
   },
   methods: {
-    printCriteria(selectedCriteria) {
-      switch (selectedCriteria) {
-        case "Oldest":
-          return "Time ⭣";
-        case "Recent":
-          return "Time ⭡";
-        case "Most":
-          return "Length ⭡";
-        case "Least":
-          return "Length ⭣";
-        default:
-          return "Time ⭣";
+    setSortCriteria(type) {
+      if (type === 'Time') {
+        this.selectedCriteria =
+          this.selectedCriteria === "Recent" ? "Oldest" : "Recent";
+      } else if (type === 'Length') {
+        this.selectedCriteria =
+          this.selectedCriteria === "Most" ? "Least" : "Most";
       }
-    },
-    toggleDropdown() {
-      this.dropdownVisible = !this.dropdownVisible;
-    },
-    handleClickOutside(event) {
-      const dropdownElement = this.$refs.dropdown;
-      // Check if the click is outside the dropdown
-      if (dropdownElement && !dropdownElement.contains(event.target)) {
-        this.dropdownVisible = false; // Close dropdown
-      }
-    },
-    toggleSortCriteriaTime() {
-      this.selectedCriteria =
-        this.selectedCriteria === "Recent" ? "Oldest" : "Recent";
-      this.dropdownVisible = false;
       localStorage.setItem("sortCriteria", this.selectedCriteria); // Store selected criteria in localStorage
       this.$emit("select-sort-criteria", this.selectedCriteria);
     },
-    toggleSortCriteriaLength() {
-      this.selectedCriteria =
-        this.selectedCriteria === "Most" ? "Least" : "Most";
-      this.dropdownVisible = false;
-      localStorage.setItem("sortCriteria", this.selectedCriteria); // Store selected criteria in localStorage
-      this.$emit("select-sort-criteria", this.selectedCriteria);
-    },
-  },
-  mounted() {
-    // Add event listener to the document to handle clicks
-    document.addEventListener("click", this.handleClickOutside);
-  },
-  beforeUnmount() {
-    // Clean up: Remove event listener when component is destroyed
-    document.removeEventListener("click", this.handleClickOutside);
   },
 };
 </script>
 
 <style scoped>
-.dropdown {
-  position: relative;
-  display: inline-block;
+.button-group {
+  display: flex;
+  gap: 8px; /* Adjust spacing between buttons */
 }
 
 .btn {
-  position: relative;
   padding: 8px 16px;
   font-size: 14px;
   background-color: #7c7c7c00;
@@ -115,45 +73,12 @@ export default {
   background-color: #ebebeb1a;
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  display: none;
-  background-color: #fff;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  list-style: none;
-  text-align: center;
-  padding: 8px 0;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 1000; /* Ensure dropdown is above other elements */
+.btn.active {
+  background-color: #007bff; /* Active button background color */
+  color: #fff; /* Active button text color */
 }
 
-.dropdown-menu.show {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.dropdown-item {
-  display: block;
-  padding: 10px 20px;
-  clear: both;
-  font-weight: 400;
-  color: #333;
-  white-space: nowrap;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.dropdown-item:hover {
-  background-color: #f8f9fa;
+.btn.active span {
+  font-weight: bold; /* Make the arrow bold in active state */
 }
 </style>
