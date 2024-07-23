@@ -38,6 +38,7 @@
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div> <!-- Display note type -->
     </div>
+    
     <!-- Delete Button -->
     <button
       v-if="showEditIcon && !isEditing"
