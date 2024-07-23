@@ -163,6 +163,7 @@ export default {
   methods: {
     async refreshQuery() {
       
+      
       // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
