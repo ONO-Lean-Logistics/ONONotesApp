@@ -30,15 +30,10 @@
           </div>
         </li>
       </ul>
-      <div v-if="type === 'classic'" class="classic-content">
-        <!-- Classic note content -->
-        <p>{{ items[0].text }}</p>
-      </div>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
-      <div class="type">{{ type }}</div> <!-- Display note type -->
+      <div class="type">{{ type }}</div>
     </div>
-    
     <!-- Delete Button -->
     <button
       v-if="showEditIcon && !isEditing"
@@ -48,7 +43,6 @@
       <i class="fa-solid fa-trash-can"></i>
     </button>
   </div>
-
   <!-- Modal for editing -->
   <div v-else class="modal" @click.stop="handleClickOutside">
     <div class="modal-content">
@@ -94,14 +88,6 @@
           </div>
         </li>
       </ul>
-      <div v-if="type === 'classic'">
-        <!-- Input for classic note content -->
-        <textarea
-          v-model="newItems[0].text"
-          class="edit-textarea"
-          :placeholder="placeholderText"
-        ></textarea>
-      </div>
       <!-- Button to add new item -->
       <button @click="addItem" class="add-btn">
         <i class="fa-solid fa-plus"></i>
@@ -136,6 +122,13 @@ export default {
       type: Array,
       required: true,
     },
+    type: {
+      type: String,
+      required: true,
+      validator(value) {
+        return ['classic', 'list'].includes(value);
+      },
+    },
     utente: {
       type: String,
       required: true,
@@ -143,13 +136,6 @@ export default {
     timestamp: {
       type: [String, Number],
       required: true,
-    },
-    type: {
-      type: String,
-      required: true,
-      validator(value) {
-        return ['classic', 'list'].includes(value);
-      },
     },
   },
   data() {
@@ -170,21 +156,22 @@ export default {
     title(newVal) {
       this.newTitle = newVal;
     },
-     // Update newItems when items prop changes
+    // Update newItems when items prop changes
     items(newVal) {
       this.newItems = newVal.map((item) => ({ ...item }));
     },
-        // Update formattedTimestamp when timestamp prop changes
+    // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
   mounted() {
-     // Format timestamp on component mount
+    // Format timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
   methods: {
+
     // Save edited note
     async saveEdit() {
       const editedNote = {
@@ -193,7 +180,7 @@ export default {
         items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
-        type: this.type, // Include type in saved note
+        type: this.type,
       };
 
       try {
@@ -201,13 +188,12 @@ export default {
 
         this.isEditing = false;
         this.showEditIcon = false;
-        
       } catch (error) {
         console.error("Failed to save note:", error);
       }
       this.$emit("save")
     },
-        // Delete note
+    // Delete note
     async deleteNote() {
       try {
         const { notes } = await loadNotes();
@@ -215,13 +201,12 @@ export default {
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
         this.showEditIcon = false;
-        
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
       this.$emit("save")
     },
-        // Cancel editing
+    // Cancel editing
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
@@ -229,18 +214,18 @@ export default {
       this.showEditIcon = false;
       this.$emit("save")
     },
-        // Start editing
+    // Start editing
     startEdit() {
       this.isEditing = true;
     },
-        // Handle click outside modal
+    // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
         this.isEditing = false;
       }
     },
-        // Format timestamp to readable format
+    // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -262,22 +247,22 @@ export default {
       } else {
         return text.substring(0, this.maxCharsPerLine) + "...";
       }
-        },
+    },
     // Generate unique ID
     generateUniqueId(prefix, index = "") {
       return `${prefix}-${this._uid}-${index}`;
     },
-        // Toggle completion status of item
+    // Toggle completion status of item
     toggleItemCompleted(index) {
       if (this.newItems[index]) {
         this.newItems[index].completed = !this.newItems[index].completed;
       }
     },
-     // Add new item
+    // Add new item
     addItem() {
       this.newItems.push({ text: "", completed: false });
     },
-     // Remove item at index
+    // Remove item at index
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
@@ -419,6 +404,54 @@ li {
   white-space: pre-wrap;
   max-width: 100%;
 }
+
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  outline: none;
+}
+
+.edit-textarea {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 10px;
+  resize: none;
+  border: none;
+  outline: none;
+}
+
+.add-btn {
+  color: #4caf50;
+  background-color: transparent;
+  border-color: transparenT;
+  cursor: pointer;
+}
+
+.remove-btn {
+  color: red;
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.edit-actions button {
+  margin-left: 10px;
+}
 .save-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
@@ -478,110 +511,6 @@ li {
 .cancel-btn:hover {
   background-color: #b9b9b9c5;
 }
-
-.edit-title {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none;
-  outline: none;
-}
-
-.edit-textarea {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 14px;
-  padding: 10px;
-  resize: none;
-  border: none;
-  outline: none;
-}
-
-.add-btn {
-  color: #4caf50;
-  background-color: transparent;
-  border-color: transparenT;
-  cursor: pointer;
-}
-
-.remove-btn {
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-  cursor: pointer;
-}
-
-.edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.edit-actions button {
-  margin-left: 10px;
-}
-
-
-  .delete-btn-modal {
-  position: absolute;
-  cursor: pointer;
-  font-size: 70%;
-  bottom: 10px;
-  left: 10px;
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-}
-.delete-btn {
-  position: absolute;
-  cursor: pointer;
-  top: 5px;
-  right: 5px;
-  font-size: 70%;
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-}
-.save-btn {
-  font-size: 16px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border-color: #b9b9b92f;
-  background-color: #b9b9b92f;
-}
-.save-btn:hover {
-  border-color: #b9b9b9c4;
-  background-color: #b9b9b9c5;
-}
-.cancel-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 16px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border-radius: 30%;
-  border-color: #b9b9b92f;
-  background-color: #b9b9b92f;
-}
-.cancel-btn:hover {
-  border-color: #b9b9b9c4;
-  background-color: #b9b9b9c5;
-}
 .type{
   color: rgb(196, 196, 196);
   position: absolute;
@@ -589,6 +518,7 @@ li {
   left: 5px;
   font-size: 8px;
 }
+
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
