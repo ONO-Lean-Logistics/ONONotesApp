@@ -163,10 +163,7 @@ export default {
     this.isEditing = false;
   },
   methods: {
-    // Refresh the page
-    refreshPage() {
-      window.location.reload();
-    },
+
     // Save edited note
     async saveEdit() {
       const editedNote = {
@@ -185,7 +182,7 @@ export default {
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.refreshPage();
+      this.$emit("save")
     },
     // Delete note
     async deleteNote() {
@@ -198,7 +195,7 @@ export default {
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.refreshPage();
+      this.$emit("save")
     },
     // Cancel editing
     cancelEdit() {
@@ -206,7 +203,7 @@ export default {
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
-      this.refreshPage();
+      this.$emit("save")
     },
     // Start editing
     startEdit() {
