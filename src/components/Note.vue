@@ -56,7 +56,7 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
+        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -169,9 +169,9 @@ export default {
 
     },
     cancelEdit() {
-
       this.newTitle = this.title;
-      this.newContent = this.content;
+      this.newItems = this.items.map((item) => ({ ...item }));
+      this.isEditing = false;
       this.showEditIcon = false;
       this.$emit("save")
     },
