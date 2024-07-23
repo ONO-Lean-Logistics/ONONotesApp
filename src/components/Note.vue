@@ -170,7 +170,6 @@ export default {
     },
     cancelEdit() {
       this.newTitle = this.title;
-      this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
       this.$emit("save")
@@ -428,13 +427,10 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color:var(
+    --note-background-color
+  );
   border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.cancel-btn:hover {
-  background-color: #b9b9b9c5;
 }
 .type{
   color: rgb(196, 196, 196);
