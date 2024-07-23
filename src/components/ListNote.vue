@@ -184,8 +184,7 @@ export default {
     this.isEditing = false;
   },
   methods: {
-
-      // Save edited note
+    // Save edited note
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
