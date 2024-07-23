@@ -71,6 +71,7 @@
             />
             <!-- Input for editing item text -->
             <input
+              v-if="showAddInput"
               v-model="newItems[idx].text"
               class="edit-textarea"
               :class="{ completed: item.completed }"
@@ -90,14 +91,14 @@
       </ul>
       <!-- Input and Button to add new item -->
       <div class="add-item-container">
-        
-        <button @click="addItem" class="add-btn">
+        <button @click="toggleAddInput" class="add-btn">
           <i class="fa-solid fa-plus"></i>
         </button>
-        <input 
-          type="text" 
-          v-model="newItemText" 
-          @keyup.enter="addItem" 
+        <input
+          v-if="showAddInput"
+          type="text"
+          v-model="newItemText"
+          @keyup.enter="handleKeyup"
           placeholder="Add new item"
           class="new-item-input"
         />
@@ -161,7 +162,8 @@ export default {
       maxTitleLength: 25, // Default char limit per title
       maxCharsPerLine: 28, // Default char limit per line
       formattedTimestamp: "",
-      hoverIndex: null, // Track the index of the hovered item
+      hoverIndex: null,
+      showAddInput: false, // Track whether to show the new item input
     };
   },
   watch: {
@@ -184,7 +186,6 @@ export default {
     this.isEditing = false;
   },
   methods: {
-
     // Save edited note
     async saveEdit() {
       const editedNote = {
@@ -203,7 +204,7 @@ export default {
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.$emit("save")
+      this.$emit("save");
     },
     // Delete note
     async deleteNote() {
@@ -216,7 +217,7 @@ export default {
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.$emit("save")
+      this.$emit("save");
     },
     // Cancel editing
     cancelEdit() {
@@ -224,7 +225,7 @@ export default {
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
-      this.$emit("save")
+      this.$emit("save");
     },
     // Start editing
     startEdit() {
@@ -266,11 +267,22 @@ export default {
         this.items[index].completed = !this.items[index].completed;
       }
     },
-    // Add new item
+    // Toggle the visibility of the new item input field
+    toggleAddInput() {
+      this.showAddInput = !this.showAddInput;
+    },
+    // Add new item to the list
     addItem() {
       if (this.newItemText.trim() !== '') {
         this.newItems.push({ text: this.newItemText.trim(), completed: false });
         this.newItemText = ''; // Clear the input field
+        this.showAddInput = false; // Hide the input field after adding
+      }
+    },
+    // Handle Enter key press to add new item
+    handleKeyup(event) {
+      if (event.key === 'Enter') {
+        this.addItem();
       }
     },
     // Remove item at index
@@ -281,7 +293,6 @@ export default {
 };
 </script>
 
-</script>
 
 
 
@@ -507,7 +518,7 @@ li {
   border: none;
   background-color: #b9b9b92f;
   border-radius: 0;
-  transition: background-color 0.3s ease; 
+  transition: background-color 0.3s ease;
 }
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
