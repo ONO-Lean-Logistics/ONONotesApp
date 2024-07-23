@@ -15,8 +15,8 @@
       <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
       <pre style="font-size: 16px" v-if="content">{{
-          truncateContent(content)
-        }}</pre>
+        truncateContent(content)
+      }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
@@ -56,7 +56,9 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
+        <button @click.stop="cancelEdit" class="cancel-btn">
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -97,7 +99,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['classic', 'list'].includes(value);
+        return ["classic", "list"].includes(value);
       },
     },
   },
@@ -147,32 +149,30 @@ export default {
         await updateNotes(this.noteId, editedNote); // Update only the specific note
         this.showEditIcon = false;
         this.isEditing = false;
-        
       } catch (error) {
         console.error("Failed to save note:", error);
-      };
-      this.$emit("save")
+      }
+      this.$emit("save");
     },
     // Delete the note
     async deleteNote() {
-      try {     
+      try {
         // Load all notes, filter out the deleted note, and save
 
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
-        this.$emit("save")
+        this.$emit("save");
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-
     },
     cancelEdit() {
       this.newTitle = this.title;
       this.isEditing = false;
       this.showEditIcon = false;
-      this.$emit("save")
+      this.$emit("save");
     },
     startEdit() {
       this.isEditing = true;
@@ -389,7 +389,7 @@ textarea {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.delete-btn-modal{
+.delete-btn-modal {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
   right: 80px;
@@ -402,10 +402,11 @@ textarea {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.save-btn:hover, .delete-btn-modal:hover {
+.save-btn:hover,
+.delete-btn-modal:hover {
   background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
 }
-.delete-btn{
+.delete-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
@@ -416,7 +417,7 @@ textarea {
   border: none;
   background-color: #b9b9b92f;
   border-radius: 0;
-  transition: background-color 0.3s ease; 
+  transition: background-color 0.3s ease;
 }
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
@@ -427,12 +428,10 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.type{
+.type {
   color: rgb(196, 196, 196);
   position: absolute;
   top: 5px;

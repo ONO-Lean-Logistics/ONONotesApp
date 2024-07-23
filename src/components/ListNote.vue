@@ -71,7 +71,6 @@
             />
             <!-- Input for editing item text -->
             <input
-              v-if="showAddInput"
               v-model="newItems[idx].text"
               class="edit-textarea"
               :class="{ completed: item.completed }"
@@ -108,15 +107,14 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
+        <button @click.stop="cancelEdit" class="cancel-btn">
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
   </div>
 </template>
-
-
-
 
 <script>
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
@@ -140,7 +138,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['classic', 'list'].includes(value);
+        return ["classic", "list"].includes(value);
       },
     },
     utente: {
@@ -156,7 +154,7 @@ export default {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
-      newItemText: '', // New data property for the new item text input
+      newItemText: "", // New data property for the new item text input
       isEditing: false,
       showEditIcon: false,
       maxTitleLength: 25, // Default char limit per title
@@ -241,8 +239,12 @@ export default {
     // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
-      const day = date.toLocaleDateString("en-US", { day: "numeric" }).padStart(2, "0");
-      const month = date.toLocaleDateString("en-US", { month: "numeric" }).padStart(2, "0");
+      const day = date
+        .toLocaleDateString("en-US", { day: "numeric" })
+        .padStart(2, "0");
+      const month = date
+        .toLocaleDateString("en-US", { month: "numeric" })
+        .padStart(2, "0");
       const year = date.getFullYear();
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -267,34 +269,28 @@ export default {
         this.items[index].completed = !this.items[index].completed;
       }
     },
-    // Toggle the visibility of the new item input field
-    toggleAddInput() {
-      this.showAddInput = !this.showAddInput;
-    },
-    // Add new item to the list
-    addItem() {
-      if (this.newItemText.trim() !== '') {
-        this.newItems.push({ text: this.newItemText.trim(), completed: false });
-        this.newItemText = ''; // Clear the input field
-        this.showAddInput = false; // Hide the input field after adding
-      }
-    },
-    // Handle Enter key press to add new item
-    handleKeyup(event) {
-      if (event.key === 'Enter') {
-        this.addItem();
-      }
-    },
-    // Remove item at index
+    // Remove item
     removeItem(index) {
       this.newItems.splice(index, 1);
+    },
+    // Handle keyup event for adding item
+    handleKeyup(event) {
+      if (event.key === "Enter" && this.newItemText.trim()) {
+        this.newItems.push({ text: this.newItemText, completed: false });
+        this.newItemText = ""; // Clear input after adding
+        this.showAddInput = false;
+      }
+    },
+    // Toggle add item input visibility
+    toggleAddInput() {
+      this.showAddInput = !this.showAddInput;
+      if (this.showAddInput) {
+        this.$nextTick(() => this.$refs.newItemInput.focus());
+      }
     },
   },
 };
 </script>
-
-
-
 
 <style scoped>
 @import "../assets/main.css";
@@ -491,7 +487,7 @@ li {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.delete-btn-modal{
+.delete-btn-modal {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
   right: 80px;
@@ -504,10 +500,11 @@ li {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.save-btn:hover, .delete-btn-modal:hover {
+.save-btn:hover,
+.delete-btn-modal:hover {
   background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
 }
-.delete-btn{
+.delete-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
@@ -529,12 +526,10 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.type{
+.type {
   color: rgb(196, 196, 196);
   position: absolute;
   top: 5px;
