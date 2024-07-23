@@ -22,6 +22,7 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
+      <h2>Benvenuto <br> {{ this.utente }}</h2>
     </div>
     <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
@@ -134,7 +135,7 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: ""
+      utente: "",
     };
   },
  
@@ -323,6 +324,7 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
+
           type: "classic", // Marking it as a classic note
         };
       } else if (addingNoteType === "list") {
@@ -340,7 +342,6 @@ export default {
       if(newNote != null){
         console.log(newNote);
         this.notes.push(newNote); // Add the note to the list
-
       try {
         // Save the new note using updateNotes function
         await updateNotes(newNote.id, newNote);
@@ -394,6 +395,11 @@ export default {
   flex-shrink: 0; /* Prevent shrinking */
 }
 
+.header h2 {
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
 .header button.clear-button {
   margin-left: 10px;
     background: none;
