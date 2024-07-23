@@ -70,6 +70,7 @@
               :utente="note.utente"
               :note-id="note.id"
               :index="index"
+              :type="note.type"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery()"
             />
@@ -80,6 +81,7 @@
               :timestamp="note.timestamp"
               :utente="note.utente"
               :note-id="note.id"
+              :type="note.type"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery()"
             />
@@ -87,7 +89,7 @@
           <template v-else-if="note && note.isAddButton">
             <!-- Render add button -->
             <div class="note add-note">
-              <div @click="addNote('Classic')" class="add-button-classic">
+              <div @click="addNote('classic')" class="add-button-classic">
                 <!-- Add Classic Note -->
                 <i class="fas fa-plus"></i>
                 <span>Nota</span>
@@ -314,7 +316,7 @@ export default {
       let newNote;
 
       // Differentiating the type of notes
-      if (addingNoteType === "Classic") {
+      if (addingNoteType === "classic") {
         newNote = {
           title: "",
           content: "",
@@ -323,7 +325,7 @@ export default {
           utente: this.utente,
           type: "classic", // Marking it as a classic note
         };
-      } else if (addingNoteType === "List") {
+      } else if (addingNoteType === "list") {
         newNote = {
           title: "",
           items: [],

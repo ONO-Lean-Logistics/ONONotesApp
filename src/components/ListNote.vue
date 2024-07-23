@@ -30,8 +30,13 @@
           </div>
         </li>
       </ul>
+      <div v-if="type === 'classic'" class="classic-content">
+        <!-- Classic note content -->
+        <p>{{ items[0].text }}</p>
+      </div>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
+      <div class="type">{{ type }}</div> <!-- Display note type -->
     </div>
     <!-- Delete Button -->
     <button
@@ -42,6 +47,7 @@
       <i class="fa-solid fa-trash-can"></i>
     </button>
   </div>
+
   <!-- Modal for editing -->
   <div v-else class="modal" @click.stop="handleClickOutside">
     <div class="modal-content">
@@ -87,6 +93,14 @@
           </div>
         </li>
       </ul>
+      <div v-if="type === 'classic'">
+        <!-- Input for classic note content -->
+        <textarea
+          v-model="newItems[0].text"
+          class="edit-textarea"
+          :placeholder="placeholderText"
+        ></textarea>
+      </div>
       <!-- Button to add new item -->
       <button @click="addItem" class="add-btn">
         <i class="fa-solid fa-plus"></i>
@@ -129,6 +143,13 @@ export default {
       type: [String, Number],
       required: true,
     },
+    type: {
+      type: String,
+      required: true,
+      validator(value) {
+        return ['classic', 'list'].includes(value);
+      },
+    },
   },
   data() {
     return {
@@ -148,23 +169,23 @@ export default {
     title(newVal) {
       this.newTitle = newVal;
     },
-    // Update newItems when items prop changes
+     // Update newItems when items prop changes
     items(newVal) {
       this.newItems = newVal.map((item) => ({ ...item }));
     },
-    // Update formattedTimestamp when timestamp prop changes
+        // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
   mounted() {
-    // Format timestamp on component mount
+     // Format timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
   methods: {
 
-    // Save edited note
+      // Save edited note
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -172,6 +193,7 @@ export default {
         items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
+        type: this.type, // Include type in saved note
       };
 
       try {
@@ -185,7 +207,7 @@ export default {
       }
       this.$emit("save")
     },
-    // Delete note
+        // Delete note
     async deleteNote() {
       try {
         const { notes } = await loadNotes();
@@ -199,7 +221,7 @@ export default {
       }
       this.$emit("save")
     },
-    // Cancel editing
+        // Cancel editing
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
@@ -207,18 +229,18 @@ export default {
       this.showEditIcon = false;
       this.$emit("save")
     },
-    // Start editing
+        // Start editing
     startEdit() {
       this.isEditing = true;
     },
-    // Handle click outside modal
+        // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
         this.isEditing = false;
       }
     },
-    // Format timestamp to readable format
+        // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -240,22 +262,22 @@ export default {
       } else {
         return text.substring(0, this.maxCharsPerLine) + "...";
       }
-    },
+        },
     // Generate unique ID
     generateUniqueId(prefix, index = "") {
       return `${prefix}-${this._uid}-${index}`;
     },
-    // Toggle completion status of item
+        // Toggle completion status of item
     toggleItemCompleted(index) {
       if (this.newItems[index]) {
         this.newItems[index].completed = !this.newItems[index].completed;
       }
     },
-    // Add new item
+     // Add new item
     addItem() {
       this.newItems.push({ text: "", completed: false });
     },
-    // Remove item at index
+     // Remove item at index
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
@@ -397,6 +419,51 @@ li {
   white-space: pre-wrap;
   max-width: 100%;
 }
+.save-btn, .delete-btn-modal {
+  font-size: 16px;
+  padding: 10px 15px; /* Regola il padding come preferisci */
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f; /* Colore di sfondo base */
+  border-color: transparent;
+  border-radius: 0; /* Assicura che i bordi siano squadrati */
+  transition: background-color 0.3s ease;
+}
+
+.save-btn:hover, .delete-btn-modal:hover {
+  background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
+}
+.delete-btn{
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 10px;
+  right: 15px;
+  font-size: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease; 
+}
+.cancel-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 18px;
+  right: 28px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #b9b9b9c5;
+}
 
 .edit-title {
   background-color: var(--note-background-color);
@@ -446,7 +513,8 @@ li {
   margin-left: 10px;
 }
 
-.delete-btn-modal {
+
+  .delete-btn-modal {
   position: absolute;
   cursor: pointer;
   font-size: 70%;
@@ -499,6 +567,13 @@ li {
 .cancel-btn:hover {
   border-color: #b9b9b9c4;
   background-color: #b9b9b9c5;
+}
+.type{
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
 }
 .utente {
   color: rgb(196, 196, 196);

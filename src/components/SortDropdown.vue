@@ -44,15 +44,15 @@ export default {
   methods: {
     printCriteria(selectedCriteria) {
       if (selectedCriteria == "Oldest") {
-        return "Old>Rec";
+        return "Time ⭣";
       } else if (selectedCriteria == "Recent") {
-        return "Rec>Old";
+        return "Time ⭡";
       } else if (selectedCriteria == "Most") {
-        return "Più>Meno";
+        return "Lenght ⭡";
       } else if (selectedCriteria == "Least") {
-        return "Meno>Più";
+        return "Lenght ⭣";
       } else {
-        return "Old>Rec";
+        return "Time ⭣";
       }
     },
     toggleDropdown() {
@@ -93,11 +93,12 @@ export default {
 
 <style scoped>
 .dropdown {
-  position: relative;
+  position: absloute;
   display: inline-block;
 }
 
 .btn {
+  position:absolute;
   padding: 8px 16px;
   font-size: 14px;
   background-color: #7c7c7c00;
@@ -137,7 +138,7 @@ export default {
   pointer-events: auto;
 }
 .dropdown-item {
-  text-align: center;
+  position:absolute;
   display: block;
   padding: 10px 20px;
   clear: both;
