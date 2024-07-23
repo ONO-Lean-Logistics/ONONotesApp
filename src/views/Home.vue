@@ -161,6 +161,25 @@ export default {
   created(){
     this.refreshQuery();
   },
+  async mounted() {
+    // Retrieve user information from session storage
+    let operatorName = sessionStorage.getItem("operatorName");
+    let operatorSurname = sessionStorage.getItem("operatorSurname");
+    this.utente = `${operatorName} ${operatorSurname}`;
+    // Load notes from server
+    try {
+      const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
+      this.notes = response.notes;
+      if (this.notes.length > 0) {
+        const lastId = Math.max(...this.notes.map((note) => note.id));
+        this.nextId = lastId + 1;
+      } else {
+        this.nextId = 1; // Start from 1 if no notes exist
+      }
+    } catch (error) {
+      console.error("Error loading notes:", error);
+    }
+  },
 
   methods: {
     async refreshQuery() {
