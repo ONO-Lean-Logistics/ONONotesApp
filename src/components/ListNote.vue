@@ -465,7 +465,6 @@ li {
     --note-background-color
   );
   border-radius: 0;
-  transition: background-color 0.3s ease;
 }
 .delete-btn-modal{
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
@@ -478,13 +477,10 @@ li {
   border: none;
   background-color: var(
     --note-background-color
-  );;
+  );
   border-radius: 0;
-  transition: background-color 0.3s ease;
 }
-.save-btn:hover, .delete-btn-modal:hover {
-  background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
-}
+
 .delete-btn{
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
@@ -498,7 +494,6 @@ li {
     --note-background-color
   );
   border-radius: 0;
-  transition: background-color 0.3s ease; 
 }
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
