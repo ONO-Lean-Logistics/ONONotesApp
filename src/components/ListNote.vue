@@ -44,7 +44,7 @@
     </button>
   </div>
   <!-- Modal for editing -->
-  <div v-else class="modal" @click.stop="handleClickOutside">
+  <div v-else class="modal" @click="handleClickOutside">
     <div class="modal-content">
       <!-- Input for editing title -->
       <input
@@ -88,10 +88,20 @@
           </div>
         </li>
       </ul>
-      <!-- Button to add new item -->
-      <button @click="addItem" class="add-btn">
-        <i class="fa-solid fa-plus"></i>
-      </button>
+      <!-- Input and Button to add new item -->
+      <div class="add-item-container">
+        
+        <button @click="addItem" class="add-btn">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <input 
+          type="text" 
+          v-model="newItemText" 
+          @keyup.enter="addItem" 
+          placeholder="Add new item"
+          class="new-item-input"
+        />
+      </div>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
@@ -103,6 +113,9 @@
     </div>
   </div>
 </template>
+
+
+
 
 <script>
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
@@ -142,13 +155,13 @@ export default {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
+      newItemText: '', // New data property for the new item text input
       isEditing: false,
       showEditIcon: false,
-      showIcons: false,
       maxTitleLength: 25, // Default char limit per title
       maxCharsPerLine: 28, // Default char limit per line
       formattedTimestamp: "",
-      hoverIndex: null, // Add this line to track the index of the hovered item
+      hoverIndex: null, // Track the index of the hovered item
     };
   },
   watch: {
@@ -185,7 +198,6 @@ export default {
 
       try {
         await updateNotes(this.noteId, editedNote); // Update the specific note
-
         this.isEditing = false;
         this.showEditIcon = false;
       } catch (error) {
@@ -228,12 +240,8 @@ export default {
     // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
-      const day = date
-        .toLocaleDateString("en-US", { day: "numeric" })
-        .padStart(2, "0");
-      const month = date
-        .toLocaleDateString("en-US", { month: "numeric" })
-        .padStart(2, "0");
+      const day = date.toLocaleDateString("en-US", { day: "numeric" }).padStart(2, "0");
+      const month = date.toLocaleDateString("en-US", { month: "numeric" }).padStart(2, "0");
       const year = date.getFullYear();
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
@@ -254,13 +262,16 @@ export default {
     },
     // Toggle completion status of item
     toggleItemCompleted(index) {
-      if (this.newItems[index]) {
-        this.newItems[index].completed = !this.newItems[index].completed;
+      if (this.items[index]) {
+        this.items[index].completed = !this.items[index].completed;
       }
     },
     // Add new item
     addItem() {
-      this.newItems.push({ text: "", completed: false });
+      if (this.newItemText.trim() !== '') {
+        this.newItems.push({ text: this.newItemText.trim(), completed: false });
+        this.newItemText = ''; // Clear the input field
+      }
     },
     // Remove item at index
     removeItem(index) {
@@ -269,6 +280,10 @@ export default {
   },
 };
 </script>
+
+</script>
+
+
 
 <style scoped>
 @import "../assets/main.css";

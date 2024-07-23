@@ -15,8 +15,8 @@
       <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
       <pre style="font-size: 16px" v-if="content">{{
-        truncateContent(content)
-      }}</pre>
+          truncateContent(content)
+        }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>

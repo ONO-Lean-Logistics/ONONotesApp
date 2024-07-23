@@ -517,7 +517,7 @@ export default {
   display: block;
   justify-content: center;
   background-color: transparent;
-  color: var(--note-text-color);
+  color: var(note-text-color);
   overflow: hidden;
   transition: opacity 0.8s ease; /* Add opacity transition */
 }
