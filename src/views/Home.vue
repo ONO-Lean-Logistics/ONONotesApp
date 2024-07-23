@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="header">
       <!-- Title -->
-      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshPage">
+      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
         Memo
       </h1>
       <!-- Search bar with search functionality -->
@@ -17,13 +17,11 @@
           id="searchInput"
           @input="handleSearchInput"
         />
-        <i
-          v-if="searchQuery"
-          class="fas fa-times-circle clear-icon"
-          @click="clearSearch"
-        ></i>
+        <!--Clear search-->
       </div>
-      
+      <button @click="clearSearch" class="clear-button">
+        <img src="../assets/X_icon.svg" alt="Clear" />
+      </button>
     </div>
     <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
@@ -74,6 +72,7 @@
               :index="index"
               :type="note.type"
               @update-note="updateNote(index, $event.action, $event.data)"
+              @save="refreshQuery()"
             />
             <ListNote
               v-else-if="note.type === 'list'"
@@ -84,6 +83,7 @@
               :note-id="note.id"
               :type="note.type"
               @update-note="updateNote(index, $event.action, $event.data)"
+              @save="refreshQuery()"
             />
           </template>
           <template v-else-if="note && note.isAddButton">
@@ -134,9 +134,10 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: "",
+      utente: ""
     };
   },
+ 
   computed: {
     // Filtered notes based on search query
     filteredNotes() {
@@ -155,32 +156,43 @@ export default {
       notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
       return notesWithAddButton;
     },
+  
+  },
+  created(){
+    this.refreshQuery();
   },
 
-  async mounted() {
-    // Retrieve user information from session storage
-    let operatorName = sessionStorage.getItem("operatorName");
-    let operatorSurname = sessionStorage.getItem("operatorSurname");
-    this.utente = `${operatorName} ${operatorSurname}`;
-    // Load notes from server
-    try {
-      const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-      this.notes = response.notes;
-      if (this.notes.length > 0) {
-        const lastId = Math.max(...this.notes.map((note) => note.id));
-        this.nextId = lastId + 1;
-      } else {
-        this.nextId = 1; // Start from 1 if no notes exist
-      }
-    } catch (error) {
-      console.error("Error loading notes:", error);
-    }
-  },
   methods: {
-    // Refresh page function
-    refreshPage() {
-      window.location.reload();
-    },
+    async refreshQuery() {
+      
+      // Retrieve user information from session storage
+      let operatorName = sessionStorage.getItem("operatorName");
+      let operatorSurname = sessionStorage.getItem("operatorSurname");
+      this.utente = `${operatorName} ${operatorSurname}`;
+      console.log(`Before filtering:`)
+      // Load notes from server
+      try {
+        
+        const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
+        console.log(`Before filtering: ${response}`)
+        let resNotes = response.notes
+
+        if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
+          // Filter out any notes that do not have an id property
+          resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
+        }
+        if(resNotes != null &&  resNotes.length>0) {
+          console.log(`After filtering: ${response.notes}`)
+          this.notes = resNotes; 
+          this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
+        }else{
+          console.log("No filtering")
+          this.nextId = 1; // Start from 1 if no notes exist
+        }
+      } catch (error) {
+        console.error("Error loading notes:", error);
+      }
+  },
     // Save all notes function
     async saveAllNotes() {
       try {
@@ -208,8 +220,9 @@ export default {
     },
     // Clear search query
     clearSearch() {
-      this.searchQuery = "";
-    },
+        this.searchQuery = '';
+        this.$emit('input', this.searchQuery);
+      },
     // Handle input in the search bar
     handleSearchInput() {
       // Adjust the search input width based on content
@@ -323,20 +336,23 @@ export default {
       }
 
       this.nextId++; // Increment the next ID
-      this.notes.push(newNote); // Add the note to the list
+      if(newNote != null){
+        console.log(newNote);
+        this.notes.push(newNote); // Add the note to the list
 
       try {
         // Save the new note using updateNotes function
         await updateNotes(newNote.id, newNote);
 
         // Refresh the page after saving
-        //this.refreshPage();
       } catch (error) {
         console.error("Error saving the new note:", error);
       }
+      }
+      
     },
-  },
-};
+  }
+  };
 </script>
 
 <style scoped>
@@ -348,8 +364,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: var(--background-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  
 }
 
 /* Home container */
@@ -365,6 +380,8 @@ export default {
   display: flex;
   align-items: center;
   gap: 15px;
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
   margin-bottom: 1.5%;
   height: 40px; /* Ensure height allows alignment */
   position: relative;
@@ -377,6 +394,14 @@ export default {
   margin: 0; /* Remove margin for better alignment */
   flex-shrink: 0; /* Prevent shrinking */
 }
+
+.header button.clear-button {
+  margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
 
 /* Search container */
 .search-container {
@@ -568,5 +593,6 @@ export default {
   .search-input {
     margin-left: 0; /* Adjust to ensure proper spacing */
   }
+
 }
 </style>

@@ -131,9 +131,6 @@ export default {
     this.isEditing = false;
   },
   methods: {
-    refreshPage() {
-      window.location.reload();
-    },
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -146,32 +143,37 @@ export default {
 
       try {
         // Update the note using API service
+
         await updateNotes(this.noteId, editedNote); // Update only the specific note
         this.showEditIcon = false;
+        this.isEditing = false;
+        
       } catch (error) {
         console.error("Failed to save note:", error);
-      }
-      this.isEditing = false;
-      this.refreshPage();
+      };
+      this.$emit("save")
     },
     // Delete the note
     async deleteNote() {
-      try {
+      try {     
         // Load all notes, filter out the deleted note, and save
+
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
+        this.$emit("save")
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.refreshPage();
+
     },
     cancelEdit() {
+
       this.newTitle = this.title;
       this.newContent = this.content;
       this.showEditIcon = false;
-      this.refreshPage();
+      this.$emit("save")
     },
     startEdit() {
       this.isEditing = true;

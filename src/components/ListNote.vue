@@ -181,6 +181,8 @@ export default {
     refreshPage() {
       window.location.reload();
     },
+
+    // Save edited note
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -195,9 +197,11 @@ export default {
         await updateNotes(this.noteId, editedNote);
         this.isEditing = false;
         this.showEditIcon = false;
+        
       } catch (error) {
         console.error("Failed to save note:", error);
       }
+      this.$emit("save")
     },
     async deleteNote() {
       try {
@@ -206,15 +210,19 @@ export default {
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
         this.showEditIcon = false;
+        
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
+
+      this.$emit("save")
     },
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
+      this.$emit("save")
     },
     startEdit() {
       this.isEditing = true;
