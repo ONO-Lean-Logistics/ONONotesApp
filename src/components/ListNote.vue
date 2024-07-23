@@ -89,6 +89,10 @@
       </ul>
       <!-- Input and Button to add new item -->
       <div class="add-item-container">
+        
+        <button @click="addItem" class="add-btn">
+          <i class="fa-solid fa-plus"></i>
+        </button>
         <input 
           type="text" 
           v-model="newItemText" 
@@ -96,9 +100,6 @@
           placeholder="Add new item"
           class="new-item-input"
         />
-        <button @click="addItem" class="add-btn">
-          <i class="fa-solid fa-plus"></i>
-        </button>
       </div>
       <!-- Edit actions buttons -->
       <div class="edit-actions">

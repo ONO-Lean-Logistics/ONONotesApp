@@ -36,7 +36,7 @@ export default {
   },
   data() {
     return {
-      dropdownVisible: false,
+      dropdownVis1ible: false,
       selectedCriteria: localStorage.getItem("sortCriteria") || "Oldest", // Default to Recent if no criteria is set'
     };
   },

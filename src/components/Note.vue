@@ -1,5 +1,6 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <!-- Display note content when not editing -->
+  <!-- Note container -->
   <div
     v-if="!isEditing"
     class="note"
@@ -7,33 +8,21 @@
     @mouseover="showEditIcon = true"
     @mouseleave="showEditIcon = false"
   >
-    <!-- Note Content -->
-    <div class="note-content">
+    <!-- Display Note Content when not editing -->
+    <div v-if="!isEditing" class="note-content">
+      <!-- Display title if exists, otherwise show placeholder -->
       <h2 v-if="title">{{ title }}</h2>
+      <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
-      <ul>
-        <!-- List items -->
-        <li
-          v-for="(item, idx) in items"
-          :key="idx"
-          @click="toggleItemCompleted(idx)"
-        >
-          <input
-            :id="generateUniqueId('checkbox', idx)"
-            type="checkbox"
-            @click.stop
-            v-model="item.completed"
-            class="item-checkbox"
-          />
-          <div class="item-text" :class="{ completed: item.completed }">
-            {{ truncatedText(item.text) }}
-          </div>
-        </li>
-      </ul>
+      <pre style="font-size: 16px" v-if="content">{{
+          truncateContent(content)
+        }}</pre>
+      <pre v-else class="placeholder">Write a note</pre>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
+      <div class="type">{{ type }}</div>
     </div>
-    <!-- Delete Button -->
+    <!-- Display Delete Button when hovering and not editing -->
     <button
       v-if="showEditIcon && !isEditing"
       class="delete-btn"
@@ -41,74 +30,28 @@
     >
       <i class="fa-solid fa-trash-can"></i>
     </button>
+    <!-- Edit Modal -->
   </div>
-  <!-- Modal for editing -->
-  <div v-else class="modal" @click="handleClickOutside">
+  <div v-else class="modal" @click.stop="handleClickOutside">
     <div class="modal-content">
       <!-- Input for editing title -->
       <input
         v-model="newTitle"
         placeholder="Title"
         class="edit-title"
-        :id="generateUniqueId('title-input')"
+        id="titleInput"
         :maxlength="maxTitleLength"
       />
-      <ul>
-        <!-- List items for editing -->
-        <li v-for="(item, idx) in newItems" :key="idx">
-          <div
-            @mouseover="hoverIndex = idx"
-            @mouseleave="hoverIndex = null"
-            class="item-container"
-          >
-            <!-- Checkbox for each item -->
-            <input
-              :id="generateUniqueId('checkbox-modal', idx)"
-              type="checkbox"
-              v-model="newItems[idx].completed"
-              class="item-checkbox"
-            />
-            <!-- Input for editing item text -->
-            <input
-              v-model="newItems[idx].text"
-              class="edit-textarea"
-              :class="{ completed: item.completed }"
-              :id="generateUniqueId('item-input', idx)"
-              placeholder="Enter item here"
-            />
-            <!-- Button to remove item -->
-            <button
-              v-if="hoverIndex === idx"
-              @click.stop="removeItem(idx)"
-              class="remove-btn"
-            >
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-        </li>
-      </ul>
-      <!-- Input and Button to add new item -->
-      <div class="add-item-container">
-        <button
-          @click="showNewItemInput = true"
-          v-if="!showNewItemInput"
-          class="add-btn"
-        >
-          <i class="fa-solid fa-plus"></i>
-        </button>
-        <div v-if="showNewItemInput" class="new-item-input-container">
-          <input
-            type="text"
-            v-model="newItemText"
-            placeholder="Add new item"
-            class="new-item-input"
-          />
-          <button @click="addItem" class="add-btn">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-        </div>
-      </div>
-      <!-- Edit actions buttons -->
+      <!-- Textarea for editing content -->
+      <textarea
+        v-model="newContent"
+        rows="4"
+        class="edit-textarea"
+        id="textInput"
+        placeholder="Enter content here"
+        @input="handleTextareaInput"
+      ></textarea>
+      <!-- Edit actions: Delete, Cancel, Save buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
@@ -121,115 +64,128 @@
 </template>
 
 <script>
-import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
+import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
-  name: "ListNote",
   props: {
     noteId: {
+      // Added noteId prop to identify the note
       type: [String, Number],
       required: true,
     },
     title: {
+      // Title of the note
       type: String,
       required: true,
     },
-    items: {
-      type: Array,
+    content: {
+      // Content of the note
+      type: String,
       required: true,
     },
     utente: {
+      // User who created the note
       type: String,
       required: true,
     },
     timestamp: {
+      // Timestamp when note was created
       type: [String, Number],
       required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      validator(value) {
+        return ['classic', 'list'].includes(value);
+      },
     },
   },
   data() {
     return {
+      // State variables for editing
       newTitle: this.title,
-      newItems: this.items.map((item) => ({ ...item })),
-      newItemText: "", // New data property for the new item text input
-      showNewItemInput: false, // Control visibility of the new item input
+      newContent: this.content,
       isEditing: false,
       showEditIcon: false,
       maxTitleLength: 25, // Default char limit per title
-      maxCharsPerLine: 28, // Default char limit per line
+      maxCharsPerLine: 32, // Default char limit per line
       formattedTimestamp: "",
-      hoverIndex: null, // Track the index of the hovered item
     };
   },
   watch: {
-    // Update newTitle when title prop changes
+    // Watch for changes in title, content, and timestamp
     title(newVal) {
       this.newTitle = newVal;
     },
-    // Update newItems when items prop changes
-    items(newVal) {
-      this.newItems = newVal.map((item) => ({ ...item }));
+    content(newVal) {
+      this.newContent = newVal;
     },
-    // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
   mounted() {
-    // Format timestamp on component mount
+    // Initialize formatted timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
   methods: {
-    // Save edited note
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
         title: this.newTitle,
-        items: this.newItems,
+        content: this.newContent,
         timestamp: Date.now(),
         utente: this.utente,
+        type: this.type,
       };
 
       try {
-        await updateNotes(this.noteId, editedNote); // Update the specific note
-        this.isEditing = false;
+        // Update the note using API service
+
+        await updateNotes(this.noteId, editedNote); // Update only the specific note
         this.showEditIcon = false;
+        this.isEditing = false;
+
       } catch (error) {
         console.error("Failed to save note:", error);
-      }
+      };
+      this.$emit("save")
     },
-    // Delete note
+    // Delete the note
     async deleteNote() {
       try {
+        // Load all notes, filter out the deleted note, and save
+
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
-        this.showEditIcon = false;
+        this.$emit("save")
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
+
     },
-    // Cancel editing
     cancelEdit() {
+
       this.newTitle = this.title;
-      this.newItems = this.items.map((item) => ({ ...item }));
-      this.isEditing = false;
+      this.newContent = this.content;
       this.showEditIcon = false;
+      this.$emit("save")
     },
-    // Start editing
     startEdit() {
       this.isEditing = true;
     },
-    // Handle click outside modal
+    // Handle click outside the modal to save edits
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
         this.isEditing = false;
       }
     },
-    // Format timestamp to readable format
+    // Format timestamp into a readable string
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -241,38 +197,35 @@ export default {
       const year = date.getFullYear();
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
-      const seconds = date.getSeconds().toString().padStart(2, "0");
+      const seconds = date.getSeconds().toString();
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
-    // Truncate text to fit max characters per line
-    truncatedText(text) {
-      if (text.length <= this.maxCharsPerLine) {
-        return text;
+    // Truncate content to fit within specified character limit per line
+    truncateContent(content, charsPerLine) {
+      if (content.length > charsPerLine) {
+        return content.substring(0, charsPerLine) + "...";
       } else {
-        return text.substring(0, this.maxCharsPerLine) + "...";
+        return content;
       }
     },
-    // Generate unique ID
-    generateUniqueId(prefix, index = "") {
-      return `${prefix}-${this._uid}-${index}`;
-    },
-    // Toggle completion status of item
-    toggleItemCompleted(index) {
-      if (this.items[index]) {
-        this.items[index].completed = !this.items[index].completed;
-      }
-    },
-    // Add new item
-    addItem() {
-      if (this.newItemText.trim() !== "") {
-        this.newItems.push({ text: this.newItemText.trim(), completed: false });
-        this.newItemText = ""; // Clear the input field
-        this.showNewItemInput = false; // Hide the input field
-      }
-    },
-    // Remove item at index
-    removeItem(index) {
-      this.newItems.splice(index, 1);
+    // Handle textarea input to format text within specified limits
+    handleTextareaInput() {
+      var box = document.getElementById("textInput");
+      const charlimit = this.maxCharsPerLine;
+      box.onkeyup = function () {
+        var lines = box.value.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+          if (lines[i].length <= charlimit) continue;
+          var j = 0;
+          var space = charlimit;
+          while (j++ <= charlimit) {
+            if (lines[i].charAt(j) === " ") space = j;
+          }
+          lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
+          lines[i] = lines[i].substring(0, space);
+        }
+        box.value = lines.slice(0, 10).join("\n");
+      };
     },
   },
 };
@@ -280,23 +233,49 @@ export default {
 
 <style scoped>
 @import "../assets/main.css";
-
-/* Placeholder styling */
+/* Input and Textarea Placeholder Styling */
 ::placeholder {
+  color: #ccc; /* Placeholder text color */
+  font-style: italic; /* Placeholder font style */
+  font-weight: 300; /* Placeholder font weight */
+  font-size: 14px; /* Placeholder font size */
+  opacity: 1; /* Ensures that the opacity is fully opaque */
+}
+
+:-ms-input-placeholder {
+  /* For Internet Explorer 10-11 */
   color: #ccc;
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
-  opacity: 1;
 }
-.placeholder {
-  color: #aaa; /* Placeholder color */
+
+::-ms-input-placeholder {
+  /* For Microsoft Edge */
+  color: #ccc;
   font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
 }
-/* Modal overlay */
+
+/* Specific input and textarea placeholders for scoped styling */
+.edit-title::placeholder {
+  color: #ccc; /* Custom color for title input placeholder */
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.edit-textarea::placeholder {
+  color: #ccc; /* Custom color for content textarea placeholder */
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+}
+
 .modal {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: #00000075;
   top: 0;
   left: 0;
   width: 100%;
@@ -304,16 +283,13 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Ensures the modal is above everything else */
+  z-index: 999; /* Modal sopra tutto il resto */
   cursor: default;
 }
 
-/* Modal content */
 .modal-content {
-  background-color: var(
-    --note-background-color
-  ); /* Use your custom note background color */
-  color: var(--note-text-color); /* Use your custom note text color */
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
   border: 1px solid transparent;
   padding: 20px;
   width: 80%;
@@ -322,81 +298,26 @@ export default {
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateY(-20px);
 }
-ul {
-  list-style-type: none;
-  padding-left: 0; /* Remove default padding */
-}
 
-/* Style for list items */
-li {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Ensure items are spaced evenly */
-  margin-bottom: 10px; /* Adjust as needed */
-}
-
-/* Checkbox styling */
-.item-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: flex-start; /* Align items to the left */
-}
-
-.item-checkbox {
-  -webkit-appearance: none; /* Remove default appearance */
-  -moz-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #878a8e;
-  margin-right: 10px;
-  background-color: var(--note-background-color); /* Match note background */
-  cursor: pointer;
-}
-
-.item-checkbox:checked {
-  background-color: #40eb4696; /* Change background color when checked */
-  border-color: #878a8e;
-  border-width: 1.3px;
-}
-
-/* Text styling */
-.item-text {
-  font-size: 16px;
-  flex: 1; /* To make item text take remaining space */
-}
-
-.completed {
-  opacity: 0.5; /* Reduce opacity for completed items */
-  text-decoration: line-through; /* Strikethrough for completed items */
-}
-
-.completed .item-checkbox {
-  background-color: #40eb4696; /* Change background color when checked */
-  border-color: #ffffff;
-  border-width: 1.3px;
-}
-
-.completed .item-text {
-  opacity: 0.5; /* Reduce opacity of text for completed items */
-}
 .note {
   background-color: var(--note-background-color);
   position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
   z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
   border: 1px solid transparent;
+  position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   display: block;
-  /* Ensure position relative for absolute icon */
+  align-items: center;
+  justify-content: center;
+  position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
 }
 
@@ -406,7 +327,20 @@ li {
 
 .note-content {
   white-space: pre-wrap;
-  max-width: 100%;
+  max-width: 100%; /* Ensure content wraps within the note */
+}
+.placeholder {
+  color: #aaa; /* Placeholder color */
+  font-style: italic;
+}
+.edit-container {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
 }
 
 .edit-title {
@@ -417,99 +351,97 @@ li {
   font-size: 18px;
   padding: 10px;
   margin-bottom: 10px;
-  border: none;
-  outline: none;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
 }
 
-.edit-textarea {
+textarea {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
   width: 100%;
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 18px;
   padding: 10px;
-  resize: none;
-  border: none;
-  outline: none;
-}
-
-.add-btn {
-  color: #4caf50;
-  background-color: transparent;
-  border-color: transparenT;
-  cursor: pointer;
-}
-
-.remove-btn {
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-  cursor: pointer;
+  resize: none; /* Disable textarea resizing */
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
 }
 
 .edit-actions {
-  display: flex;
   justify-content: flex-end;
-  margin-top: 10px;
+  top: 0;
+  right: 0;
+  margin-top: 5px; /* Adjust as needed */
+  margin-right: 10px; /* Adjust as needed */
+  display: flex;
+  gap: 10px; /* Space between buttons */
 }
 
-.edit-actions button {
-  margin-left: 10px;
-}
-
-.delete-btn-modal {
-  position: absolute;
+.save-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  bottom: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
   cursor: pointer;
-  font-size: 70%;
-  bottom: 10px;
-  left: 10px;
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
-.delete-btn {
-  position: absolute;
+.delete-btn-modal{
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  bottom: 5px;
+  right: 80px;
+  font-size: 16px;
+  padding: 10px 15px;
   cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
+}
+.save-btn:hover, .delete-btn-modal:hover {
+  background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
+}
+.delete-btn{
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
-  font-size: 70%;
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-}
-.save-btn {
-  font-size: 16px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  font-size: 8px;
+  padding: 4px 9px;
   cursor: pointer;
   color: var(--note-text-color);
-  border-color: #b9b9b92f;
+  border: none;
   background-color: #b9b9b92f;
-}
-.save-btn:hover {
-  border-color: #b9b9b9c4;
-  background-color: #b9b9b9c5;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 .cancel-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
   font-size: 16px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding: 10px 15px;
   cursor: pointer;
   color: var(--note-text-color);
-  border-radius: 30%;
-  border-color: #b9b9b92f;
+  border: none;
   background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
+
 .cancel-btn:hover {
-  border-color: #b9b9b9c4;
   background-color: #b9b9b9c5;
+}
+.type{
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
 }
 .utente {
   color: rgb(196, 196, 196);
@@ -523,9 +455,8 @@ li {
   position: absolute;
   bottom: 5px;
   right: 5px;
-  font-size: 8px;
+  font-size: 8px; /* Adjust the font size as needed */
 }
-
 @media (max-width: 600px) {
   .note {
     padding: 10px;
