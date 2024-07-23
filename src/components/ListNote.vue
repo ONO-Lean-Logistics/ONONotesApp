@@ -478,45 +478,6 @@ li {
 .cancel-btn:hover {
   background-color: #b9b9b9c5;
 }
-
-.edit-title {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none;
-  outline: none;
-}
-
-.edit-textarea {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 14px;
-  padding: 10px;
-  resize: none;
-  border: none;
-  outline: none;
-}
-
-.add-btn {
-  color: #4caf50;
-  background-color: transparent;
-  border-color: transparenT;
-  cursor: pointer;
-}
-
-.remove-btn {
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-  cursor: pointer;
-}
-
 .edit-actions {
   display: flex;
   justify-content: flex-end;
