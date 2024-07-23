@@ -56,7 +56,7 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
+        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -169,9 +169,8 @@ export default {
 
     },
     cancelEdit() {
-
       this.newTitle = this.title;
-      this.newContent = this.content;
+      this.isEditing = false;
       this.showEditIcon = false;
       this.$emit("save")
     },
@@ -428,13 +427,10 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color:var(
+    --note-background-color
+  );
   border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.cancel-btn:hover {
-  background-color: #b9b9b9c5;
 }
 .type{
   color: rgb(196, 196, 196);

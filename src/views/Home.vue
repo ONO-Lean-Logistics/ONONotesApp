@@ -99,10 +99,12 @@
               <div class="add-divider"></div>
 
               <!-- Second Add Button -->
-              <div @click="addNote('List')" class="add-button-list">
-                <!-- Add List Note -->
-                <i class="fas fa-plus"></i>
-                <span>Lista</span>
+              <div class="list add-list">
+                <div @click="addNote('list')" class="add-button-list">
+                  <!-- Add List Note -->
+                  <i class="fas fa-plus"></i>
+                  <span>Lista</span>
+                </div>
               </div>
             </div>
           </template>
@@ -162,6 +164,7 @@ export default {
     this.refreshQuery();
   },
 
+  
   methods: {
     async refreshQuery() {
       
