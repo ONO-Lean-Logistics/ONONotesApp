@@ -116,23 +116,92 @@ export default {
     };
   },
   watch: {
+    content(newVal) {
+      this.newContent = newVal;
+    },
     // Watch for changes in title, content, and timestamp
     title(newVal) {
       this.newTitle = newVal;
-    },
-    content(newVal) {
-      this.newContent = newVal;
     },
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
+  
   mounted() {
     // Initialize formatted timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
+
   methods: {
+
+    cancelEdit() {
+      this.newTitle = this.title;
+      this.isEditing = false;
+      this.showEditIcon = false;
+      this.$emit("save");
+    },
+
+    // Delete the note
+    async deleteNote() {
+      try {
+        // Load all notes, filter out the deleted note, and save
+
+        const { notes } = await loadNotes();
+        const updatedNotes = notes.filter((note) => note.id !== this.noteId);
+        await saveNotes(updatedNotes, false);
+        this.isEditing = false;
+        this.$emit("save");
+      } catch (error) {
+        console.error("Failed to delete note:", error);
+      }
+    },
+
+    // Format timestamp into a readable string
+    formatTimestamp(timestamp) {
+      const date = new Date(timestamp);
+      const day = date
+        .toLocaleDateString("en-US", { day: "numeric" })
+        .padStart(2, "0");
+      const month = date
+        .toLocaleDateString("en-US", { month: "numeric" })
+        .padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      const seconds = date.getSeconds().toString();
+      return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+    },
+
+    // Handle click outside the modal to save edits
+    handleClickOutside(event) {
+      if (!event.target.closest(".modal-content")) {
+        this.saveEdit();
+        this.isEditing = false;
+      }
+    },
+
+    // Handle textarea input to format text within specified limits
+    handleTextareaInput() {
+      var box = document.getElementById("textInput");
+      const charlimit = this.maxCharsPerLine;
+      box.onkeyup = function () {
+        var lines = box.value.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+          if (lines[i].length <= charlimit) continue;
+          var j = 0;
+          var space = charlimit;
+          while (j++ <= charlimit) {
+            if (lines[i].charAt(j) === " ") space = j;
+          }
+          lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
+          lines[i] = lines[i].substring(0, space);
+        }
+        box.value = lines.slice(0, 10).join("\n");
+      };
+    },
+
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -154,51 +223,11 @@ export default {
       }
       this.$emit("save");
     },
-    // Delete the note
-    async deleteNote() {
-      try {
-        // Load all notes, filter out the deleted note, and save
-
-        const { notes } = await loadNotes();
-        const updatedNotes = notes.filter((note) => note.id !== this.noteId);
-        await saveNotes(updatedNotes, false);
-        this.isEditing = false;
-        this.$emit("save");
-      } catch (error) {
-        console.error("Failed to delete note:", error);
-      }
-    },
-    cancelEdit() {
-      this.newTitle = this.title;
-      this.isEditing = false;
-      this.showEditIcon = false;
-      this.$emit("save");
-    },
+    
     startEdit() {
       this.isEditing = true;
     },
-    // Handle click outside the modal to save edits
-    handleClickOutside(event) {
-      if (!event.target.closest(".modal-content")) {
-        this.saveEdit();
-        this.isEditing = false;
-      }
-    },
-    // Format timestamp into a readable string
-    formatTimestamp(timestamp) {
-      const date = new Date(timestamp);
-      const day = date
-        .toLocaleDateString("en-US", { day: "numeric" })
-        .padStart(2, "0");
-      const month = date
-        .toLocaleDateString("en-US", { month: "numeric" })
-        .padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = date.getHours().toString().padStart(2, "0");
-      const minutes = date.getMinutes().toString().padStart(2, "0");
-      const seconds = date.getSeconds().toString();
-      return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-    },
+    
     // Truncate content to fit within specified character limit per line
     truncateContent(content) {
       if (content.length > 26) {
@@ -207,57 +236,86 @@ export default {
         return content;
       }
     },
-    // Handle textarea input to format text within specified limits
-    handleTextareaInput() {
-      var box = document.getElementById("textInput");
-      const charlimit = this.maxCharsPerLine;
-      box.onkeyup = function () {
-        var lines = box.value.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-          if (lines[i].length <= charlimit) continue;
-          var j = 0;
-          var space = charlimit;
-          while (j++ <= charlimit) {
-            if (lines[i].charAt(j) === " ") space = j;
-          }
-          lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
-          lines[i] = lines[i].substring(0, space);
-        }
-        box.value = lines.slice(0, 10).join("\n");
-      };
-    },
   },
 };
 </script>
 
 <style scoped>
 @import "../assets/main.css";
-/* Input and Textarea Placeholder Styling */
-::placeholder {
-  color: #ccc; /* Placeholder text color */
-  font-style: italic; /* Placeholder font style */
-  font-weight: 300; /* Placeholder font weight */
-  font-size: 14px; /* Placeholder font size */
-  opacity: 1; /* Ensures that the opacity is fully opaque */
+
+.cancel-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
 }
 
-:-ms-input-placeholder {
-  /* For Internet Explorer 10-11 */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
+.delete-btn-modal {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  bottom: 5px;
+  right: 80px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 
-::-ms-input-placeholder {
-  /* For Microsoft Edge */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
+.delete-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 
-/* Specific input and textarea placeholders for scoped styling */
+.edit-actions {
+  justify-content: flex-end;
+  top: 0;
+  right: 0;
+  margin-top: 5px; /* Adjust as needed */
+  margin-right: 10px; /* Adjust as needed */
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}
+
+.edit-container {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
+}
+
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
+}
+
 .edit-title::placeholder {
   color: #ccc; /* Custom color for title input placeholder */
   font-style: italic;
@@ -270,6 +328,29 @@ export default {
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .note {
+    padding: 10px;
+  }
+
+  .edit-title,
+  .edit-textarea {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .note {
+    padding: 15px;
+  }
+}
+
+@media (min-width: 901px) {
+  .note {
+    padding: 20px;
+  }
 }
 
 .modal {
@@ -328,52 +409,20 @@ export default {
   white-space: pre-wrap;
   max-width: 100%; /* Ensure content wraps within the note */
 }
+
+/* Input and Textarea Placeholder Styling */
+::placeholder {
+  color: #ccc; /* Placeholder text color */
+  font-style: italic; /* Placeholder font style */
+  font-weight: 300; /* Placeholder font weight */
+  font-size: 14px; /* Placeholder font size */
+  opacity: 1; /* Ensures that the opacity is fully opaque */
+}
+
+
 .placeholder {
   color: #aaa; /* Placeholder color */
   font-style: italic;
-}
-.edit-container {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-title {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-textarea {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  resize: none; /* Disable textarea resizing */
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-actions {
-  justify-content: flex-end;
-  top: 0;
-  right: 0;
-  margin-top: 5px; /* Adjust as needed */
-  margin-right: 10px; /* Adjust as needed */
-  display: flex;
-  gap: 10px; /* Space between buttons */
 }
 
 .save-btn {
@@ -389,62 +438,24 @@ textarea {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.delete-btn-modal {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  bottom: 5px;
-  right: 80px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
+
 .save-btn:hover,
 .delete-btn-modal:hover {
   background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
 }
-.delete-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-.cancel-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
+
+textarea {
   background-color: var(--note-background-color);
-  border-radius: 0;
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  resize: none; /* Disable textarea resizing */
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
 }
-.type {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
-}
+
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -452,26 +463,48 @@ textarea {
   right: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
-@media (max-width: 600px) {
-  .note {
-    padding: 10px;
-  }
 
-  .edit-title,
-  .edit-textarea {
-    font-size: 14px;
-  }
+.type {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
-  .note {
-    padding: 15px;
-  }
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 8px; /* Adjust the font size as needed */
 }
 
-@media (min-width: 901px) {
-  .note {
-    padding: 20px;
-  }
+/* Specific input and textarea placeholders for scoped styling */
+:-ms-input-placeholder {
+  /* For Internet Explorer 10-11 */
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
 }
+
+::-ms-input-placeholder {
+  /* For Microsoft Edge */
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
+
+
 </style>
