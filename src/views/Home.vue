@@ -17,7 +17,7 @@
           id="searchInput"
           @input="handleSearchInput"
         />
-        <!--Clear search-->
+        <!-- Clear search -->
       </div>
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
@@ -88,7 +88,7 @@
           </template>
           <template v-else-if="note && note.isAddButton">
             <!-- Render add button -->
-            <div class="note add-note">
+            <div v-if="!isSearchActive" class="note add-note">
               <div @click="addNote('classic')" class="add-button-classic">
                 <!-- Add Classic Note -->
                 <i class="fas fa-plus"></i>
@@ -122,7 +122,6 @@ import draggable from "vuedraggable";
 import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
   name: "Home",
   components: {
     Note,
@@ -155,34 +154,32 @@ export default {
     // Add button included in filtered notes
     filteredNotesWithAddButton() {
       const notesWithAddButton = [...this.filteredNotes];
-      notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
+      if (!this.isSearchActive) {
+        notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
+      }
       return notesWithAddButton;
     },
-  
+    // Determine if search is active
+    isSearchActive() {
+      return this.searchQuery.trim() !== "";
+    }
   },
   created(){
     this.refreshQuery();
   },
 
-  
   methods: {
     async refreshQuery() {
-      
-      
-      // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
       console.log(`Before filtering:`)
-      // Load notes from server
       try {
-        
-        const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
+        const response = await loadNotes(); 
         console.log(`Before filtering: ${response}`)
         let resNotes = response.notes
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
-          // Filter out any notes that do not have an id property
           resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
         if(resNotes != null &&  resNotes.length>0) {
@@ -191,13 +188,12 @@ export default {
           this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
         }else{
           console.log("No filtering")
-          this.nextId = 1; // Start from 1 if no notes exist
+          this.nextId = 1; 
         }
       } catch (error) {
         console.error("Error loading notes:", error);
       }
-  },
-    // Save all notes function
+    },
     async saveAllNotes() {
       try {
         await saveNotes(this.notes);
@@ -205,13 +201,11 @@ export default {
         console.error("Error saving notes:", error);
       }
     },
-    // Start search function
     startSearch() {
       if (this.searchQuery.trim() !== "") {
         this.search();
       }
     },
-    // Perform search based on query
     search() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
@@ -222,14 +216,11 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
-    // Clear search query
     clearSearch() {
-        this.searchQuery = '';
-        this.$emit('input', this.searchQuery);
-      },
-    // Handle input in the search bar
+      this.searchQuery = '';
+      this.$emit('input', this.searchQuery);
+    },
     handleSearchInput() {
-      // Adjust the search input width based on content
       const inputElement = document.getElementById("searchInput");
       if (inputElement) {
         inputElement.style.width = `${Math.max(
@@ -239,7 +230,6 @@ export default {
       }
     },
 
-    // Sort notes function
     sortNotes(criteria) {
       switch (criteria) {
         case "Most":
@@ -249,7 +239,7 @@ export default {
             } else if (a.type === "list" && b.type === "list") {
               return b.items.length - a.items.length;
             } else {
-              return 0; // Fallback if types don't match
+              return 0; 
             }
           });
           break;
@@ -260,7 +250,7 @@ export default {
             } else if (a.type === "list" && b.type === "list") {
               return a.items.length - b.items.length;
             } else {
-              return 0; // Fallback if types don't match
+              return 0; 
             }
           });
           break;
@@ -273,16 +263,14 @@ export default {
         default:
           break;
       }
-      this.saveAllNotes(); // Save after sorting
+      this.saveAllNotes(); 
     },
 
     handleNoteReorder(event) {
       const movedNote = this.notes.splice(event.oldIndex, 1)[0];
       this.notes.splice(event.newIndex, 0, movedNote);
     },
-    // Drag start function
     handleDragStart(event) {
-      // Ignore drag if the item is an add button
       if (
         event.item &&
         event.item.firstChild &&
@@ -296,9 +284,7 @@ export default {
       document.body.style.cursor = "grabbing";
       event.item.style.cursor = "grabbing";
     },
-    // Drag end function
     handleDragEnd(event) {
-      // Ignore drag if the item is an add button
       if (
         event.item &&
         event.item.firstChild &&
@@ -313,12 +299,10 @@ export default {
       this.handleNoteReorder(event);
       this.saveAllNotes();
     },
-    // Add new note function
     async addNote(type) {
       let addingNoteType = type;
       let newNote;
 
-      // Differentiating the type of notes
       if (addingNoteType === "classic") {
         newNote = {
           title: "",
@@ -326,7 +310,7 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-          type: "classic", // Marking it as a classic note
+          type: "classic",
         };
       } else if (addingNoteType === "list") {
         newNote = {
@@ -335,27 +319,26 @@ export default {
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-          type: "list", // Marking it as a list note
+          type: "list",
         };
       }
 
-      this.nextId++; // Increment the next ID
+      this.nextId++; 
       if(newNote != null){
         console.log(newNote);
-        this.notes.push(newNote); // Add the note to the list
+        this.notes.push(newNote);
 
-      try {
-        // Save the new note using updateNotes function
-        await updateNotes(newNote.id, newNote);
-      } catch (error) {
-        console.error("Error saving the new note:", error);
+        try {
+          await updateNotes(newNote.id, newNote);
+        } catch (error) {
+          console.error("Error saving the new note:", error);
+        }
       }
-      }
-      
     },
   }
-  };
+};
 </script>
+
 
 <style scoped>
 /* Import main styles */
