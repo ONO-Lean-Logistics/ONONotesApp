@@ -200,9 +200,9 @@ export default {
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
     // Truncate content to fit within specified character limit per line
-    truncateContent(content, charsPerLine) {
-      if (content.length > charsPerLine) {
-        return content.substring(0, charsPerLine) + "...";
+    truncateContent(content) {
+      if (content.length > 26) {
+        return content.substring(0, 26) + "...";
       } else {
         return content;
       }
