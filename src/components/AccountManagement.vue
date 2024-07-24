@@ -1,12 +1,12 @@
 <template>
     <div class="account-management">
-        <div class="account-content">
+      <div class="account-content">
         <h2>Manage Account</h2>
         <button @click="$emit('close')" class="clear-button">
-        <img src="../assets/X_icon.svg" alt="Clear" />
-      </button>
-        <h1>{{ utente }}</h1>
-        </div>
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
+        <button @click=""></button>
+      </div>
     </div>
   </template>
   
