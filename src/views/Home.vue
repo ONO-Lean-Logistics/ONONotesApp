@@ -23,12 +23,10 @@
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
         <div class="account-management">
-          <buttonUser  @click="toggleAccountManagement">
+          <buttonUser @click="toggleAccountManagement">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
           </buttonUser>
-          <AccountManagement 
-          v-if="showAccountManagement" @close="showAccountManagement = false" 
-          :utente="AccountManagement.utente"/>
+          <AccountManagement v-if="showAccountManagement" @close="showAccountManagement = false" />
         </div>
     </div>
     <!-- Divider Section -->
