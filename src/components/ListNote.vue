@@ -281,10 +281,6 @@ export default {
 };
 </script>
 
-</script>
-
-
-
 <style scoped>
 @import "../assets/main.css";
 
