@@ -1,24 +1,27 @@
 <template>
   <div class="button-group" ref="buttonGroup">
+    <!-- Pulsante per cambiare il tipo di ordinamento -->
     <button
       class="btn btn-primary"
-      :class="{ active: selectedCriteria.includes('Time') }"
-      @click="setSortCriteria('Time')"
+      :class="{ active: selectedType === 'Time' }"
+      @click="toggleType"
       :disabled="isOccupied"
     >
-      Time
-      <span v-if="selectedCriteria === 'Recent'"> ⭡</span>
-      <span v-if="selectedCriteria === 'Oldest'"> ⭣</span>
+      {{ selectedType }}
     </button>
+
+    <!-- Pulsante per cambiare l'ordinamento -->
     <button
       class="btn btn-primary"
-      :class="{ active: selectedCriteria.includes('Length') }"
-      @click="setSortCriteria('Length')"
+      :class="{ active: (selectedOrder === 'Recent' || selectedOrder === 'Most') }"
+      @click="toggleOrder"
       :disabled="isOccupied"
     >
-      Length
-      <span v-if="selectedCriteria === 'Most'"> ⭡</span>
-      <span v-if="selectedCriteria === 'Least'"> ⭣</span>
+      {{ selectedOrder }}
+      <span v-if="selectedOrder === 'Recent'"> ⭡</span>
+      <span v-if="selectedOrder === 'Oldest'"> ⭣</span>
+      <span v-if="selectedOrder === 'Most'"> ⭡</span>
+      <span v-if="selectedOrder === 'Least'"> ⭣</span>
     </button>
   </div>
 </template>
@@ -33,20 +36,25 @@ export default {
   },
   data() {
     return {
-      selectedCriteria: localStorage.getItem("sortCriteria") || "Oldest", // Default to "Oldest" if no criteria is set
+      selectedType: localStorage.getItem("sortType") || "Time", // Default to "Time" if no type is set
+      selectedOrder: localStorage.getItem("sortOrder") || "Oldest", // Default to "Oldest" if no order is set
     };
   },
+  
   methods: {
-    setSortCriteria(type) {
-      if (type === 'Time') {
-        this.selectedCriteria =
-          this.selectedCriteria === "Recent" ? "Oldest" : "Recent";
-      } else if (type === 'Length') {
-        this.selectedCriteria =
-          this.selectedCriteria === "Most" ? "Least" : "Most";
+    toggleType() {
+      this.selectedType = this.selectedType === "Time" ? "Length" : "Time";
+      localStorage.setItem("sortType", this.selectedType); // Store selected type in localStorage
+      this.$emit("select-sort-type", this.selectedType);
+    },
+    toggleOrder() {
+      if (this.selectedType === 'Time') {
+        this.selectedOrder = this.selectedOrder === "Recent" ? "Oldest" : "Recent";
+      } else if (this.selectedType === 'Length') {
+        this.selectedOrder = this.selectedOrder === "Most" ? "Least" : "Most";
       }
-      localStorage.setItem("sortCriteria", this.selectedCriteria); // Store selected criteria in localStorage
-      this.$emit("select-sort-criteria", this.selectedCriteria);
+      localStorage.setItem("sortOrder", this.selectedOrder); // Store selected order in localStorage
+      this.$emit("select-sort-order", this.selectedOrder);
     },
   },
 };
@@ -69,13 +77,8 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.btn:hover {
-  background-color: #ebebeb1a;
-}
-
 .btn.active {
-  background-color: #007bff; /* Active button background color */
-  color: #fff; /* Active button text color */
+  background-color: #ebebeb1a; /* Active button background color */
 }
 
 .btn.active span {
