@@ -5,9 +5,14 @@
         <button @click="$emit('close')" class="clear-button">
           <img src="../assets/X_icon.svg" alt="Clear" />
         </button>
-        <group-btn @click="switchToGroups" class="group-btn">{{ text }}</group-btn>
+      <div v-if="!group">
+        <group-btn @click="switchToGroups" class="group-btn">Groups</group-btn>
         <h1>Username:</h1>
-
+      </div>
+      <div v-else-if="group">       
+        <group-btn  @click="switchToGroups" class="group-btn">Users</group-btn>
+        <h1>afszxf:</h1>
+      </div>
       </div>
     </div>
   </template>
@@ -21,7 +26,8 @@
           email: '',
           password: '',
           utente: " ",
-          text: "Groups"
+          text: "Groups",
+          group: false
         }
       };
     },
@@ -40,6 +46,9 @@
     },
 
     // Switch thru groups anda account
+    switchToGroups(){
+      this.group.value = !this.group.value
+    }
     }
   };
   </script>
