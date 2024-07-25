@@ -21,7 +21,7 @@
           <input
             :id="generateUniqueId('checkbox', idx)"
             type="checkbox"
-            @click.stop
+            @click.stop=""
             v-model="item.completed"
             class="item-checkbox"
           />
@@ -91,11 +91,7 @@
         </li>
         <!-- Input and Button to add new item -->
         <li v-if="showAddInput" class="item-container">
-          <input
-            type="checkbox"
-            class="item-checkbox"
-            disabled
-          />
+          <input type="checkbox" class="item-checkbox" disabled />
           <input
             type="text"
             v-model="newItemText"
@@ -309,18 +305,21 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 @import "../assets/main.css";
 
 /* Placeholder styling */
+
+
 ::placeholder {
   color: #ccc;
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
   opacity: 1;
+}
+.new-item-input{
+
 }
 .placeholder {
   color: #aaa; /* Placeholder color */

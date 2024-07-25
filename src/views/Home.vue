@@ -136,10 +136,10 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: ""
+      utente: "",
     };
   },
- 
+
   computed: {
     // Filtered notes based on search query
     filteredNotes() {
@@ -158,45 +158,42 @@ export default {
       notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
       return notesWithAddButton;
     },
-  
   },
-  created(){
+  created() {
     this.refreshQuery();
   },
 
-  
   methods: {
     async refreshQuery() {
-      
-      
       // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
-      console.log(`Before filtering:`)
+      console.log(`Before filtering:`);
       // Load notes from server
       try {
-        
         const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-        console.log(`Before filtering: ${response}`)
-        let resNotes = response.notes
+        console.log(`Before filtering: ${response}`);
+        let resNotes = response.notes;
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
           // Filter out any notes that do not have an id property
-          resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
+          resNotes = resNotes.filter(
+            (note) => note && note.id !== null && note.id !== undefined
+          );
         }
-        if(resNotes != null &&  resNotes.length>0) {
-          console.log(`After filtering: ${response.notes}`)
-          this.notes = resNotes; 
-          this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
-        }else{
-          console.log("No filtering")
+        if (resNotes != null && resNotes.length > 0) {
+          console.log(`After filtering: ${response.notes}`);
+          this.notes = resNotes;
+          this.nextId = Math.max(...this.notes.map((note) => note.id)) + 1;
+        } else {
+          console.log("No filtering");
           this.nextId = 1; // Start from 1 if no notes exist
         }
       } catch (error) {
         console.error("Error loading notes:", error);
       }
-  },
+    },
     // Save all notes function
     async saveAllNotes() {
       try {
@@ -224,9 +221,9 @@ export default {
     },
     // Clear search query
     clearSearch() {
-        this.searchQuery = '';
-        this.$emit('input', this.searchQuery);
-      },
+      this.searchQuery = "";
+      this.$emit("input", this.searchQuery);
+    },
     // Handle input in the search bar
     handleSearchInput() {
       // Adjust the search input width based on content
@@ -340,21 +337,20 @@ export default {
       }
 
       this.nextId++; // Increment the next ID
-      if(newNote != null){
+      if (newNote != null) {
         console.log(newNote);
         this.notes.push(newNote); // Add the note to the list
 
-      try {
-        // Save the new note using updateNotes function
-        await updateNotes(newNote.id, newNote);
-      } catch (error) {
-        console.error("Error saving the new note:", error);
+        try {
+          // Save the new note using updateNotes function
+          await updateNotes(newNote.id, newNote);
+        } catch (error) {
+          console.error("Error saving the new note:", error);
+        }
       }
-      }
-      
     },
-  }
-  };
+  },
+};
 </script>
 
 <style scoped>
@@ -366,7 +362,6 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  
 }
 
 /* Home container */
@@ -399,11 +394,11 @@ export default {
 
 .header button.clear-button {
   margin-left: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
 
 /* Search container */
 .search-container {
@@ -595,6 +590,5 @@ export default {
   .search-input {
     margin-left: 0; /* Adjust to ensure proper spacing */
   }
-
 }
 </style>
