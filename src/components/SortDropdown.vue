@@ -74,11 +74,8 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-
-.btn.active {
-  background-color: #ebebeb1a; 
-}
-
+.btn:hover{
+  background-color: #72707075}
 .btn.active span {
   font-weight: bold;
 }
