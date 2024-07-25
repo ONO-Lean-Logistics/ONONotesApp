@@ -1,12 +1,9 @@
 <template>
   <div class="home">
-    <!-- Header Section -->
     <div class="header">
-      <!-- Title -->
       <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
         Memo
       </h1>
-      <!-- Search bar with search functionality -->
       <div class="search-container">
         <i class="fas fa-search search-icon" @click="startSearch"></i>
         <input
@@ -17,25 +14,21 @@
           id="searchInput"
           @input="handleSearchInput"
         />
-        <!-- Clear search -->
       </div>
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
     </div>
-    <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
 
-    <!-- Controls Section -->
     <div class="controls">
       <div class="notes-control"></div>
-      <!-- Sort dropdown component -->
+
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
-    <!-- Note Grid Section -->
     <div>
-      <!-- Draggable component for notes -->
+
       <draggable
         :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
@@ -47,7 +40,7 @@
         handle=".note-container"
         @start="handleDragStart"
       >
-        <!-- Loop through notes and render them -->
+
         <div
           v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
@@ -61,7 +54,7 @@
           @dragend="noteDragging = null"
         >
           <template v-if="note && !note.isAddButton">
-            <!-- Render existing notes -->
+
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -87,21 +80,21 @@
             />
           </template>
           <template v-else-if="note && note.isAddButton">
-            <!-- Render add button -->
+          
             <div v-if="!isSearchActive" class="note add-note">
               <div @click="addNote('classic')" class="add-button-classic">
-                <!-- Add Classic Note -->
+              
                 <i class="fas fa-plus"></i>
                 <span>Nota</span>
               </div>
 
-              <!-- Divider between Add Buttons -->
+             
               <div class="add-divider"></div>
 
-              <!-- Second Add Button -->
+             
               <div class="list add-list">
                 <div @click="addNote('list')" class="add-button-list">
-                  <!-- Add List Note -->
+                
                   <i class="fas fa-plus"></i>
                   <span>Lista</span>
                 </div>
@@ -155,7 +148,7 @@ export default {
     filteredNotesWithAddButton() {
       const notesWithAddButton = [...this.filteredNotes];
       if (!this.isSearchActive) {
-        notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
+        notesWithAddButton.push({ isAddButton: true }); 
       }
       return this.sortNotes(notesWithAddButton);
     },
