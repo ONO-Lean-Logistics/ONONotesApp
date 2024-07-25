@@ -38,10 +38,10 @@ export default {
   },
   methods: {
     setSortCriteria(type) {
-      if (type === 'Time') {
+      if (type === "Time") {
         this.selectedCriteria =
           this.selectedCriteria === "Recent" ? "Oldest" : "Recent";
-      } else if (type === 'Length') {
+      } else if (type === "Length") {
         this.selectedCriteria =
           this.selectedCriteria === "Most" ? "Least" : "Most";
       }

@@ -76,6 +76,8 @@
               :class="{ completed: item.completed }"
               :id="generateUniqueId('item-input', idx)"
               placeholder="Enter item here"
+              @blur="checkItemText(idx)"
+              ref="itemInputs"
             />
             <!-- Button to remove item -->
             <button
@@ -87,20 +89,28 @@
             </button>
           </div>
         </li>
+        <!-- Input and Button to add new item -->
+        <li v-if="showAddInput" class="item-container">
+          <input
+            type="checkbox"
+            class="item-checkbox"
+            disabled
+          />
+          <input
+            type="text"
+            v-model="newItemText"
+            @keyup.enter="handleKeyup"
+            placeholder="Add new item"
+            class="new-item-input"
+            ref="newItemInput"
+            @blur="checkNewItemText"
+          />
+        </li>
       </ul>
-      <!-- Input and Button to add new item -->
       <div class="add-item-container">
         <button @click="toggleAddInput" class="add-btn">
           <i class="fa-solid fa-plus"></i>
         </button>
-        <input
-          v-if="showAddInput"
-          type="text"
-          v-model="newItemText"
-          @keyup.enter="handleKeyup"
-          placeholder="Add new item"
-          class="new-item-input"
-        />
       </div>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
@@ -154,37 +164,32 @@ export default {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
-      newItemText: "", // New data property for the new item text input
+      newItemText: "",
       isEditing: false,
       showEditIcon: false,
-      maxTitleLength: 25, // Default char limit per title
-      maxCharsPerLine: 28, // Default char limit per line
+      maxTitleLength: 25,
+      maxCharsPerLine: 28,
       formattedTimestamp: "",
       hoverIndex: null,
-      showAddInput: false, // Track whether to show the new item input
+      showAddInput: false,
     };
   },
   watch: {
-    // Update newTitle when title prop changes
     title(newVal) {
       this.newTitle = newVal;
     },
-    // Update newItems when items prop changes
     items(newVal) {
       this.newItems = newVal.map((item) => ({ ...item }));
     },
-    // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
   mounted() {
-    // Format timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
   methods: {
-    // Save edited note
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -196,7 +201,7 @@ export default {
       };
 
       try {
-        await updateNotes(this.noteId, editedNote); // Update the specific note
+        await updateNotes(this.noteId, editedNote);
         this.isEditing = false;
         this.showEditIcon = false;
       } catch (error) {
@@ -204,7 +209,6 @@ export default {
       }
       this.$emit("save");
     },
-    // Delete note
     async deleteNote() {
       try {
         const { notes } = await loadNotes();
@@ -217,7 +221,6 @@ export default {
       }
       this.$emit("save");
     },
-    // Cancel editing
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
@@ -225,18 +228,15 @@ export default {
       this.showEditIcon = false;
       this.$emit("save");
     },
-    // Start editing
     startEdit() {
       this.isEditing = true;
     },
-    // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
         this.isEditing = false;
       }
     },
-    // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -251,7 +251,6 @@ export default {
       const seconds = date.getSeconds().toString().padStart(2, "0");
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
-    // Truncate text to fit max characters per line
     truncatedText(text) {
       if (text.length <= this.maxCharsPerLine) {
         return text;
@@ -259,38 +258,58 @@ export default {
         return text.substring(0, this.maxCharsPerLine) + "...";
       }
     },
-    // Generate unique ID
     generateUniqueId(prefix, index = "") {
       return `${prefix}-${this._uid}-${index}`;
     },
-    // Toggle completion status of item
     toggleItemCompleted(index) {
       if (this.items[index]) {
         this.items[index].completed = !this.items[index].completed;
       }
     },
-    // Remove item
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
-    // Handle keyup event for adding item
     handleKeyup(event) {
-      if (event.key === "Enter" && this.newItemText.trim()) {
-        this.newItems.push({ text: this.newItemText, completed: false });
-        this.newItemText = ""; // Clear input after adding
-        this.showAddInput = false;
+      if (event.key === "Enter") {
+        const text = this.newItemText.trim();
+        if (text) {
+          this.newItems.push({ text, completed: false });
+          this.newItemText = ""; // Clear input after adding
+          this.showAddInput = false;
+          this.$nextTick(() => {
+            // Make sure the newly added item is in focus for editing
+            const lastIndex = this.newItems.length - 1;
+            this.$refs.itemInputs[lastIndex].focus();
+          });
+        }
       }
     },
-    // Toggle add item input visibility
     toggleAddInput() {
       this.showAddInput = !this.showAddInput;
       if (this.showAddInput) {
-        this.$nextTick(() => this.$refs.newItemInput.focus());
+        this.$nextTick(() => {
+          this.$refs.newItemInput.focus();
+        });
+      } else {
+        this.newItemText = "";
+      }
+    },
+    checkItemText(index) {
+      if (!this.newItems[index].text.trim()) {
+        this.newItems.splice(index, 1);
+      }
+    },
+    checkNewItemText() {
+      if (!this.newItemText.trim()) {
+        this.newItemText = "";
+        this.showAddInput = false;
       }
     },
   },
 };
 </script>
+
+
 
 <style scoped>
 @import "../assets/main.css";
