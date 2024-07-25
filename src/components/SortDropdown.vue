@@ -1,6 +1,5 @@
 <template>
   <div class="button-group" ref="buttonGroup">
-    <!-- Pulsante per cambiare il tipo di ordinamento -->
     <button
       class="btn btn-primary"
       :class="{ active: selectedType === 'Time' }"
@@ -10,7 +9,6 @@
       {{ selectedType }}
     </button>
 
-    <!-- Pulsante per cambiare l'ordinamento -->
     <button
       class="btn btn-primary"
       :class="{ active: (selectedOrder === 'Recent' || selectedOrder === 'Most') }"
@@ -36,15 +34,15 @@ export default {
   },
   data() {
     return {
-      selectedType: localStorage.getItem("sortType") || "Time", // Default to "Time" if no type is set
-      selectedOrder: localStorage.getItem("sortOrder") || "Oldest", // Default to "Oldest" if no order is set
+      selectedType: localStorage.getItem("sortType") || "Time", 
+      selectedOrder: localStorage.getItem("sortOrder") || "Oldest", 
     };
   },
   
   methods: {
     toggleType() {
       this.selectedType = this.selectedType === "Time" ? "Length" : "Time";
-      localStorage.setItem("sortType", this.selectedType); // Store selected type in localStorage
+      localStorage.setItem("sortType", this.selectedType);
       this.$emit("select-sort-type", this.selectedType);
     },
     toggleOrder() {
@@ -53,7 +51,7 @@ export default {
       } else if (this.selectedType === 'Length') {
         this.selectedOrder = this.selectedOrder === "Most" ? "Least" : "Most";
       }
-      localStorage.setItem("sortOrder", this.selectedOrder); // Store selected order in localStorage
+      localStorage.setItem("sortOrder", this.selectedOrder);
       this.$emit("select-sort-order", this.selectedOrder);
     },
   },
@@ -63,7 +61,7 @@ export default {
 <style scoped>
 .button-group {
   display: flex;
-  gap: 8px; /* Adjust spacing between buttons */
+  gap: 8px;
 }
 
 .btn {
@@ -78,10 +76,10 @@ export default {
 }
 
 .btn.active {
-  background-color: #ebebeb1a; /* Active button background color */
+  background-color: #ebebeb1a; 
 }
 
 .btn.active span {
-  font-weight: bold; /* Make the arrow bold in active state */
+  font-weight: bold;
 }
 </style>
