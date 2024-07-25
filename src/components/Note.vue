@@ -232,49 +232,24 @@ export default {
 
 <style scoped>
 @import "../assets/main.css";
-/* Input and Textarea Placeholder Styling */
+
+/* Placeholder styling */
 ::placeholder {
-  color: #ccc; /* Placeholder text color */
-  font-style: italic; /* Placeholder font style */
-  font-weight: 300; /* Placeholder font weight */
-  font-size: 14px; /* Placeholder font size */
-  opacity: 1; /* Ensures that the opacity is fully opaque */
-}
-
-:-ms-input-placeholder {
-  /* For Internet Explorer 10-11 */
   color: #ccc;
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
+  opacity: 1;
 }
-
-::-ms-input-placeholder {
-  /* For Microsoft Edge */
-  color: #ccc;
+.placeholder {
+  color: #aaa; /* Placeholder color */
   font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
 }
 
-/* Specific input and textarea placeholders for scoped styling */
-.edit-title::placeholder {
-  color: #ccc; /* Custom color for title input placeholder */
-  font-style: italic;
-  font-weight: 400;
-  font-size: 16px;
-}
-
-.edit-textarea::placeholder {
-  color: #ccc; /* Custom color for content textarea placeholder */
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
-}
-
+/* Modal overlay */
 .modal {
   position: fixed;
-  background-color: #00000075;
+  background-color: rgba(0, 0, 0, 0.5);
   top: 0;
   left: 0;
   width: 100%;
@@ -282,13 +257,16 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Modal sopra tutto il resto */
+  z-index: 999; /* Ensures the modal is above everything else */
   cursor: default;
 }
 
+/* Modal content */
 .modal-content {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
+  background-color: var(
+    --note-background-color
+  ); /* Use your custom note background color */
+  color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 20px;
   width: 80%;
@@ -296,6 +274,72 @@ export default {
   position: relative;
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateY(-20px);
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0; /* Remove default padding */
+}
+
+/* Style for list items */
+li {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Ensure items are spaced evenly */
+  margin-bottom: 10px; /* Adjust as needed */
+}
+
+/* Mostra solo i primi 2 elementi della lista */
+ul li:nth-child(n+3) {
+  display: none; /* Nasconde tutti gli elementi dopo il secondo */
+}
+
+/* Checkbox styling */
+.item-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-start; /* Align items to the left */
+}
+
+.item-checkbox {
+  -webkit-appearance: none; /* Remove default appearance */
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #878a8e;
+  margin-right: 10px;
+  background-color: var(--note-background-color); /* Match note background */
+  cursor: pointer;
+}
+
+.item-checkbox:checked {
+  background-color: #40eb4696; /* Change background color when checked */
+  border-color: #878a8e;
+  border-width: 1.3px;
+}
+
+/* Text styling */
+.item-text {
+  font-size: 16px;
+  flex: 1; /* To make item text take remaining space */
+}
+
+.completed {
+  opacity: 0.5; /* Reduce opacity for completed items */
+  text-decoration: line-through; /* Strikethrough for completed items */
+}
+
+.completed .item-checkbox {
+  background-color: #40eb4696; /* Change background color when checked */
+  border-color: #ffffff;
+  border-width: 1.3px;
+}
+
+.completed .item-text {
+  opacity: 0.5; /* Reduce opacity of text for completed items */
 }
 
 .note {
@@ -311,6 +355,7 @@ export default {
   position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
+  max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   display: block;
@@ -326,20 +371,11 @@ export default {
 
 .note-content {
   white-space: pre-wrap;
-  max-width: 100%; /* Ensure content wraps within the note */
-}
-.placeholder {
-  color: #aaa; /* Placeholder color */
-  font-style: italic;
-}
-.edit-container {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
+  max-width: 100%;
+  max-height: 70px; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  line-height: 1.2em; 
 }
 
 .edit-title {
@@ -350,30 +386,44 @@ export default {
   font-size: 18px;
   padding: 10px;
   margin-bottom: 10px;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
+  border: none;
+  outline: none;
 }
 
-textarea {
+.edit-textarea {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
   width: 100%;
   box-sizing: border-box;
-  font-size: 18px;
+  font-size: 14px;
   padding: 10px;
-  resize: none; /* Disable textarea resizing */
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
+  resize: none;
+  border: none;
+  outline: none;
+}
+
+.add-btn {
+  color: #4caf50;
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
+}
+
+.remove-btn {
+  color: red;
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
 }
 
 .edit-actions {
-  justify-content: flex-end;
-  top: 0;
-  right: 0;
-  margin-top: 5px; /* Adjust as needed */
-  margin-right: 10px; /* Adjust as needed */
   display: flex;
-  gap: 10px; /* Space between buttons */
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.edit-actions button {
+  margin-left: 10px;
 }
 
 .save-btn {
@@ -385,12 +435,11 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.delete-btn-modal{
+
+.delete-btn-modal {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
   left: 5px;
@@ -399,13 +448,11 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
 
-.delete-btn{
+.delete-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
@@ -414,11 +461,10 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
+
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
@@ -428,18 +474,18 @@ textarea {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.type{
+
+.type {
   color: rgb(196, 196, 196);
   position: absolute;
   top: 5px;
   left: 5px;
   font-size: 8px;
 }
+
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -447,13 +493,15 @@ textarea {
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
+
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
   bottom: 5px;
   right: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
+  font-size: 8px;
 }
+
 @media (max-width: 600px) {
   .note {
     padding: 10px;

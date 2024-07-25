@@ -285,6 +285,7 @@ export default {
   color: #aaa; /* Placeholder color */
   font-style: italic;
 }
+
 /* Modal overlay */
 .modal {
   position: fixed;
@@ -314,6 +315,7 @@ export default {
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateY(-20px);
 }
+
 ul {
   list-style-type: none;
   padding-left: 0; /* Remove default padding */
@@ -326,6 +328,15 @@ li {
   align-items: center;
   justify-content: space-between; /* Ensure items are spaced evenly */
   margin-bottom: 10px; /* Adjust as needed */
+}
+
+/* Mostra solo i primi 2 elementi della lista fuori dal modal */
+.note-content ul li:nth-child(n+3) {
+  display: none; /* Nasconde tutti gli elementi dopo il secondo */
+}
+
+.note.opened ul li {
+  display: flex; /* Mostra tutti gli elementi quando la nota è aperta */
 }
 
 /* Checkbox styling */
@@ -374,6 +385,7 @@ li {
 .completed .item-text {
   opacity: 0.5; /* Reduce opacity of text for completed items */
 }
+
 .note {
   background-color: var(--note-background-color);
   position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
@@ -387,6 +399,7 @@ li {
   position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
+  max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   display: block;
@@ -394,6 +407,7 @@ li {
   justify-content: center;
   position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
+  cursor: pointer; /* Aggiunge il cursore per indicare che è cliccabile */
 }
 
 .note:hover {
@@ -403,6 +417,14 @@ li {
 .note-content {
   white-space: pre-wrap;
   max-width: 100%;
+  max-height: 70px; /* Limita l'altezza del testo visibile */
+  overflow: hidden; /* Nasconde il testo in eccesso */
+  text-overflow: ellipsis; /* Aggiunge i puntini di sospensione per il testo tagliato */
+  line-height: 1.2em; /* Altezza di ciascuna riga di testo */
+}
+
+.note.opened .note-content {
+  max-height: none; /* Rimuove il limite di altezza quando la nota è aperta */
 }
 
 .edit-title {
@@ -432,7 +454,7 @@ li {
 .add-btn {
   color: #4caf50;
   background-color: transparent;
-  border-color: transparenT;
+  border-color: transparent;
   cursor: pointer;
 }
 
@@ -452,6 +474,7 @@ li {
 .edit-actions button {
   margin-left: 10px;
 }
+
 .save-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
@@ -461,12 +484,11 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.delete-btn-modal{
+
+.delete-btn-modal {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
   left: 5px;
@@ -475,13 +497,11 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
 
-.delete-btn{
+.delete-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
@@ -490,11 +510,10 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
+
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
@@ -504,12 +523,11 @@ li {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color:var(
-    --note-background-color
-  );
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
-.type{
+
+.type {
   color: rgb(196, 196, 196);
   position: absolute;
   top: 5px;
@@ -524,6 +542,7 @@ li {
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
+
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
