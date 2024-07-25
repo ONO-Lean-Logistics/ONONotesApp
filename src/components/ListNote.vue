@@ -281,6 +281,7 @@ export default {
   font-size: 14px;
   opacity: 1;
 }
+
 .placeholder {
   color: #aaa; /* Placeholder color */
   font-style: italic;
@@ -289,7 +290,6 @@ export default {
 /* Modal overlay */
 .modal {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
   top: 0;
   left: 0;
   width: 100%;
@@ -297,15 +297,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 999; /* Ensures the modal is above everything else */
   cursor: default;
 }
 
 /* Modal content */
 .modal-content {
-  background-color: var(
-    --note-background-color
-  ); /* Use your custom note background color */
+  background-color: var(--note-background-color); /* Use your custom note background color */
   color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 20px;
@@ -319,6 +318,7 @@ export default {
 ul {
   list-style-type: none;
   padding-left: 0; /* Remove default padding */
+  margin-top: 20px; /* Add top margin for extra spacing from the title */
 }
 
 /* Style for list items */
@@ -388,7 +388,6 @@ li {
 
 .note {
   background-color: var(--note-background-color);
-  position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
   z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
   display: flex;
   flex-direction: column;
@@ -396,16 +395,11 @@ li {
   justify-content: center;
   padding: 20px;
   border: 1px solid transparent;
-  position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
   max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
-  display: block;
-  align-items: center;
-  justify-content: center;
-  position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
   cursor: pointer; /* Aggiunge il cursore per indicare che è cliccabile */
 }
@@ -427,6 +421,7 @@ li {
   max-height: none; /* Rimuove il limite di altezza quando la nota è aperta */
 }
 
+/* Edit title */
 .edit-title {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
@@ -434,7 +429,7 @@ li {
   box-sizing: border-box;
   font-size: 18px;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 20px; /* Increase the bottom margin for more spacing */
   border: none;
   outline: none;
 }

@@ -233,7 +233,7 @@ export default {
 <style scoped>
 @import "../assets/main.css";
 
-/* Placeholder styling */
+/* Placeholder Styling */
 ::placeholder {
   color: #ccc;
   font-style: italic;
@@ -241,12 +241,13 @@ export default {
   font-size: 14px;
   opacity: 1;
 }
+
 .placeholder {
-  color: #aaa; /* Placeholder color */
+  color: #aaa;
   font-style: italic;
 }
 
-/* Modal overlay */
+/* Modal Overlay */
 .modal {
   position: fixed;
   background-color: rgba(0, 0, 0, 0.5);
@@ -257,16 +258,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Ensures the modal is above everything else */
+  z-index: 999;
   cursor: default;
 }
 
-/* Modal content */
+/* Modal Content */
 .modal-content {
-  background-color: var(
-    --note-background-color
-  ); /* Use your custom note background color */
-  color: var(--note-text-color); /* Use your custom note text color */
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
   border: 1px solid transparent;
   padding: 20px;
   width: 80%;
@@ -276,92 +275,90 @@ export default {
   transform: translateY(-20px);
 }
 
+/* Unordered List Styling */
 ul {
   list-style-type: none;
-  padding-left: 0; /* Remove default padding */
+  padding-left: 0;
 }
 
-/* Style for list items */
+/* List Item Styling */
 li {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ensure items are spaced evenly */
-  margin-bottom: 10px; /* Adjust as needed */
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-/* Mostra solo i primi 2 elementi della lista */
+/* Hide List Items Beyond First Two */
 ul li:nth-child(n+3) {
-  display: none; /* Nasconde tutti gli elementi dopo il secondo */
+  display: none;
 }
 
-/* Checkbox styling */
+/* Item Container */
 .item-container {
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: flex-start; /* Align items to the left */
+  justify-content: flex-start;
 }
 
+/* Checkbox Styling */
 .item-checkbox {
-  -webkit-appearance: none; /* Remove default appearance */
+  -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   width: 16px;
   height: 16px;
   border: 1px solid #878a8e;
   margin-right: 10px;
-  background-color: var(--note-background-color); /* Match note background */
+  background-color: var(--note-background-color);
   cursor: pointer;
 }
 
 .item-checkbox:checked {
-  background-color: #40eb4696; /* Change background color when checked */
+  background-color: #40eb4696;
   border-color: #878a8e;
   border-width: 1.3px;
 }
 
-/* Text styling */
+/* Text Styling */
 .item-text {
   font-size: 16px;
-  flex: 1; /* To make item text take remaining space */
+  flex: 1;
 }
 
 .completed {
-  opacity: 0.5; /* Reduce opacity for completed items */
-  text-decoration: line-through; /* Strikethrough for completed items */
+  opacity: 0.5;
+  text-decoration: line-through;
 }
 
 .completed .item-checkbox {
-  background-color: #40eb4696; /* Change background color when checked */
+  background-color: #40eb4696;
   border-color: #ffffff;
   border-width: 1.3px;
 }
 
 .completed .item-text {
-  opacity: 0.5; /* Reduce opacity of text for completed items */
+  opacity: 0.5;
 }
 
+/* Note Container */
 .note {
   background-color: var(--note-background-color);
-  position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
-  z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
   border: 1px solid transparent;
-  position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
   max-height: 120px;
-  width: 100%; /* Note takes full width of its container */
+  width: 100%;
   max-width: 700px;
-  display: block;
-  align-items: center;
-  justify-content: center;
-  position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
 }
 
@@ -369,15 +366,17 @@ ul li:nth-child(n+3) {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Note Content */
 .note-content {
   white-space: pre-wrap;
   max-width: 100%;
-  max-height: 70px; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  line-height: 1.2em; 
+  max-height: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
 }
 
+/* Edit Title */
 .edit-title {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
@@ -390,6 +389,7 @@ ul li:nth-child(n+3) {
   outline: none;
 }
 
+/* Edit Textarea */
 .edit-textarea {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
@@ -402,6 +402,7 @@ ul li:nth-child(n+3) {
   outline: none;
 }
 
+/* Button Styles */
 .add-btn {
   color: #4caf50;
   background-color: transparent;
@@ -416,6 +417,7 @@ ul li:nth-child(n+3) {
   cursor: pointer;
 }
 
+/* Edit Actions */
 .edit-actions {
   display: flex;
   justify-content: flex-end;
@@ -426,8 +428,9 @@ ul li:nth-child(n+3) {
   margin-left: 10px;
 }
 
+/* Save Button */
 .save-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   bottom: 5px;
   right: 5px;
   font-size: 16px;
@@ -439,8 +442,9 @@ ul li:nth-child(n+3) {
   border-radius: 0;
 }
 
+/* Delete Button for Modal */
 .delete-btn-modal {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   bottom: 5px;
   left: 5px;
   font-size: 16px;
@@ -452,8 +456,9 @@ ul li:nth-child(n+3) {
   border-radius: 0;
 }
 
+/* Delete Button */
 .delete-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   top: 5px;
   right: 5px;
   font-size: 8px;
@@ -465,8 +470,9 @@ ul li:nth-child(n+3) {
   border-radius: 0;
 }
 
+/* Cancel Button */
 .cancel-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   top: 5px;
   right: 5px;
   font-size: 16px;
@@ -478,6 +484,7 @@ ul li:nth-child(n+3) {
   border-radius: 0;
 }
 
+/* Type Indicator */
 .type {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -486,14 +493,16 @@ ul li:nth-child(n+3) {
   font-size: 8px;
 }
 
+/* User Information */
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
   bottom: 5px;
   left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
+  font-size: 8px;
 }
 
+/* Timestamp */
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -502,6 +511,7 @@ ul li:nth-child(n+3) {
   font-size: 8px;
 }
 
+/* Media Queries */
 @media (max-width: 600px) {
   .note {
     padding: 10px;
@@ -524,4 +534,5 @@ ul li:nth-child(n+3) {
     padding: 20px;
   }
 }
+
 </style>
