@@ -2,6 +2,7 @@ import axios from "axios";
 
 const appCode = "note_test"; // Codice dell'applicazione ONO
 const appDataName = "test"; // Nome unico per l'appData che conterrà tutte le note
+const appGroupName = " ";
 sessionStorage.setItem("operatorName", "Mamma");
 sessionStorage.setItem("operatorSurname", "Mia");
 
@@ -141,6 +142,43 @@ async function makeONORequest(endpoint, requestData) {
     return response.data;
   } catch (error) {
     console.error(`Errore durante la richiesta ${endpoint}:`, error);
+    throw error;
+  }
+}
+
+
+
+// Save groups to the server
+export async function saveGroups(groups, isOccupiedFromServer) {
+  console.log(`before try/catch save`)
+  try {
+    // Prepara i dati delle note
+    const validGroups = groups.filter(group => group !== null && group !== undefined);
+    const allGroups = validGroups.map((note) => {
+        console.log(`Save group`)
+        return {
+          id: note.id,
+          title: note.title,
+          content: note.content, // Contenuto della nota classica
+          timestamp: note.timestamp,
+          utente: note.utente,
+          isEditing: note.isEditing,
+          type: note.type,
+        };
+    });
+    // Prepara i dati da salvare
+    const dataToSave = {
+      appCode: appCode,
+      groupName: appGroupName,
+      dataValue: JSON.stringify([
+        allGroups,
+        [{ isOccupied: isOccupiedFromServer }],
+      ]), // Converti le note in stringa JSON
+    };
+    // Effettua la richiesta al server
+    await makeONORequest("SetONOAppData", dataToSave);
+  } catch (error) {
+    console.error("Errore durante il salvataggio del gruppo:", error);
     throw error;
   }
 }

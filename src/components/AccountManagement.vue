@@ -5,14 +5,16 @@
         <button @click="$emit('close')" class="clear-button">
           <img src="../assets/X_icon.svg" alt="Clear" />
         </button>
-      <div v-if="!group">
-        <group-btn @click="switchToGroups" class="group-btn">Groups</group-btn>
+          <br>
         <h1>Username:</h1>
-      </div>
-      <div v-else-if="group">       
-        <group-btn  @click="switchToGroups" class="group-btn">Users</group-btn>
-        <h1>afszxf:</h1>
-      </div>
+          <br>
+        <div class="divider" :class="'divider-dark'"></div>
+          <br>
+          <div class="groups">
+          <button @click="createGroup" class="group-btn">
+            <i class="fa-solid fa-plus"></i>
+        </button><h1>Groups: </h1>
+        </div>
       </div>
     </div>
   </template>
@@ -31,7 +33,7 @@
         }
       };
     },
-  
+    
     methods: {
       updateAccount() {
         // Handle the account update logic here
@@ -81,6 +83,11 @@
     transform: translateY(-20px);
 
   }
+  .add-divider {
+  border-left: 1px solid var(--add-divider-color);
+  height: 120%;
+  margin: 0 5px;
+}
   .form-group {
     margin-bottom: 15px;
   }
@@ -89,7 +96,7 @@
     margin-bottom: 5px;
   }
 
-  button {
+  .clear-button {
     position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
     top: 5px;
     right: 5px;
@@ -103,20 +110,21 @@
   }
   
   .group-btn{
-    position: absolute; 
-    top: 5px;
-    left: 5px;
-    font-size: 16px;
-    padding: 6px 12px;
-    cursor: pointer;
-    color: var(--note-text-color);
+    color: #4caf50;
+    background-color: var(--note-background-color);
     border: none;
-    background-color: #b9b9b92f;
-    border-radius: 0;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 10px;
+    margin-right: 10px;
   }
-  h1{
 
-    left: 5px;
+  .groups{
+    display: flex;
+    align-items: center;
+  }
+
+  h1{
     font-size: 16px;
   }
   </style>

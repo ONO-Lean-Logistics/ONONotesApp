@@ -26,7 +26,7 @@
           <buttonUser @click="toggleAccountManagement">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
           </buttonUser>
-          <AccountManagement v-if="showAccountManagement" @close="showAccountManagement = false" />
+          <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false" />
         </div>
     </div>
     <!-- Divider Section -->
@@ -367,7 +367,7 @@ export default {
     },
 
     toggleAccountManagement(){
-      this.showAccountManagement = !this.showAccountManagement
+      this.showAccountManagement = true
     },
   }
   };
