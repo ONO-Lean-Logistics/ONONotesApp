@@ -30,7 +30,7 @@
     <div class="controls">
       <div class="notes-control"></div>
       <!-- Sort dropdown component -->
-      <SortDropdown class="sort-dropdown" @select-sort-criteria="sortNotes" />
+      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
     <!-- Note Grid Section -->
@@ -135,12 +135,13 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: ""
+      utente: "",
+      sortType: localStorage.getItem("sortType") || "Time",
+      sortOrder: localStorage.getItem("sortOrder") || "Oldest",
     };
   },
- 
+
   computed: {
-    // Filtered notes based on search query
     filteredNotes() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
@@ -151,15 +152,13 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
-    // Add button included in filtered notes
     filteredNotesWithAddButton() {
       const notesWithAddButton = [...this.filteredNotes];
       if (!this.isSearchActive) {
         notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
       }
-      return notesWithAddButton;
+      return this.sortNotes(notesWithAddButton);
     },
-    // Determine if search is active
     isSearchActive() {
       return this.searchQuery.trim() !== "";
     }
@@ -173,21 +172,17 @@ export default {
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
-      console.log(`Before filtering:`)
       try {
         const response = await loadNotes(); 
-        console.log(`Before filtering: ${response}`)
-        let resNotes = response.notes
+        let resNotes = response.notes;
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
           resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
         if(resNotes != null &&  resNotes.length>0) {
-          console.log(`After filtering: ${response.notes}`)
           this.notes = resNotes; 
           this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
         }else{
-          console.log("No filtering")
           this.nextId = 1; 
         }
       } catch (error) {
@@ -229,116 +224,74 @@ export default {
         )}px`;
       }
     },
-
-    sortNotes(criteria) {
-      switch (criteria) {
-        case "Most":
-          this.notes.sort((a, b) => {
+    sortNotes(notes) {
+      if (this.sortType === "Time") {
+        if (this.sortOrder === "Recent") {
+          return notes.sort((a, b) => b.timestamp - a.timestamp);
+        } else if (this.sortOrder === "Oldest") {
+          return notes.sort((a, b) => a.timestamp - b.timestamp);
+        }
+      } else if (this.sortType === "Length") {
+        if (this.sortOrder === "Most") {
+          return notes.sort((a, b) => {
             if (a.type === "classic" && b.type === "classic") {
               return b.content.length - a.content.length;
             } else if (a.type === "list" && b.type === "list") {
               return b.items.length - a.items.length;
-            } else {
-              return 0; 
             }
+            return 0;
           });
-          break;
-        case "Least":
-          this.notes.sort((a, b) => {
+        } else if (this.sortOrder === "Least") {
+          return notes.sort((a, b) => {
             if (a.type === "classic" && b.type === "classic") {
               return a.content.length - b.content.length;
             } else if (a.type === "list" && b.type === "list") {
               return a.items.length - b.items.length;
-            } else {
-              return 0; 
             }
+            return 0;
           });
-          break;
-        case "Recent":
-          this.notes.sort((a, b) => b.timestamp - a.timestamp);
-          break;
-        case "Oldest":
-          this.notes.sort((a, b) => a.timestamp - b.timestamp);
-          break;
-        default:
-          break;
-      }
-      this.saveAllNotes(); 
-    },
-
-    handleNoteReorder(event) {
-      const movedNote = this.notes.splice(event.oldIndex, 1)[0];
-      this.notes.splice(event.newIndex, 0, movedNote);
-    },
-    handleDragStart(event) {
-      if (
-        event.item &&
-        event.item.firstChild &&
-        event.item.firstChild.classList.contains("add-note")
-      ) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "0";
-      event.clone.style.opacity = "1000";
-      document.body.style.cursor = "grabbing";
-      event.item.style.cursor = "grabbing";
-    },
-    handleDragEnd(event) {
-      if (
-        event.item &&
-        event.item.firstChild &&
-        event.item.firstChild.classList.contains("add-note")
-      ) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "1";
-      document.body.style.cursor = "default";
-      event.item.style.cursor = "grab";
-      this.handleNoteReorder(event);
-      this.saveAllNotes();
-    },
-    async addNote(type) {
-      let addingNoteType = type;
-      let newNote;
-
-      if (addingNoteType === "classic") {
-        newNote = {
-          title: "",
-          content: "",
-          id: this.nextId,
-          timestamp: Date.now(),
-          utente: this.utente,
-          type: "classic",
-        };
-      } else if (addingNoteType === "list") {
-        newNote = {
-          title: "",
-          items: [],
-          id: this.nextId,
-          timestamp: Date.now(),
-          utente: this.utente,
-          type: "list",
-        };
-      }
-
-      this.nextId++; 
-      if(newNote != null){
-        console.log(newNote);
-        this.notes.push(newNote);
-
-        try {
-          await updateNotes(newNote.id, newNote);
-        } catch (error) {
-          console.error("Error saving the new note:", error);
         }
       }
+      return notes;
     },
-  }
+    handleDragStart(event) {
+      event.target.classList.add("dragging");
+    },
+    handleDragEnd(event) {
+      event.target.classList.remove("dragging");
+      this.saveAllNotes();
+    },
+    updateNote(index, action, data) {
+      if (action === "delete") {
+        this.notes.splice(index, 1);
+      } else if (action === "update") {
+        this.$set(this.notes, index, data);
+      }
+      this.saveAllNotes();
+    },
+    updateSortType(type) {
+      this.sortType = type;
+      localStorage.setItem("sortType", type);
+    },
+    updateSortOrder(order) {
+      this.sortOrder = order;
+      localStorage.setItem("sortOrder", order);
+    },
+    addNote(type) {
+      const newNote = {
+        id: this.nextId++,
+        title: "Nuova Nota",
+        content: "",
+        timestamp: Date.now(),
+        type: type,
+        utente: this.utente,
+      };
+      this.notes.push(newNote);
+      this.saveAllNotes();
+    },
+  },
 };
 </script>
-
 
 <style scoped>
 /* Import main styles */
