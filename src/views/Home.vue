@@ -1,9 +1,12 @@
 <template>
   <div class="home">
+    <!-- Header Section -->
     <div class="header">
+      <!-- Title -->
       <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
         Memo
       </h1>
+      <!-- Search bar with search functionality -->
       <div class="search-container">
         <i class="fas fa-search search-icon" @click="startSearch"></i>
         <input
@@ -14,19 +17,25 @@
           id="searchInput"
           @input="handleSearchInput"
         />
+        <!-- Clear search -->
       </div>
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
     </div>
+    <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
 
+    <!-- Controls Section -->
     <div class="controls">
       <div class="notes-control"></div>
+      <!-- Sort dropdown component -->
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
+    <!-- Note Grid Section -->
     <div>
+      <!-- Draggable component for notes -->
       <draggable
         :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
@@ -38,6 +47,7 @@
         handle=".note-container"
         @start="handleDragStart"
       >
+        <!-- Loop through notes and render them -->
         <div
           v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
@@ -51,6 +61,7 @@
           @dragend="noteDragging = null"
         >
           <template v-if="note && !note.isAddButton">
+            <!-- Render existing notes -->
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -76,16 +87,21 @@
             />
           </template>
           <template v-else-if="note && note.isAddButton">
+            <!-- Render add button -->
             <div v-if="!isSearchActive" class="note add-note">
               <div @click="addNote('classic')" class="add-button-classic">
+                <!-- Add Classic Note -->
                 <i class="fas fa-plus"></i>
                 <span>Nota</span>
               </div>
 
+              <!-- Divider between Add Buttons -->
               <div class="add-divider"></div>
 
+              <!-- Second Add Button -->
               <div class="list add-list">
                 <div @click="addNote('list')" class="add-button-list">
+                  <!-- Add List Note -->
                   <i class="fas fa-plus"></i>
                   <span>Lista</span>
                 </div>
@@ -209,35 +225,28 @@ export default {
       }
     },
     sortNotes(notes) {
-      if (this.sortType === "Time") {
-        if (this.sortOrder === "Recent") {
-          return notes.sort((a, b) => b.timestamp - a.timestamp);
-        } else if (this.sortOrder === "Oldest") {
-          return notes.sort((a, b) => a.timestamp - b.timestamp);
-        }
-      } else if (this.sortType === "Length") {
-        if (this.sortOrder === "Most") {
-          return notes.sort((a, b) => {
-            if (a.type === "classic" && b.type === "classic") {
-              return b.content.length - a.content.length;
-            } else if (a.type === "list" && b.type === "list") {
-              return b.items.length - a.items.length;
-            }
-            return 0;
-          });
-        } else if (this.sortOrder === "Least") {
-          return notes.sort((a, b) => {
-            if (a.type === "classic" && b.type === "classic") {
-              return a.content.length - b.content.length;
-            } else if (a.type === "list" && b.type === "list") {
-              return a.items.length - b.items.length;
-            }
-            return 0;
-          });
-        }
+  if (this.sortType === "Time") {
+    if (this.sortOrder === "Recent") {
+      return notes.sort((a, b) => b.timestamp - a.timestamp);
+    } else if (this.sortOrder === "Oldest") {
+      return notes.sort((a, b) => a.timestamp - b.timestamp);
+    }
+  } else if (this.sortType === "Length") {
+    return notes.sort((a, b) => {
+      const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
+      const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
+
+      
+      if (this.sortOrder === "Most") {
+        return bLength - aLength; 
+      } else if (this.sortOrder === "Least") {
+        return aLength - bLength; 
       }
-      return notes;
-    },
+      return 0; 
+    });
+  }
+  return notes;
+},
     handleDragStart(event) {
       event.target.classList.add("dragging");
     },
