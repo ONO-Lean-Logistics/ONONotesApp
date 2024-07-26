@@ -553,27 +553,8 @@ export default {
     transition: background-color 0.3s ease;
 }
 
-.add-button-classic,
-.add-button-list {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.8s ease;
-  padding: 10px;
-  margin: 0 5px;
-}
-
-.add-button-classic:hover,
-.add-button-list:hover {
-  background-color: #e0e0e0;
-}
-
-.add-divider {
-  border-left: 1px solid var(--add-divider-color);
-  height: 120%;
-  margin: 0 5px;
+.add-note:hover{
+  background-color:#5f5f5f9c;
 }
 
 .note-container.dragging,
