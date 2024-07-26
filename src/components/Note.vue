@@ -426,7 +426,7 @@ export default {
 .delete-btn-modal {
   position: absolute;
   bottom: 5px;
-  left: 5px;
+  right: 80px;
   font-size: 16px;
   padding: 10px 15px;
   cursor: pointer;
