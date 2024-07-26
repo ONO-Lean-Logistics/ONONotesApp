@@ -150,6 +150,14 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
+    filteredNotesWithAddButton() {
+      const notesWithAddButton = [...this.filteredNotes];
+      if (!this.isSearchActive) {
+        notesWithAddButton.push({ isAddButton: true }); 
+      }
+      return this.sortNotes(notesWithAddButton);
+    },
+   
   },
   created(){
     this.refreshQuery();
