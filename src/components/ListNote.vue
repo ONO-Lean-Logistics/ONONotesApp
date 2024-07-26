@@ -294,10 +294,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
 @import "../assets/main.css";
-
 
 ::placeholder {
   color: #ccc;
@@ -329,9 +327,7 @@ export default {
 
 /* Modal content */
 .modal-content {
-  background-color: var(
-    --note-background-color
-  ); /* Use your custom note background color */
+  background-color: var(--note-background-color); /* Use your custom note background color */
   color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 20px;
@@ -345,6 +341,7 @@ export default {
 ul {
   list-style-type: none;
   padding-left: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
 }
 
 /* Style for list items */
@@ -353,7 +350,7 @@ li {
   display: flex;
   align-items: center;
   justify-content: space-between; /* Ensure items are spaced evenly */
-  margin-bottom: 10px; /* Adjust as needed */
+  margin-bottom: 17px;
 }
 
 /* Checkbox styling */
@@ -416,7 +413,7 @@ li {
   position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
-  max-height:120px;
+  max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   display: block;
@@ -433,6 +430,7 @@ li {
 .note-content {
   white-space: pre-wrap;
   max-width: 100%;
+  margin-bottom: 5px; /* Increased spacing between title and list */
 }
 
 .edit-title {
@@ -462,7 +460,7 @@ li {
 .add-btn {
   color: #4caf50;
   background-color: transparent;
-  border-color: transparenT;
+  border-color: transparent;
   cursor: pointer;
 }
 
@@ -578,3 +576,4 @@ li {
   }
 }
 </style>
+
