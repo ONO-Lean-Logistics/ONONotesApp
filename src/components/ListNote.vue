@@ -32,6 +32,7 @@
       </ul>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
+      <div class="type">{{ type }}</div>
     </div>
     <!-- Delete Button -->
     <button
@@ -98,7 +99,7 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
+        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -119,6 +120,13 @@ export default {
     title: {
       type: String,
       required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      validator(value) {
+        return ['classic', 'list'].includes(value);
+      },
     },
     items: {
       type: Array,
@@ -179,6 +187,7 @@ export default {
         items: filteredItems,
         timestamp: Date.now(),
         utente: this.utente,
+        type: this.type,
       };
 
       try {
@@ -563,6 +572,14 @@ li {
   bottom: 5px;
   right: 5px;
   font-size: 8px;
+}
+
+.type {
+  position:absolute;
+  top:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size */
+  color: rgb(196, 196, 196);
 }
 
 @media (max-width: 600px) {
