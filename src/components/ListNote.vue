@@ -21,7 +21,7 @@
           <input
             :id="generateUniqueId('checkbox', idx)"
             type="checkbox"
-            @click.stop=""
+            @click.stop
             v-model="item.completed"
             class="item-checkbox"
           />
@@ -32,7 +32,6 @@
       </ul>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
-      <div class="type">{{ type }}</div>
     </div>
     <!-- Delete Button -->
     <button
@@ -76,8 +75,8 @@
               :class="{ completed: item.completed }"
               :id="generateUniqueId('item-input', idx)"
               placeholder="Enter item here"
-              @blur="checkItemText(idx)"
               ref="itemInputs"
+              @blur="removeEmptyItem(idx)"
             />
             <!-- Button to remove item -->
             <button
@@ -89,33 +88,17 @@
             </button>
           </div>
         </li>
-        <!-- Input and Button to add new item -->
-        <li v-if="showAddInput" class="item-container">
-          <input type="checkbox" class="item-checkbox" disabled />
-          <input
-            type="text"
-            v-model="newItemText"
-            @keyup.enter="handleKeyup"
-            placeholder="Add new item"
-            class="new-item-input"
-            ref="newItemInput"
-            @blur="checkNewItemText"
-          />
-        </li>
       </ul>
-      <div class="add-item-container">
-        <button @click="toggleAddInput" class="add-btn">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
+      <!-- Button to add new item -->
+      <button @click="addItem" class="add-btn">
+        <i class="fa-solid fa-plus"></i>
+      </button>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">
-          <img src="../assets/X_icon.svg" alt="Clear" />
-        </button>
+        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -123,6 +106,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
@@ -140,13 +124,6 @@ export default {
       type: Array,
       required: true,
     },
-    type: {
-      type: String,
-      required: true,
-      validator(value) {
-        return ["classic", "list"].includes(value);
-      },
-    },
     utente: {
       type: String,
       required: true,
@@ -160,51 +137,63 @@ export default {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
-      newItemText: "",
       isEditing: false,
       showEditIcon: false,
-      maxTitleLength: 25,
-      maxCharsPerLine: 28,
+      showIcons: false,
+      maxTitleLength: 25, // Default char limit per title
+      maxCharsPerLine: 28, // Default char limit per line
       formattedTimestamp: "",
-      hoverIndex: null,
-      showAddInput: false,
+      hoverIndex: null, // Add this line to track the index of the hovered item
     };
   },
   watch: {
+    // Update newTitle when title prop changes
     title(newVal) {
       this.newTitle = newVal;
     },
+    // Update newItems when items prop changes
     items(newVal) {
       this.newItems = newVal.map((item) => ({ ...item }));
     },
+    // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
   mounted() {
+    // Format timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
   methods: {
+    // Refresh the page
+    refreshPage() {
+      window.location.reload();
+    },
+    // Save edited note
     async saveEdit() {
+      // Remove empty items before saving
+      const filteredItems = this.newItems.filter((item) => item.text.trim() !== "");
+
       const editedNote = {
         id: this.noteId,
         title: this.newTitle,
-        items: this.newItems,
+        items: filteredItems,
         timestamp: Date.now(),
         utente: this.utente,
-        type: this.type,
       };
 
       try {
-        await updateNotes(this.noteId, editedNote);
+        await updateNotes(this.noteId, editedNote); // Update the specific note
+
         this.isEditing = false;
         this.showEditIcon = false;
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.$emit("save");
+      this.refreshPage();
     },
+    // Delete note
     async deleteNote() {
       try {
         const { notes } = await loadNotes();
@@ -215,24 +204,29 @@ export default {
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.$emit("save");
+      this.refreshPage();
     },
+    // Cancel editing
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
-      this.$emit("save");
+      this.refreshPage();
     },
+    // Start editing
     startEdit() {
       this.isEditing = true;
     },
+    // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
+        this.removeEmptyItems();
         this.saveEdit();
         this.isEditing = false;
       }
     },
+    // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -247,6 +241,7 @@ export default {
       const seconds = date.getSeconds().toString().padStart(2, "0");
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
+    // Truncate text to fit max characters per line
     truncatedText(text) {
       if (text.length <= this.maxCharsPerLine) {
         return text;
@@ -254,61 +249,56 @@ export default {
         return text.substring(0, this.maxCharsPerLine) + "...";
       }
     },
+    // Generate unique ID
     generateUniqueId(prefix, index = "") {
       return `${prefix}-${this._uid}-${index}`;
     },
+    // Toggle completion status of item
     toggleItemCompleted(index) {
-      if (this.items[index]) {
-        this.items[index].completed = !this.items[index].completed;
+      if (this.newItems[index]) {
+        this.newItems[index].completed = !this.newItems[index].completed;
       }
     },
+    // Add new item
+    addItem() {
+      // Check if the last item is empty before adding a new one
+      if (this.newItems.length === 0 || this.newItems[this.newItems.length - 1].text.trim() !== "") {
+        this.newItems.push({ text: "", completed: false });
+
+        // Focus the input of the newly added item
+        this.$nextTick(() => {
+          const newItemIndex = this.newItems.length - 1;
+          const newItemInput = this.$refs.itemInputs[newItemIndex];
+          if (newItemInput) {
+            newItemInput.focus();
+          }
+        });
+      } else {
+        alert("Please fill the last item before adding a new one.");
+      }
+    },
+    // Remove item at index
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
-    handleKeyup(event) {
-      if (event.key === "Enter") {
-        const text = this.newItemText.trim();
-        if (text) {
-          this.newItems.push({ text, completed: false });
-          this.newItemText = ""; // Clear input after adding
-          this.showAddInput = false;
-          this.$nextTick(() => {
-            // Make sure the newly added item is in focus for editing
-            const lastIndex = this.newItems.length - 1;
-            this.$refs.itemInputs[lastIndex].focus();
-          });
-        }
-      }
-    },
-    toggleAddInput() {
-      this.showAddInput = !this.showAddInput;
-      if (this.showAddInput) {
-        this.$nextTick(() => {
-          this.$refs.newItemInput.focus();
-        });
-      } else {
-        this.newItemText = "";
-      }
-    },
-    checkItemText(index) {
-      if (!this.newItems[index].text.trim()) {
+    // Remove empty item
+    removeEmptyItem(index) {
+      if (this.newItems[index] && this.newItems[index].text.trim() === "") {
         this.newItems.splice(index, 1);
       }
     },
-    checkNewItemText() {
-      if (!this.newItemText.trim()) {
-        this.newItemText = "";
-        this.showAddInput = false;
-      }
+    // Remove all empty items
+    removeEmptyItems() {
+      this.newItems = this.newItems.filter((item) => item.text.trim() !== "");
     },
   },
 };
 </script>
 
+
 <style scoped>
 @import "../assets/main.css";
 
-/* Placeholder styling */
 
 
 ::placeholder {
@@ -322,7 +312,7 @@ export default {
 
 }
 .placeholder {
-  color: #aaa; /* Placeholder color */
+  color: #aaa;
   font-style: italic;
 }
 /* Modal overlay */
