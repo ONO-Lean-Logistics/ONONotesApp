@@ -96,7 +96,7 @@ export default{
             }
             this.$emit("save")
         },
-        deletegroup(){
+        async deletegroup(){
             try{
                 const { groups } = await loadGroups();
                 const updatedGroups = groups.filter((group) => group.id !== this.groupId);

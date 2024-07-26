@@ -22,7 +22,13 @@
           <button @click="toggleAccountManagement" class="group-button">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
           </button>
-          <!--<Group v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />-->
+          <!--<Group 
+          v-show="showAccountManagement" 
+          @close="showAccountManagement = false, refreshQuery()" 
+          :group-id="group.id"
+          :name="group.name"
+          :owner="group.owner"
+          :members="group.members"/>-->
         </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
@@ -104,7 +110,7 @@
 </template>
 
 <script>
-//import Group from "../components/Group.vue";
+import Group from "../components/Group.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
@@ -118,7 +124,7 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    //Group
+    Group
   },
   data() {
     return {
@@ -337,7 +343,7 @@ export default {
     addNote(type) {
       const newNote = {
         id: this.nextId++,
-        title: "Nuova Nota",
+        title: "",
         content: "",
         timestamp: Date.now(),
         type: type,
