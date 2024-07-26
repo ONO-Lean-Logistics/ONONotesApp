@@ -34,14 +34,6 @@
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
     </div>
-    <!-- Delete Button -->
-    <button
-      v-if="showEditIcon && !isEditing"
-      class="delete-btn"
-      @click.stop="deleteNote"
-    >
-    <img src="../assets/delete.svg" alt="Clear" />
-    </button>
   </div>
   <!-- Modal for editing -->
   <div v-else class="modal" @click.stop="handleClickOutside">
@@ -502,19 +494,6 @@ li {
   left: 5px;
   font-size: 16px;
   padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: var(--note-background-color);
-  border-radius: 0;
-}
-
-.delete-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 12px;
-  padding: 5px 10px;
   cursor: pointer;
   color: var(--note-text-color);
   border: none;

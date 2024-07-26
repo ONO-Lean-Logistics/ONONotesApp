@@ -23,14 +23,6 @@
       <div class="type">{{ type }}</div>
     </div>
     <!-- Display Delete Button when hovering and not editing -->
-    <button
-      v-if="showEditIcon && !isEditing"
-      class="delete-btn"
-      @click.stop="deleteNote"
-    >
-    <img src="../assets/delete.svg" alt="Clear" />
-    </button>
-    <!-- Edit Modal -->
   </div>
   <div v-else class="modal" @click.stop="handleClickOutside">
     <div class="modal-content">
@@ -347,22 +339,6 @@ export default {
   font-size: 10px;
   color: rgb(196, 196, 196);
 }
-/* Delete Button ciaoo+ */
-.delete-btn {
-  right:5px;
-  top:5px;
-  position:absolute;
-  font-size: 12px;
-  padding: 5px 10px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: var(--note-background-color);
-  border-radius: 0;
-  flex-basis: 20%; /* Ensures consistent spacing */
-  text-align: right; /* Align text to the right */
-}
-
 /* Edit Title */
 .edit-title {
   background-color: var(--note-background-color);
