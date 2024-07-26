@@ -306,6 +306,7 @@ export default {
       });
     },
     sortNotes(notes) {
+      
   if (this.sortType === "Time") {
     if (this.sortOrder === "Recent") {
       return notes.sort((a, b) => b.timestamp - a.timestamp);
@@ -323,11 +324,11 @@ export default {
       } else if (this.sortOrder === "Least") {
         return aLength - bLength; 
       }
-      return 0; 
-    });
-  }
-  return notes;
-},
+       return 0; 
+      });
+    }
+    return notes;
+  },
 
     toggleAccountManagement(){
       this.showAccountManagement = true
