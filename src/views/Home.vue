@@ -22,7 +22,7 @@
           <button @click="toggleAccountManagement" class="group-button">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
           </button>
-          <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />
+          <!--<Group v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />-->
         </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import AccountManagement from "../components/AccountManagement.vue";
+//import Group from "../components/Group.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
@@ -118,7 +118,7 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    AccountManagement
+    //Group
   },
   data() {
     return {
@@ -129,6 +129,7 @@ export default {
       utente: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
+      showAccountManagement: false
     };
   },
 
@@ -298,6 +299,17 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
+    sortNotes(notes) {
+  if (this.sortType === "Time") {
+    if (this.sortOrder === "Recent") {
+      return notes.sort((a, b) => b.timestamp - a.timestamp);
+    } else if (this.sortOrder === "Oldest") {
+      return notes.sort((a, b) => a.timestamp - b.timestamp);
+    }
+  } else if (this.sortType === "Length") {
+    return notes.sort((a, b) => {
+      const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
+      const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
 
       
       if (this.sortOrder === "Most") {
@@ -305,8 +317,11 @@ export default {
       } else if (this.sortOrder === "Least") {
         return aLength - bLength; 
       }
-      this.saveAllNotes(); // Save after sorting
-    },
+      return 0; 
+    });
+  }
+  return notes;
+},
 
     toggleAccountManagement(){
       this.showAccountManagement = true
@@ -513,23 +528,14 @@ export default {
 }
 
 .add-note {
-  width: 100%;
-  max-width: 300px; 
-  height: 120px;
-  background-color: #f0f0f0;
-  border: #ccc;
-  color: #aaa;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  background-color: #7c7c7c00;
-  border: none;
-  border-radius: 4px;
-  color: #ffffff;
-  cursor: pointer;
-  padding: 10px;
-  flex-direction: row-reverse;
-  transition: background-color 0.8s ease, opacity 0.8s ease; 
+  padding: 8px 16px;
+    font-size: 14px;
+    background-color: #7c7c7c00;
+    color: #9c9c9c;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .add-button-classic,

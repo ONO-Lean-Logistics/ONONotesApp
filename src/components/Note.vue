@@ -488,15 +488,5 @@ export default {
   font-weight: 300;
   font-size: 14px;
 }
-
-
-
-
-
-
-
-
-
-
-
+}
 </style>
