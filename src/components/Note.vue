@@ -275,74 +275,6 @@ export default {
   transform: translateY(-20px);
 }
 
-/* Unordered List Styling */
-ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-/* List Item Styling */
-li {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-/* Hide List Items Beyond First Two */
-ul li:nth-child(n+3) {
-  display: none;
-}
-
-/* Item Container */
-.item-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: flex-start;
-}
-
-/* Checkbox Styling */
-.item-checkbox {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #878a8e;
-  margin-right: 10px;
-  background-color: var(--note-background-color);
-  cursor: pointer;
-}
-
-.item-checkbox:checked {
-  background-color: #40eb4696;
-  border-color: #878a8e;
-  border-width: 1.3px;
-}
-
-/* Text Styling */
-.item-text {
-  font-size: 16px;
-  flex: 1;
-}
-
-.completed {
-  opacity: 0.5;
-  text-decoration: line-through;
-}
-
-.completed .item-checkbox {
-  background-color: #40eb4696;
-  border-color: #ffffff;
-  border-width: 1.3px;
-}
-
-.completed .item-text {
-  opacity: 0.5;
-}
-
 /* Note Container */
 .note {
   background-color: var(--note-background-color);
@@ -350,8 +282,7 @@ ul li:nth-child(n+3) {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* To space items within the note */
   padding: 20px;
   border: 1px solid transparent;
   transition: box-shadow 0.3s ease;
@@ -360,6 +291,7 @@ ul li:nth-child(n+3) {
   width: 100%;
   max-width: 700px;
   user-select: none;
+  box-sizing: border-box; /* Ensures padding is included in the total width/height */
 }
 
 .note:hover {
@@ -374,6 +306,62 @@ ul li:nth-child(n+3) {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2em;
+  margin-bottom: 10px; /* Added margin for spacing */
+  flex-grow: 1; /* Allow the content to take up remaining space */
+}
+
+/* Note Footer (Type, User, Timestamp, Delete) */
+.note-footer {
+  display: flex;
+  justify-content: space-between; /* Aligns items to space between */
+  align-items: center;
+  width: 100%;
+  font-size: 10px; /* Smaller font size for footer info */
+  color: rgb(196, 196, 196); /* Grey color for footer */
+  margin-top: 10px; /* Added margin for spacing */
+}
+
+/* Type Indicator */
+.type {
+  position:absolute;
+  top:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size */
+  color: rgb(196, 196, 196);
+}
+
+/* User information */
+.utente {
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size as needed */
+  color: rgb(196, 196, 196);
+}
+
+/* Timestamp */
+.timestamp {
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  font-size: 10px;
+  color: rgb(196, 196, 196);
+}
+
+/* Delete Button */
+.delete-btn {
+  right:5px;
+  top:5px;
+  position:absolute;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
+  flex-basis: 20%; /* Ensures consistent spacing */
+  text-align: right; /* Align text to the right */
 }
 
 /* Edit Title */
@@ -400,21 +388,6 @@ ul li:nth-child(n+3) {
   resize: none;
   border: none;
   outline: none;
-}
-
-/* Button Styles */
-.add-btn {
-  color: #4caf50;
-  background-color: transparent;
-  border-color: transparent;
-  cursor: pointer;
-}
-
-.remove-btn {
-  color: red;
-  background-color: transparent;
-  border-color: transparent;
-  cursor: pointer;
 }
 
 /* Edit Actions */
@@ -456,20 +429,6 @@ ul li:nth-child(n+3) {
   border-radius: 0;
 }
 
-/* Delete Button */
-.delete-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: var(--note-background-color);
-  border-radius: 0;
-}
-
 /* Cancel Button */
 .cancel-btn {
   position: absolute;
@@ -482,33 +441,6 @@ ul li:nth-child(n+3) {
   border: none;
   background-color: var(--note-background-color);
   border-radius: 0;
-}
-
-/* Type Indicator */
-.type {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
-
-/* User Information */
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px;
-}
-
-/* Timestamp */
-.timestamp {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  font-size: 8px;
 }
 
 /* Media Queries */
@@ -534,5 +466,4 @@ ul li:nth-child(n+3) {
     padding: 20px;
   }
 }
-
 </style>

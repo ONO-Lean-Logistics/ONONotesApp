@@ -271,6 +271,7 @@ export default {
 </script>
 
 <style scoped>
+
 @import "../assets/main.css";
 
 /* Placeholder styling */
@@ -386,22 +387,23 @@ li {
   opacity: 0.5; /* Reduce opacity of text for completed items */
 }
 
+/* Note container */
 .note {
   background-color: var(--note-background-color);
   z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Space items inside the note */
   padding: 20px;
   border: 1px solid transparent;
   transition: box-shadow 0.3s ease;
-  min-height: 120px;
+  min-height: 120px; /* Increased height to accommodate footer */
   max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   user-select: none;
   cursor: pointer; /* Aggiunge il cursore per indicare che è cliccabile */
+  position: relative; /* Allows for absolute positioning within */
 }
 
 .note:hover {
@@ -419,6 +421,17 @@ li {
 
 .note.opened .note-content {
   max-height: none; /* Rimuove il limite di altezza quando la nota è aperta */
+}
+
+/* Note footer */
+.note-footer {
+  display: flex;
+  justify-content: space-between; /* Aligns items to space between */
+  align-items: center;
+  width: 100%;
+  font-size: 10px; /* Smaller font size for footer info */
+  color: rgb(196, 196, 196); /* Grey color for footer */
+  margin-top: 10px; /* Adds spacing from the content */
 }
 
 /* Edit title */
@@ -500,8 +513,8 @@ li {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
+  font-size: 12px;
+  padding: 5px 10px;
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
@@ -509,6 +522,7 @@ li {
   border-radius: 0;
 }
 
+/* Cancel button */
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
@@ -522,30 +536,34 @@ li {
   border-radius: 0;
 }
 
+/* Type indicator */
 .type {
+  position:absolute;
+  top:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size */
   color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
 }
 
+/* User information */
 .utente {
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size as needed */
   color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
 }
 
+/* Timestamp */
 .timestamp {
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  font-size: 10px;
   color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  font-size: 8px;
 }
 
+/* Media Queries */
 @media (max-width: 600px) {
   .note {
     padding: 10px;
