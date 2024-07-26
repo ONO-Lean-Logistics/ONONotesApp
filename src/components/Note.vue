@@ -22,14 +22,7 @@
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
     </div>
-    <!-- Display Delete Button when hovering and not editing -->
-    <button
-      v-if="showEditIcon && !isEditing"
-      class="delete-btn"
-      @click.stop="deleteNote"
-    >
-    <img src="../assets/delete.svg" alt="Clear" />
-    </button>
+    
     <!-- Edit Modal -->
   </div>
   <div v-else class="modal" @click.stop="handleClickOutside">
