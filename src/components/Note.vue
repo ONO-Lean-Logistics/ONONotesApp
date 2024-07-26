@@ -325,7 +325,7 @@ export default {
 /* Type Indicator */
 .type {
   position:absolute;
-  top:5px;
+  top:2px;
   left:5px;
   font-size: 10px; /* Adjust the font size */
   color: rgb(196, 196, 196);
@@ -334,9 +334,9 @@ export default {
 /* User information */
 .utente {
   position:absolute;
-  bottom:5px;
+  bottom:2px;
   left:5px;
-  font-size: 10px; /* Adjust the font size as needed */
+  font-size: 8px; /* Adjust the font size as needed */
   color: rgb(196, 196, 196);
 }
 
@@ -345,7 +345,7 @@ export default {
   position:absolute;
   bottom:5px;
   right:5px;
-  font-size: 10px;
+  font-size: 8px;
   color: rgb(196, 196, 196);
 }
 /* Delete Button ciaoo+ */
