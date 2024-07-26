@@ -26,7 +26,15 @@
           <button @click="toggleAccountManagement" class="group-button">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
           </button>
-          <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />
+          <Group 
+          v-show="showAccountManagement" 
+          @close="showAccountManagement = false, refreshQuery()" 
+          :groupId="group.id"
+          :name="group.name"
+          :owner="group.owner"
+          :members="group.members"
+          :index="index"
+          @update-group="updateGroups(index, $event.action, $event.data)"/>
         </div>
     </div>
     <!-- Divider Section -->
@@ -34,18 +42,6 @@
 
     <!-- Controls Section -->
     <div class="controls">
-        <button 
-        class="add-note"
-        @click="addNote('list')" >
-          <i class="fas fa-plus"></i>
-          Lista
-        </button>
-        <button 
-        class="add-note"
-        @click="addNote('classic')" >
-          <i class="fas fa-plus"></i>
-          Nota
-        </button>
       <div class="notes-control"></div>
       <!-- Sort dropdown component -->
       <SortDropdown class="sort-dropdown" @select-sort-criteria="sortNotes" />
@@ -54,8 +50,8 @@
     <!-- Note Grid Section -->
     <div>
       <!-- Draggable component for notes -->
-      <draggable 
-        :value="filteredNotes"
+      <draggable
+        :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
         group="notes"
         :item-key="(note) => note.id"
@@ -67,7 +63,7 @@
       >
         <!-- Loop through notes and render them -->
         <div
-          v-for="(note, index) in filteredNotes"
+          v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
           :class="[
             'note-container',
@@ -104,6 +100,28 @@
               @save="refreshQuery()"
             />
           </template>
+          <template v-else-if="note && note.isAddButton">
+            <!-- Render add button -->
+            <div class="note add-note">
+              <div @click="addNote('classic')" class="add-button-classic">
+                <!-- Add Classic Note -->
+                <i class="fas fa-plus"></i>
+                <span>Nota</span>
+              </div>
+
+              <!-- Divider between Add Buttons -->
+              <div class="add-divider"></div>
+
+              <!-- Second Add Button -->
+              <div class="list add-list">
+                <div @click="addNote('list')" class="add-button-list">
+                  <!-- Add List Note -->
+                  <i class="fas fa-plus"></i>
+                  <span>Lista</span>
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
       </draggable>
     </div>
@@ -111,12 +129,13 @@
 </template>
 
 <script>
-import AccountManagement from "../components/AccountManagement.vue";
+import Group from "../components/Group.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
 import draggable from "vuedraggable";
 import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
+import { updateGroups } from "../api/apiService";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -126,11 +145,12 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    AccountManagement
+    Group
   },
   data() {
     return {
       notes: [],
+
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
@@ -151,12 +171,18 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
+    // Add button included in filtered notes
+    filteredNotesWithAddButton() {
+      const notesWithAddButton = [...this.filteredNotes];
+      notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
+      return notesWithAddButton;
+    },
+  
   },
   created(){
     this.refreshQuery();
   },
 
-  
   methods: {
 
     // Add new note function
@@ -520,7 +546,6 @@ export default {
 .notes-control {
   display: flex;
   align-items: left;
-  background-color: #2a577e;
 }
 
 /* Sort dropdown */
@@ -554,17 +579,21 @@ export default {
 
 /* Add note button */
 .add-note {
-  align-items: center;
-  background-color: #7c7c7c00;
-  border: none;
-  border-radius: 4px;
-  color: #ffffff;
-  cursor: pointer;
+  width: 100%;
+  max-width: 300px; /* Adjusted width for 5 notes per row */
+  height: 120px;
+  background-color: #f0f0f0;
+  border: #ccc;
+  color: #aaa;
+  font-size: 24px;
   display: flex;
-  font-size: 14px;
-  justify-content: center; 
-  padding: 8px 16px;
-  gap: 8px; 
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 10px;
+  flex-direction: row-reverse;
+  transition: background-color 0.8s ease, opacity 0.8s ease; /* Add opacity transition */
 }
 
 /* Add button hover effect */
@@ -592,7 +621,8 @@ export default {
   margin: 0 5px;
 }
 /* Ensure dragged item is fully visible */
-.note-container.dragging {
+.note-container.dragging,
+.add-note.dragging {
   opacity: 100%; /* Adjust opacity as needed */
 }
 
