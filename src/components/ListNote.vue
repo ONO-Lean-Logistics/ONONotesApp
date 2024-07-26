@@ -32,7 +32,6 @@
       </ul>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
-      <div class="type">{{ type }}</div>
     </div>
     <!-- Delete Button -->
     <button
@@ -76,6 +75,8 @@
               :class="{ completed: item.completed }"
               :id="generateUniqueId('item-input', idx)"
               placeholder="Enter item here"
+              ref="itemInputs"
+              @blur="removeEmptyItem(idx)"
             />
             <!-- Button to remove item -->
             <button
@@ -88,28 +89,17 @@
           </div>
         </li>
       </ul>
-      <!-- Input and Button to add new item -->
-      <div class="add-item-container">
-        <button @click="toggleAddInput" class="add-btn">
+      <!-- Button to add new item -->
+      <button @click="addItem" class="add-btn">
+        <i class="fa-solid fa-plus"></i>
+      </button>
           <i class="fa-solid fa-plus"></i>
-        </button>
-        <input
-          v-if="showAddInput"
-          type="text"
-          v-model="newItemText"
-          @keyup.enter="handleKeyup"
-          placeholder="Add new item"
-          class="new-item-input"
-        />
-      </div>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">
-          <img src="../assets/X_icon.svg" alt="Clear" />
-        </button>
+        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -117,6 +107,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
@@ -163,14 +154,13 @@ export default {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
-      newItemText: "", // New data property for the new item text input
       isEditing: false,
       showEditIcon: false,
+      showIcons: false,
       maxTitleLength: 25, // Default char limit per title
       maxCharsPerLine: 28, // Default char limit per line
       formattedTimestamp: "",
-      hoverIndex: null,
-      showAddInput: false, // Track whether to show the new item input
+      hoverIndex: null, // Add this line to track the index of the hovered item
     };
   },
   
@@ -264,56 +254,103 @@ export default {
 
     // Save edited note
     async saveEdit() {
+      // Remove empty items before saving
+      const filteredItems = this.newItems.filter((item) => item.text.trim() !== "");
+
       const editedNote = {
         id: this.noteId,
         title: this.newTitle,
-        items: this.newItems,
+        items: filteredItems,
         timestamp: Date.now(),
         utente: this.utente,
-        type: this.type,
       };
 
       try {
         await updateNotes(this.noteId, editedNote); // Update the specific note
+
         this.isEditing = false;
         this.showEditIcon = false;
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.$emit("save");
+      this.refreshPage();
     },
-
+    // Delete note
+    async deleteNote() {
+      try {
+        const { notes } = await loadNotes();
+        const updatedNotes = notes.filter((note) => note.id !== this.noteId);
+        await saveNotes(updatedNotes, false);
+        this.isEditing = false;
+        this.showEditIcon = false;
+      } catch (error) {
+        console.error("Failed to delete note:", error);
+      }
+      this.refreshPage();
+    },
+    // Cancel editing
+    cancelEdit() {
+      this.newTitle = this.title;
+      this.newItems = this.items.map((item) => ({ ...item }));
+      this.isEditing = false;
+      this.showEditIcon = false;
+      this.refreshPage();
+    },
     // Start editing
     startEdit() {
       this.isEditing = true;
     },
-
-    // Toggle add item input visibility
-    toggleAddInput() {
-      this.showAddInput = !this.showAddInput;
-      if (this.showAddInput) {
-        this.$nextTick(() => this.$refs.newItemInput.focus());
+    // Handle click outside modal
+    handleClickOutside(event) {
+      if (!event.target.closest(".modal-content")) {
+        this.removeEmptyItems();
+        this.saveEdit();
+        this.isEditing = false;
       }
     },
 
     // Toggle completion status of item
     toggleItemCompleted(index) {
-      if (this.items[index]) {
-        this.items[index].completed = !this.items[index].completed;
+      if (this.newItems[index]) {
+        this.newItems[index].completed = !this.newItems[index].completed;
       }
     },
+    // Add new item
+    addItem() {
+      // Check if the last item is empty before adding a new one
+      if (this.newItems.length === 0 || this.newItems[this.newItems.length - 1].text.trim() !== "") {
+        this.newItems.push({ text: "", completed: false });
 
-    // Truncate text to fit max characters per line
-    truncatedText(text) {
-      if (text.length <= this.maxCharsPerLine) {
-        return text;
+        // Focus the input of the newly added item
+        this.$nextTick(() => {
+          const newItemIndex = this.newItems.length - 1;
+          const newItemInput = this.$refs.itemInputs[newItemIndex];
+          if (newItemInput) {
+            newItemInput.focus();
+          }
+        });
       } else {
-        return text.substring(0, this.maxCharsPerLine) + "...";
+        alert("Please fill the last item before adding a new one.");
       }
+    },
+    // Remove item at index
+    removeItem(index) {
+      this.newItems.splice(index, 1);
+    },
+    // Remove empty item
+    removeEmptyItem(index) {
+      if (this.newItems[index] && this.newItems[index].text.trim() === "") {
+        this.newItems.splice(index, 1);
+      }
+    },
+    // Remove all empty items
+    removeEmptyItems() {
+      this.newItems = this.newItems.filter((item) => item.text.trim() !== "");
     },
   },
 };
 </script>
+
 
 <style scoped>
 @import "../assets/main.css";
