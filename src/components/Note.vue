@@ -15,8 +15,8 @@
       <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
       <pre style="font-size: 16px" v-if="content">{{
-          truncateContent(content)
-        }}</pre>
+        truncateContent(content)
+      }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
@@ -56,7 +56,9 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">X</button>
+        <button @click.stop="cancelEdit" class="cancel-btn">
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
         <button @click.stop="saveEdit" class="save-btn">Save</button>
       </div>
     </div>
@@ -97,7 +99,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return ['classic', 'list'].includes(value);
+        return ["classic", "list"].includes(value);
       },
     },
   },
@@ -114,77 +116,48 @@ export default {
     };
   },
   watch: {
+    content(newVal) {
+      this.newContent = newVal;
+    },
     // Watch for changes in title, content, and timestamp
     title(newVal) {
       this.newTitle = newVal;
-    },
-    content(newVal) {
-      this.newContent = newVal;
     },
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
   },
+  
   mounted() {
     // Initialize formatted timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
     this.isEditing = false;
   },
+
   methods: {
-    async saveEdit() {
-      const editedNote = {
-        id: this.noteId,
-        title: this.newTitle,
-        content: this.newContent,
-        timestamp: Date.now(),
-        utente: this.utente,
-        type: this.type,
-      };
 
-      try {
-        // Update the note using API service
-
-        await updateNotes(this.noteId, editedNote); // Update only the specific note
-        this.showEditIcon = false;
-        this.isEditing = false;
-        
-      } catch (error) {
-        console.error("Failed to save note:", error);
-      };
-      this.$emit("save")
+    cancelEdit() {
+      this.newTitle = this.title;
+      this.isEditing = false;
+      this.showEditIcon = false;
+      this.$emit("save");
     },
+
     // Delete the note
     async deleteNote() {
-      try {     
+      try {
         // Load all notes, filter out the deleted note, and save
 
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
-        this.$emit("save")
+        this.$emit("save");
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
+    },
 
-    },
-    cancelEdit() {
-
-      this.newTitle = this.title;
-      this.newContent = this.content;
-      this.showEditIcon = false;
-      this.$emit("save")
-    },
-    startEdit() {
-      this.isEditing = true;
-    },
-    // Handle click outside the modal to save edits
-    handleClickOutside(event) {
-      if (!event.target.closest(".modal-content")) {
-        this.saveEdit();
-        this.isEditing = false;
-      }
-    },
     // Format timestamp into a readable string
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
@@ -200,14 +173,15 @@ export default {
       const seconds = date.getSeconds().toString();
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
-    // Truncate content to fit within specified character limit per line
-    truncateContent(content, charsPerLine) {
-      if (content.length > charsPerLine) {
-        return content.substring(0, charsPerLine) + "...";
-      } else {
-        return content;
+
+    // Handle click outside the modal to save edits
+    handleClickOutside(event) {
+      if (!event.target.closest(".modal-content")) {
+        this.saveEdit();
+        this.isEditing = false;
       }
     },
+
     // Handle textarea input to format text within specified limits
     handleTextareaInput() {
       var box = document.getElementById("textInput");
@@ -227,38 +201,121 @@ export default {
         box.value = lines.slice(0, 10).join("\n");
       };
     },
+
+    async saveEdit() {
+      const editedNote = {
+        id: this.noteId,
+        title: this.newTitle,
+        content: this.newContent,
+        timestamp: Date.now(),
+        utente: this.utente,
+        type: this.type,
+      };
+
+      try {
+        // Update the note using API service
+
+        await updateNotes(this.noteId, editedNote); // Update only the specific note
+        this.showEditIcon = false;
+        this.isEditing = false;
+      } catch (error) {
+        console.error("Failed to save note:", error);
+      }
+      this.$emit("save");
+    },
+    
+    startEdit() {
+      this.isEditing = true;
+    },
+    
+    // Truncate content to fit within specified character limit per line
+    truncateContent(content) {
+      if (content.length > 26) {
+        return content.substring(0, 26) + "...";
+      } else {
+        return content;
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
 @import "../assets/main.css";
-/* Input and Textarea Placeholder Styling */
-::placeholder {
-  color: #ccc; /* Placeholder text color */
-  font-style: italic; /* Placeholder font style */
-  font-weight: 300; /* Placeholder font weight */
-  font-size: 14px; /* Placeholder font size */
-  opacity: 1; /* Ensures that the opacity is fully opaque */
+
+.cancel-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
 }
 
-:-ms-input-placeholder {
-  /* For Internet Explorer 10-11 */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
+.delete-btn-modal {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  bottom: 5px;
+  right: 80px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 
-::-ms-input-placeholder {
-  /* For Microsoft Edge */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
+.delete-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 8px;
+  padding: 4px 9px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: #b9b9b92f;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
 }
 
-/* Specific input and textarea placeholders for scoped styling */
+.edit-actions {
+  justify-content: flex-end;
+  top: 0;
+  right: 0;
+  margin-top: 5px; /* Adjust as needed */
+  margin-right: 10px; /* Adjust as needed */
+  display: flex;
+  gap: 10px; /* Space between buttons */
+}
+
+.edit-container {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
+}
+
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
+}
+
 .edit-title::placeholder {
   color: #ccc; /* Custom color for title input placeholder */
   font-style: italic;
@@ -271,6 +328,29 @@ export default {
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .note {
+    padding: 10px;
+  }
+
+  .edit-title,
+  .edit-textarea {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .note {
+    padding: 15px;
+  }
+}
+
+@media (min-width: 901px) {
+  .note {
+    padding: 20px;
+  }
 }
 
 .modal {
@@ -329,52 +409,20 @@ export default {
   white-space: pre-wrap;
   max-width: 100%; /* Ensure content wraps within the note */
 }
+
+/* Input and Textarea Placeholder Styling */
+::placeholder {
+  color: #ccc; /* Placeholder text color */
+  font-style: italic; /* Placeholder font style */
+  font-weight: 300; /* Placeholder font weight */
+  font-size: 14px; /* Placeholder font size */
+  opacity: 1; /* Ensures that the opacity is fully opaque */
+}
+
+
 .placeholder {
   color: #aaa; /* Placeholder color */
   font-style: italic;
-}
-.edit-container {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-title {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-textarea {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  resize: none; /* Disable textarea resizing */
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-actions {
-  justify-content: flex-end;
-  top: 0;
-  right: 0;
-  margin-top: 5px; /* Adjust as needed */
-  margin-right: 10px; /* Adjust as needed */
-  display: flex;
-  gap: 10px; /* Space between buttons */
 }
 
 .save-btn {
@@ -390,66 +438,24 @@ textarea {
   border-radius: 0;
   transition: background-color 0.3s ease;
 }
-.delete-btn-modal{
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  bottom: 5px;
-  right: 80px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-.save-btn:hover, .delete-btn-modal:hover {
+
+.save-btn:hover,
+.delete-btn-modal:hover {
   background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
 }
-.delete-btn{
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
-  cursor: pointer;
+
+textarea {
+  background-color: var(--note-background-color);
   color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease; 
-}
-.cancel-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  resize: none; /* Disable textarea resizing */
+  border: none; /* Remove border */
+  outline: none; /* Remove outline */
 }
 
-.cancel-btn:hover {
-  background-color: #b9b9b9c5;
-}
-.type{
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
-}
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -457,26 +463,48 @@ textarea {
   right: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
-@media (max-width: 600px) {
-  .note {
-    padding: 10px;
-  }
 
-  .edit-title,
-  .edit-textarea {
-    font-size: 14px;
-  }
+.type {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
-  .note {
-    padding: 15px;
-  }
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 8px; /* Adjust the font size as needed */
 }
 
-@media (min-width: 901px) {
-  .note {
-    padding: 20px;
-  }
+/* Specific input and textarea placeholders for scoped styling */
+:-ms-input-placeholder {
+  /* For Internet Explorer 10-11 */
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
 }
+
+::-ms-input-placeholder {
+  /* For Microsoft Edge */
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+
+
+
+
+
+
+
+
+
+
 </style>
