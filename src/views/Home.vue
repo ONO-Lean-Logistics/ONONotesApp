@@ -54,7 +54,7 @@
     <div>
       <!-- Draggable component for notes -->
       <draggable 
-        :value="filteredNotes"
+        :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
         group="notes"
         :item-key="(note) => note.id"
@@ -66,7 +66,7 @@
       >
 
         <div
-          v-for="(note, index) in filteredNotes"
+          v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
           :class="[
             'note-container',
