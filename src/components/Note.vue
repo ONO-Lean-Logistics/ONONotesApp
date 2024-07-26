@@ -347,8 +347,7 @@ export default {
   font-size: 10px;
   color: rgb(196, 196, 196);
 }
-
-/* Delete Button */
+/* Delete Button ciaoo+ */
 .delete-btn {
   right:5px;
   top:5px;
