@@ -28,7 +28,7 @@
       class="delete-btn"
       @click.stop="deleteNote"
     >
-      <i class="fa-solid fa-trash-can"></i>
+    <img src="../assets/delete.svg" alt="Clear" />
     </button>
     <!-- Edit Modal -->
   </div>
@@ -54,12 +54,10 @@
       <!-- Edit actions: Delete, Cancel, Save buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
-          <i class="fa-solid fa-trash-can"></i>
+          <img src="../assets/delete.svg" alt="Clear" />
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">
-          <img src="../assets/X_icon.svg" alt="Clear" />
-        </button>
-        <button @click.stop="saveEdit" class="save-btn">Save</button>
+        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
+        <button @click.stop="saveEdit" class="save-btn"><img src="../assets/save.svg" alt="Clear" /></button>
       </div>
     </div>
   </div>
@@ -243,119 +241,24 @@ export default {
 <style scoped>
 @import "../assets/main.css";
 
-.cancel-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: var(--note-background-color);
-  border-radius: 0;
-}
-
-.delete-btn-modal {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  bottom: 5px;
-  right: 80px;
-  font-size: 16px;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.delete-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.edit-actions {
-  justify-content: flex-end;
-  top: 0;
-  right: 0;
-  margin-top: 5px; /* Adjust as needed */
-  margin-right: 10px; /* Adjust as needed */
-  display: flex;
-  gap: 10px; /* Space between buttons */
-}
-
-.edit-container {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-title {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
-}
-
-.edit-title::placeholder {
-  color: #ccc; /* Custom color for title input placeholder */
-  font-style: italic;
-  font-weight: 400;
-  font-size: 16px;
-}
-
-.edit-textarea::placeholder {
-  color: #ccc; /* Custom color for content textarea placeholder */
+/* Placeholder Styling */
+::placeholder {
+  color: #ccc;
   font-style: italic;
   font-weight: 300;
   font-size: 14px;
+  opacity: 1;
 }
 
-@media (max-width: 600px) {
-  .note {
-    padding: 10px;
-  }
-
-  .edit-title,
-  .edit-textarea {
-    font-size: 14px;
-  }
+.placeholder {
+  color: #aaa;
+  font-style: italic;
 }
 
-@media (min-width: 601px) and (max-width: 900px) {
-  .note {
-    padding: 15px;
-  }
-}
-
-@media (min-width: 901px) {
-  .note {
-    padding: 20px;
-  }
-}
-
+/* Modal Overlay */
 .modal {
   position: fixed;
-  background-color: #00000075;
+  background-color: rgba(0, 0, 0, 0.5);
   top: 0;
   left: 0;
   width: 100%;
@@ -363,10 +266,11 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Modal sopra tutto il resto */
+  z-index: 999;
   cursor: default;
 }
 
+/* Modal Content */
 .modal-content {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
@@ -379,54 +283,134 @@ export default {
   transform: translateY(-20px);
 }
 
+/* Note Container */
 .note {
   background-color: var(--note-background-color);
-  position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
-  z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* To space items within the note */
   padding: 20px;
   border: 1px solid transparent;
-  position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
-  width: 100%; /* Note takes full width of its container */
+  max-height: 120px;
+  width: 100%;
   max-width: 700px;
-  display: block;
-  align-items: center;
-  justify-content: center;
-  position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
+  box-sizing: border-box; /* Ensures padding is included in the total width/height */
 }
 
 .note:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Note Content */
 .note-content {
   white-space: pre-wrap;
-  max-width: 100%; /* Ensure content wraps within the note */
+  max-width: 100%;
+  max-height: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  margin-bottom: 10px; /* Added margin for spacing */
+  flex-grow: 1; /* Allow the content to take up remaining space */
 }
 
-/* Input and Textarea Placeholder Styling */
-::placeholder {
-  color: #ccc; /* Placeholder text color */
-  font-style: italic; /* Placeholder font style */
-  font-weight: 300; /* Placeholder font weight */
-  font-size: 14px; /* Placeholder font size */
-  opacity: 1; /* Ensures that the opacity is fully opaque */
+/* Note Footer (Type, User, Timestamp, Delete) */
+.note-footer {
+  display: flex;
+  justify-content: space-between; /* Aligns items to space between */
+  align-items: center;
+  width: 100%;
+  font-size: 10px; /* Smaller font size for footer info */
+  color: rgb(196, 196, 196); /* Grey color for footer */
+  margin-top: 10px; /* Added margin for spacing */
 }
 
-
-.placeholder {
-  color: #aaa; /* Placeholder color */
-  font-style: italic;
+/* Type Indicator */
+.type {
+  position:absolute;
+  top:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size */
+  color: rgb(196, 196, 196);
 }
 
+/* User information */
+.utente {
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size as needed */
+  color: rgb(196, 196, 196);
+}
+
+/* Timestamp */
+.timestamp {
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  font-size: 10px;
+  color: rgb(196, 196, 196);
+}
+/* Delete Button ciaoo+ */
+.delete-btn {
+  right:5px;
+  top:5px;
+  position:absolute;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
+  flex-basis: 20%; /* Ensures consistent spacing */
+  text-align: right; /* Align text to the right */
+}
+
+/* Edit Title */
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  outline: none;
+}
+
+/* Edit Textarea */
+.edit-textarea {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 10px;
+  resize: none;
+  border: none;
+  outline: none;
+}
+
+/* Edit Actions */
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.edit-actions button {
+  margin-left: 10px;
+}
+
+/* Save Button */
 .save-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   bottom: 5px;
   right: 5px;
   font-size: 16px;
@@ -434,35 +418,43 @@ export default {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.save-btn:hover,
-.delete-btn-modal:hover {
-  background-color: #b9b9b9c5; /* Colore di sfondo al passaggio del mouse */
-}
-
-textarea {
   background-color: var(--note-background-color);
-  color: var(--note-text-color);
-  width: 100%;
-  box-sizing: border-box;
-  font-size: 18px;
-  padding: 10px;
-  resize: none; /* Disable textarea resizing */
-  border: none; /* Remove border */
-  outline: none; /* Remove outline */
+  border-radius: 0;
 }
 
-.timestamp {
-  color: rgb(196, 196, 196);
+/* Delete Button for Modal */
+.delete-btn-modal {
   position: absolute;
   bottom: 5px;
-  right: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
+  left: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
 }
+
+/* Cancel Button */
+.cancel-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
+}
+
+/* Media Queries */
+@media (max-width: 600px) {
+  .note {
+    padding: 10px;
+  }
 
 .type {
   color: rgb(196, 196, 196);

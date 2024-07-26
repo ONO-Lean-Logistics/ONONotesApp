@@ -1,12 +1,9 @@
 <template>
   <div class="home">
-    <!-- Header Section -->
     <div class="header">
-      <!-- Title -->
       <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
         Memo
       </h1>
-      <!-- Search bar with search functionality -->
       <div class="search-container">
         <i class="fas fa-search search-icon" @click="startSearch"></i>
         <input
@@ -17,7 +14,6 @@
           id="searchInput"
           @input="handleSearchInput"
         />
-        <!--Clear search-->
       </div>
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
@@ -29,10 +25,8 @@
           <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />
         </div>
     </div>
-    <!-- Divider Section -->
     <div class="divider" :class="'divider-dark'"></div>
 
-    <!-- Controls Section -->
     <div class="controls">
         <button 
         class="add-note"
@@ -47,11 +41,10 @@
           Nota
         </button>
       <div class="notes-control"></div>
-      <!-- Sort dropdown component -->
-      <SortDropdown class="sort-dropdown" @select-sort-criteria="sortNotes" />
+
+      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
-    <!-- Note Grid Section -->
     <div>
       <!-- Draggable component for notes -->
       <draggable 
@@ -65,7 +58,7 @@
         handle=".note-container"
         @start="handleDragStart"
       >
-        <!-- Loop through notes and render them -->
+
         <div
           v-for="(note, index) in filteredNotes"
           :key="note.id"
@@ -79,7 +72,7 @@
           @dragend="noteDragging = null"
         >
           <template v-if="note && !note.isAddButton">
-            <!-- Render existing notes -->
+
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -119,7 +112,6 @@ import draggable from "vuedraggable";
 import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
 
 export default {
-  // eslint-disable-next-line vue/multi-word-component-names
   name: "Home",
   components: {
     Note,
@@ -135,12 +127,12 @@ export default {
       noteDragging: null,
       searchQuery: "",
       utente: "",
-      showAccountManagement: false
+      sortType: localStorage.getItem("sortType") || "Time",
+      sortOrder: localStorage.getItem("sortOrder") || "Oldest",
     };
   },
- 
+
   computed: {
-    // Filtered notes based on search query
     filteredNotes() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
@@ -156,7 +148,6 @@ export default {
     this.refreshQuery();
   },
 
-  
   methods: {
 
     // Add new note function
@@ -263,16 +254,11 @@ export default {
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
-      console.log(`Before filtering:`)
-      // Load notes from server
       try {
-        
-        const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-        console.log(`Before filtering: ${response}`)
-        let resNotes = response.notes
+        const response = await loadNotes(); 
+        let resNotes = response.notes;
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
-          // Filter out any notes that do not have an id property
           resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
         if(resNotes != null &&  resNotes.length>0 ) {
@@ -280,8 +266,7 @@ export default {
           this.notes = resNotes; 
           this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
         }else{
-          console.log("No filtering")
-          this.nextId = 1; // Start from 1 if no notes exist
+          this.nextId = 1; 
         }
       } catch (error) {
         console.error("Error loading notes:", error);
@@ -296,7 +281,6 @@ export default {
         console.error("Error saving notes:", error);
       }
     },
-    // Start search function
     startSearch() {
       if (this.searchQuery.trim() !== "") {
         this.search();
@@ -315,39 +299,11 @@ export default {
       });
     },
 
-    // Sort notes function
-    sortNotes(criteria) {
-      switch (criteria) {
-        case "Most":
-          this.notes.sort((a, b) => {
-            if (a.type === "classic" && b.type === "classic") {
-              return b.content.length - a.content.length;
-            } else if (a.type === "list" && b.type === "list") {
-              return b.items.length - a.items.length;
-            } else {
-              return 0; // Fallback if types don't match
-            }
-          });
-          break;
-        case "Least":
-          this.notes.sort((a, b) => {
-            if (a.type === "classic" && b.type === "classic") {
-              return a.content.length - b.content.length;
-            } else if (a.type === "list" && b.type === "list") {
-              return a.items.length - b.items.length;
-            } else {
-              return 0; // Fallback if types don't match
-            }
-          });
-          break;
-        case "Recent":
-          this.notes.sort((a, b) => b.timestamp - a.timestamp);
-          break;
-        case "Oldest":
-          this.notes.sort((a, b) => a.timestamp - b.timestamp);
-          break;
-        default:
-          break;
+      
+      if (this.sortOrder === "Most") {
+        return bLength - aLength; 
+      } else if (this.sortOrder === "Least") {
+        return aLength - bLength; 
       }
       this.saveAllNotes(); // Save after sorting
     },
@@ -355,12 +311,31 @@ export default {
     toggleAccountManagement(){
       this.showAccountManagement = true
     },
-  }
-  };
+    updateSortType(type) {
+      this.sortType = type;
+      localStorage.setItem("sortType", type);
+    },
+    updateSortOrder(order) {
+      this.sortOrder = order;
+      localStorage.setItem("sortOrder", order);
+    },
+    addNote(type) {
+      const newNote = {
+        id: this.nextId++,
+        title: "Nuova Nota",
+        content: "",
+        timestamp: Date.now(),
+        type: type,
+        utente: this.utente,
+      };
+      this.notes.push(newNote);
+      this.saveAllNotes();
+    },
+  },
+};
 </script>
 
 <style scoped>
-/* Import main styles */
 @import "../assets/main.css";
 
 .account-management {
@@ -379,7 +354,6 @@ export default {
   
 }
 
-/* Home container */
 .home {
   flex-grow: 1;
   padding: 20px;
@@ -387,7 +361,6 @@ export default {
   flex-direction: column;
 }
 
-/* Header */
 .header {
   display: flex;
   align-items: center;
@@ -395,16 +368,15 @@ export default {
   background-color: var(--background-color);
   transition: background-color 0.3s ease, color 0.3s ease;
   margin-bottom: 1.5%;
-  height: 40px; /* Ensure height allows alignment */
+  height: 40px; 
   position: relative;
   width: 100%;
 }
 
-/* Title */
 .header h1 {
   cursor: pointer;
-  margin: 0; /* Remove margin for better alignment */
-  flex-shrink: 0; /* Prevent shrinking */
+  margin: 0; 
+  flex-shrink: 0;
 }
 
 .header h2 {
@@ -431,83 +403,75 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-/* Search container */
 .search-container {
   display: flex;
   align-items: center;
-  flex-grow: 1; /* Take up remaining space */
+  flex-grow: 1; 
   position: relative;
   min-width: none;
-  margin-left: 15px; /* Spacing from the title */
+  margin-left: 15px; 
   height: 25px;
 }
 
-/* Search icon */
 .search-icon {
   cursor: pointer;
   position: absolute;
-  left: 10px; /* Adjust for padding */
+  left: 10px; 
   font-size: 14px;
   color: #ffff;
 }
 
-/* Search text */
 .search-text {
   position: absolute;
-  top: -8px; /* Place on top border */
-  left: 15px; /* Align with search input */
-  background-color: var(--background-color); /* Match background */
-  padding: 0 5px; /* Add padding around text */
-  color: var(--text-color); /* Match text color */
+  top: -8px; 
+  left: 15px; 
+  background-color: var(--background-color); 
+  padding: 0 5px;
+  color: var(--text-color); 
   font-size: 12px;
-  pointer-events: none; /* Ensure it's not interactive */
-  z-index: 1; /* Ensure it is above the input */
+  pointer-events: none; 
+  z-index: 1; 
 }
 
-/* Search input */
 .search-input {
   height: 55px;
   flex-grow: 1;
   font-size: 18px;
-  padding: 10px 40px 10px 40px; /* Space for search icon and clear icon */
+  padding: 10px 40px 10px 40px;
   background-color: var(--search-bar-background-color);
   border: 2px solid;
   border-color: var(--note-background-color);
   border-radius: 10px;
   color: var(--text-color);
   transition: background-color 0.3s ease, border-color 0.3s ease,
-    box-shadow 0.3s ease, width 0.3s ease; /* Add width transition */
+    box-shadow 0.3s ease, width 0.3s ease; 
   outline: none;
   caret-color: #4a7daa;
 }
 
-/* Focus state */
 .search-input:focus {
   border-color: #2a577e;
   box-shadow: 0 0 5px transparent;
 }
 
-/* Show clear icon when there is input */
 .search-input:not(:placeholder-shown) + .clear-icon {
   opacity: 1;
-  right: 10px; /* Adjust to position the clear icon */
+  right: 10px; 
 }
 
-/* Clear icon */
 .clear-icon {
   font-size: 25px;
   position: absolute;
-  right: 45px; /* Adjust as needed */
-  top: 50%; /* Center vertically */
+  right: 45px; 
+  top: 50%; 
   transform: translateY(-50%);
   cursor: pointer;
   color: #ffff;
   background-color: transparent;
-  transition: opacity 0.3s ease, right 0.3s ease; /* Add transition for opacity and position */
-  opacity: 0; /* Initially hidden */
+  transition: opacity 0.3s ease, right 0.3s ease; 
+  opacity: 0; 
 }
 
-/* Controls */
 .controls {
   display: flex;
   align-items: center;
@@ -516,32 +480,28 @@ export default {
   margin-right: 0.5%;
 }
 
-/* Notes control */
 .notes-control {
   display: flex;
   align-items: left;
   background-color: #2a577e;
 }
 
-/* Sort dropdown */
 .sort-dropdown {
   margin-left: auto;
 }
 
-/* Notes grid */
 .notes-grid {
   display: grid;
   gap: 20px;
   flex-grow: 1;
   overflow-y: auto;
-  grid-template-columns: repeat(5, 1fr); /* 5 notes per row */
+  grid-template-columns: repeat(5, 1fr); 
 }
 
-/* Note container */
 .note-container {
   min-height: 120px;
   width: 100%;
-  max-width: 300px; /* Adjusted width for 5 notes per row */
+  max-width: 300px; 
   margin-bottom: 20px;
   cursor: grab;
   display: block;
@@ -549,25 +509,29 @@ export default {
   background-color: transparent;
   color: var(note-text-color);
   overflow: hidden;
-  transition: opacity 0.8s ease; /* Add opacity transition */
+  transition: opacity 0.8s ease;
 }
 
-/* Add note button */
 .add-note {
+  width: 100%;
+  max-width: 300px; 
+  height: 120px;
+  background-color: #f0f0f0;
+  border: #ccc;
+  color: #aaa;
+  font-size: 24px;
+  display: flex;
   align-items: center;
   background-color: #7c7c7c00;
   border: none;
   border-radius: 4px;
   color: #ffffff;
   cursor: pointer;
-  display: flex;
-  font-size: 14px;
-  justify-content: center; 
-  padding: 8px 16px;
-  gap: 8px; 
+  padding: 10px;
+  flex-direction: row-reverse;
+  transition: background-color 0.8s ease, opacity 0.8s ease; 
 }
 
-/* Add button hover effect */
 .add-button-classic,
 .add-button-list {
   flex-grow: 1;
@@ -585,37 +549,35 @@ export default {
   background-color: #e0e0e0;
 }
 
-/* Divider between add buttons */
 .add-divider {
   border-left: 1px solid var(--add-divider-color);
   height: 120%;
   margin: 0 5px;
 }
-/* Ensure dragged item is fully visible */
-.note-container.dragging {
-  opacity: 100%; /* Adjust opacity as needed */
+
+.note-container.dragging,
+.add-note.dragging {
+  opacity: 100%; 
 }
 
-/* Ensure dragged item is fully visible */
 .dragging {
-  opacity: 100%; /* Adjust opacity as needed */
+  opacity: 100%;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     align-items: flex-start;
   }
   .notes-grid {
-    grid-template-columns: repeat(3, 1fr); /* Adjusted for smaller screens */
+    grid-template-columns: repeat(3, 1fr); 
   }
   .search-container {
-    margin-left: 0; /* Adjust for smaller screens */
+    margin-left: 0;
   }
 
   .search-input {
-    margin-left: 0; /* Adjust to ensure proper spacing */
+    margin-left: 0;
   }
 
 }
