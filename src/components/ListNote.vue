@@ -36,7 +36,7 @@
     </div>
   </div>
   <!-- Modal for editing -->
-  <div v-else class="modal" @click="handleClickOutside">
+  <div v-else class="modal" @click.stop="handleClickOutside">
     <div class="modal-content">
       <!-- Input for editing title -->
       <input
@@ -68,8 +68,6 @@
               :class="{ completed: item.completed }"
               :id="generateUniqueId('item-input', idx)"
               placeholder="Enter item here"
-              ref="itemInputs"
-              @blur="removeEmptyItem(idx)"
             />
             <!-- Button to remove item -->
             <button
@@ -99,7 +97,6 @@
 </template>
 
 <script>
-/* eslint-disable */
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
@@ -113,17 +110,16 @@ export default {
       type: String,
       required: true,
     },
+    items: {
+      type: Array,
+      required: true,
+    },
     type: {
       type: String,
       required: true,
       validator(value) {
         return ['classic', 'list'].includes(value);
       },
-    },
-    items: {
-      type: Array,
-      required: true,
-      default: () => []
     },
     utente: {
       type: String,
@@ -170,13 +166,10 @@ export default {
 
     // Save edited note
     async saveEdit() {
-      // Remove empty items before saving
-      const filteredItems = this.newItems.filter((item) => item.text.trim() !== "");
-
       const editedNote = {
         id: this.noteId,
         title: this.newTitle,
-        items: filteredItems,
+        items: this.newItems,
         timestamp: Date.now(),
         utente: this.utente,
         type: this.type,
@@ -190,8 +183,8 @@ export default {
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.$emit("save");
-        },
+      this.$emit("save")
+    },
     // Delete note
     async deleteNote() {
       try {
@@ -203,7 +196,7 @@ export default {
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.$emit("save");
+      this.$emit("save")
     },
     // Cancel editing
     cancelEdit() {
@@ -211,7 +204,7 @@ export default {
       this.newItems = this.items.map((item) => ({ ...item }));
       this.isEditing = false;
       this.showEditIcon = false;
-      this.$emit("save");
+      this.$emit("save")
     },
     // Start editing
     startEdit() {
@@ -220,7 +213,6 @@ export default {
     // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
-        this.removeEmptyItems();
         this.saveEdit();
         this.isEditing = false;
       }
@@ -260,45 +252,21 @@ export default {
     },
     // Add new item
     addItem() {
-      // Check if the last item is empty before adding a new one
-      if (this.newItems.length === 0 || this.newItems[this.newItems.length - 1].text.trim() !== "") {
-        this.newItems.push({ text: "", completed: false });
-
-        // Focus the input of the newly added item
-        this.$nextTick(() => {
-          const newItemIndex = this.newItems.length - 1;
-          const newItemInput = this.$refs.itemInputs[newItemIndex];
-          if (newItemInput) {
-            newItemInput.focus();
-          }
-        });
-      } else {
-        alert("Please fill the last item before adding a new one.");
-      }
+      this.newItems.push({ text: "", completed: false });
     },
     // Remove item at index
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
-    // Remove empty item
-    removeEmptyItem(index) {
-      if (this.newItems[index] && this.newItems[index].text.trim() === "") {
-        this.newItems.splice(index, 1);
-      }
-    },
-    // Remove all empty items
-    removeEmptyItems() {
-      this.newItems = this.newItems.filter((item) => item.text.trim() !== "");
-    },
   },
 };
 </script>
 
-
 <style scoped>
+
 @import "../assets/main.css";
 
-
+/* Placeholder styling */
 ::placeholder {
   color: #ccc;
   font-style: italic;
@@ -308,14 +276,13 @@ export default {
 }
 
 .placeholder {
-  color: #aaa;
+  color: #aaa; /* Placeholder color */
   font-style: italic;
 }
 
 /* Modal overlay */
 .modal {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.5);
   top: 0;
   left: 0;
   width: 100%;
@@ -323,15 +290,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 999; /* Ensures the modal is above everything else */
   cursor: default;
 }
 
 /* Modal content */
 .modal-content {
-  background-color: var(
-    --note-background-color
-  ); /* Use your custom note background color */
+  background-color: var(--note-background-color); /* Use your custom note background color */
   color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 20px;
@@ -345,6 +311,7 @@ export default {
 ul {
   list-style-type: none;
   padding-left: 0; /* Remove default padding */
+  margin-top: 20px; /* Add top margin for extra spacing from the title */
 }
 
 /* Style for list items */
@@ -354,6 +321,15 @@ li {
   align-items: center;
   justify-content: space-between; /* Ensure items are spaced evenly */
   margin-bottom: 10px; /* Adjust as needed */
+}
+
+/* Mostra solo i primi 2 elementi della lista fuori dal modal */
+.note-content ul li:nth-child(n+3) {
+  display: none; /* Nasconde tutti gli elementi dopo il secondo */
+}
+
+.note.opened ul li {
+  display: flex; /* Mostra tutti gli elementi quando la nota è aperta */
 }
 
 /* Checkbox styling */
@@ -403,26 +379,23 @@ li {
   opacity: 0.5; /* Reduce opacity of text for completed items */
 }
 
+/* Note container */
 .note {
   background-color: var(--note-background-color);
-  position: relative; /* Aggiungiamo posizione relativa per gestire posizione del modal */
   z-index: 1; /* Impostiamo z-index per assicurare che le note siano sopra il modal */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Space items inside the note */
   padding: 20px;
   border: 1px solid transparent;
-  position: relative;
   transition: box-shadow 0.3s ease;
-  min-height: 120px;
+  min-height: 120px; /* Increased height to accommodate footer */
+  max-height: 120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
-  display: block;
-  align-items: center;
-  justify-content: center;
-  position: relative; /* Ensure position relative for absolute icon */
   user-select: none;
+  cursor: pointer; /* Aggiunge il cursore per indicare che è cliccabile */
+  position: relative; /* Allows for absolute positioning within */
 }
 
 .note:hover {
@@ -432,8 +405,28 @@ li {
 .note-content {
   white-space: pre-wrap;
   max-width: 100%;
+  max-height: 70px; /* Limita l'altezza del testo visibile */
+  overflow: hidden; /* Nasconde il testo in eccesso */
+  text-overflow: ellipsis; /* Aggiunge i puntini di sospensione per il testo tagliato */
+  line-height: 1.2em; /* Altezza di ciascuna riga di testo */
 }
 
+.note.opened .note-content {
+  max-height: none; /* Rimuove il limite di altezza quando la nota è aperta */
+}
+
+/* Note footer */
+.note-footer {
+  display: flex;
+  justify-content: space-between; /* Aligns items to space between */
+  align-items: center;
+  width: 100%;
+  font-size: 10px; /* Smaller font size for footer info */
+  color: rgb(196, 196, 196); /* Grey color for footer */
+  margin-top: 10px; /* Adds spacing from the content */
+}
+
+/* Edit title */
 .edit-title {
   background-color: var(--note-background-color);
   color: var(--note-text-color);
@@ -441,7 +434,7 @@ li {
   box-sizing: border-box;
   font-size: 18px;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 20px; /* Increase the bottom margin for more spacing */
   border: none;
   outline: none;
 }
@@ -461,7 +454,7 @@ li {
 .add-btn {
   color: #4caf50;
   background-color: transparent;
-  border-color: transparenT;
+  border-color: transparent;
   cursor: pointer;
 }
 
@@ -483,7 +476,7 @@ li {
 }
 
 .save-btn {
-  position: absolute;
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   bottom: 5px;
   right: 5px;
   font-size: 16px;
@@ -506,9 +499,9 @@ li {
   border: none;
   background-color: var(--note-background-color);
   border-radius: 0;
-  transition: background-color 0.3s ease;
 }
 
+/* Cancel button */
 .cancel-btn {
   position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
@@ -522,30 +515,7 @@ li {
   border-radius: 0;
 }
 
-.type {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
-
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
-}
-
-.timestamp {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  font-size: 8px;
-}
-
+/* Type indicator */
 .type {
   position:absolute;
   top:5px;
@@ -554,6 +524,25 @@ li {
   color: rgb(196, 196, 196);
 }
 
+/* User information */
+.utente {
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  font-size: 10px; /* Adjust the font size as needed */
+  color: rgb(196, 196, 196);
+}
+
+/* Timestamp */
+.timestamp {
+  position:absolute;
+  bottom:5px;
+  right:5px;
+  font-size: 10px;
+  color: rgb(196, 196, 196);
+}
+
+/* Media Queries */
 @media (max-width: 600px) {
   .note {
     padding: 10px;
