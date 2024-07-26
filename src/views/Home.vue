@@ -43,7 +43,7 @@
       >
         <!-- Loop through notes and render them -->
         <div
-          v-for="(note, index) in filteredNotes"
+          v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
           :class="[
             'note-container',
@@ -80,6 +80,28 @@
               @save="refreshQuery()"
             />
           </template>
+          <template v-else-if="note && note.isAddButton">
+            <!-- Render add button -->
+            <div class="note add-note">
+              <div @click="addNote('classic')" class="add-button-classic">
+                <!-- Add Classic Note -->
+                <i class="fas fa-plus"></i>
+                <span>Nota</span>
+              </div>
+
+              <!-- Divider between Add Buttons -->
+              <div class="add-divider"></div>
+
+              <!-- Second Add Button -->
+              <div class="list add-list">
+                <div @click="addNote('list')" class="add-button-list">
+                  <!-- Add List Note -->
+                  <i class="fas fa-plus"></i>
+                  <span>Lista</span>
+                </div>
+              </div>
+            </div>
+          </template>
         </div>
       </draggable>
     </div>
@@ -114,7 +136,7 @@ export default {
       showAccountManagement: false
     };
   },
- 
+
   computed: {
     // Filtered notes based on search query
     filteredNotes() {
@@ -127,12 +149,17 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
+    // Add button included in filtered notes
+    filteredNotesWithAddButton() {
+      const notesWithAddButton = [...this.filteredNotes];
+      notesWithAddButton.push({ isAddButton: true }); // Add button as a separate note
+      return notesWithAddButton;
+    },
   },
-  created(){
+  created() {
     this.refreshQuery();
   },
 
-  
   methods: {
 
     // Add new note function
@@ -239,17 +266,18 @@ export default {
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
-      console.log(`Before filtering:`)
+      console.log(`Before filtering:`);
       // Load notes from server
       try {
-        
         const response = await loadNotes(); // Assuming fetchNotes returns an array with notes and occupancy status
-        console.log(`Before filtering: ${response}`)
-        let resNotes = response.notes
+        console.log(`Before filtering: ${response}`);
+        let resNotes = response.notes;
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
           // Filter out any notes that do not have an id property
-          resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
+          resNotes = resNotes.filter(
+            (note) => note && note.id !== null && note.id !== undefined
+          );
         }
         if(resNotes != null &&  resNotes.length>0 ) {
           console.log(`After filtering: ${response.notes}`)
@@ -290,6 +318,22 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
+    // Clear search query
+    clearSearch() {
+      this.searchQuery = "";
+      this.$emit("input", this.searchQuery);
+    },
+    // Handle input in the search bar
+    handleSearchInput() {
+      // Adjust the search input width based on content
+      const inputElement = document.getElementById("searchInput");
+      if (inputElement) {
+        inputElement.style.width = `${Math.max(
+          100,
+          this.searchQuery.length * 10
+        )}px`;
+      }
+    },
 
     // Sort notes function
     sortNotes(criteria) {
@@ -328,11 +372,84 @@ export default {
       this.saveAllNotes(); // Save after sorting
     },
 
-    toggleAccountManagement(){
-      this.showAccountManagement = true
+    handleNoteReorder(event) {
+      const movedNote = this.notes.splice(event.oldIndex, 1)[0];
+      this.notes.splice(event.newIndex, 0, movedNote);
     },
-  }
-  };
+    // Drag start function
+    handleDragStart(event) {
+      // Ignore drag if the item is an add button
+      if (
+        event.item &&
+        event.item.firstChild &&
+        event.item.firstChild.classList.contains("add-note")
+      ) {
+        event.preventDefault();
+        return;
+      }
+      event.item.style.opacity = "0";
+      event.clone.style.opacity = "1000";
+      document.body.style.cursor = "grabbing";
+      event.item.style.cursor = "grabbing";
+    },
+    // Drag end function
+    handleDragEnd(event) {
+      // Ignore drag if the item is an add button
+      if (
+        event.item &&
+        event.item.firstChild &&
+        event.item.firstChild.classList.contains("add-note")
+      ) {
+        event.preventDefault();
+        return;
+      }
+      event.item.style.opacity = "1";
+      document.body.style.cursor = "default";
+      event.item.style.cursor = "grab";
+      this.handleNoteReorder(event);
+      this.saveAllNotes();
+    },
+    // Add new note function
+    async addNote(type) {
+      let addingNoteType = type;
+      let newNote;
+
+      // Differentiating the type of notes
+      if (addingNoteType === "classic") {
+        newNote = {
+          title: "",
+          content: "",
+          id: this.nextId,
+          timestamp: Date.now(),
+          utente: this.utente,
+          type: "classic", // Marking it as a classic note
+        };
+      } else if (addingNoteType === "list") {
+        newNote = {
+          title: "",
+          items: [],
+          id: this.nextId,
+          timestamp: Date.now(),
+          utente: this.utente,
+          type: "list", // Marking it as a list note
+        };
+      }
+
+      this.nextId++; // Increment the next ID
+      if (newNote != null) {
+        console.log(newNote);
+        this.notes.push(newNote); // Add the note to the list
+
+        try {
+          // Save the new note using updateNotes function
+          await updateNotes(newNote.id, newNote);
+        } catch (error) {
+          console.error("Error saving the new note:", error);
+        }
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -352,7 +469,6 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  
 }
 
 /* Home container */
@@ -496,7 +612,6 @@ export default {
 .notes-control {
   display: flex;
   align-items: left;
-  background-color: #2a577e;
 }
 
 /* Sort dropdown */
@@ -530,17 +645,21 @@ export default {
 
 /* Add note button */
 .add-note {
-  align-items: center;
-  background-color: #7c7c7c00;
-  border: none;
-  border-radius: 4px;
-  color: #ffffff;
-  cursor: pointer;
+  width: 100%;
+  max-width: 300px; /* Adjusted width for 5 notes per row */
+  height: 120px;
+  background-color: #f0f0f0;
+  border: #ccc;
+  color: #aaa;
+  font-size: 24px;
   display: flex;
-  font-size: 14px;
-  justify-content: center; 
-  padding: 8px 16px;
-  gap: 8px; 
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 10px;
+  flex-direction: row-reverse;
+  transition: background-color 0.8s ease, opacity 0.8s ease; /* Add opacity transition */
 }
 
 /* Add button hover effect */
@@ -568,7 +687,8 @@ export default {
   margin: 0 5px;
 }
 /* Ensure dragged item is fully visible */
-.note-container.dragging {
+.note-container.dragging,
+.add-note.dragging {
   opacity: 100%; /* Adjust opacity as needed */
 }
 
@@ -593,6 +713,5 @@ export default {
   .search-input {
     margin-left: 0; /* Adjust to ensure proper spacing */
   }
-
 }
 </style>
