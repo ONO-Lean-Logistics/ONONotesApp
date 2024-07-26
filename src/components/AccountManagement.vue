@@ -23,13 +23,12 @@
   </template>
   
   <script>
+  import Group from './Group.vue'
   export default {  
     data() {
       return {
         account: {
           username: '',
-          email: '',
-          password: '',
           utente: " ",
           text: "Groups",
           group: false

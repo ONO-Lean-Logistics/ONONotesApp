@@ -34,30 +34,6 @@
 
     <!-- Controls Section -->
     <div class="controls">
-        <button 
-        class="add-note"
-        @click="addNote('list')" >
-          <i class="fas fa-plus"></i>
-          Lista
-        </button>
-        <button 
-        class="add-note"
-        @click="addNote('classic')" >
-          <i class="fas fa-plus"></i>
-          Nota
-        </button>
-      <div class="notes-control"></div>
-      <!-- Sort dropdown component -->
-      <SortDropdown class="sort-dropdown" @select-sort-criteria="sortNotes" />
-    </div>
-
-    <!-- Note Grid Section -->
-    <div>
-      <!-- Draggable component for notes -->
-      <draggable 
-        :value="filteredNotes"
-        :class="'notes-grid'"
-        group="notes"
         :item-key="(note) => note.id"
         @end="handleDragEnd"
         v-bind="$attrs"

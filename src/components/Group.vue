@@ -1,16 +1,37 @@
 <template>
-    <div
-    v-if="!editing"
-    class="group"
-    @click.stop="startEdit"
-    @mouseover="showEditingIcon = true"
-    @mouseleave="showEditingIcon = false"
-    >
-        <div v-if="!editing" class="group-content">
-            <h2 v-if="name">{{ groupName }}</h2>
-            <h3 v-else class="placeholder">Group name</h3>
-            <pre style="font-size: 8px" v-if="content">{{truncateContent(content)}}</pre>
-            <h3>Members:</h3>
+    <div class="account-management" @click="handleClickOutside">
+        <div class="account-content">
+        <h2>Manage Account</h2>
+        <button @click="$emit('close')" class="clear-button">
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
+          <br>
+            <div class="groups">
+              <h1>Username:</h1>
+            </div>
+          <br>
+        <div class="divider" :class="'divider-dark'"></div>
+          <br>
+          <div class="groups">
+            <h1>Groups: </h1>
+          <button @click="" class="group-btn">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+        </div>
+      </div>
+        <div
+        v-if="!editing"
+        class="group"
+        @click.stop="startEdit"
+        @mouseover="showEditingIcon = true"
+        @mouseleave="showEditingIcon = false"
+        >
+            <div v-if="!editing" class="group-content">
+                <h2 v-if="name">{{ groupName }}</h2>
+                <h3 v-else class="placeholder">Group name</h3>
+                <pre style="font-size: 8px" v-if="name">{{truncatedText(name)}}</pre>
+                <h3>Members:</h3>
+            </div>
         </div>
     </div>
 </template>
