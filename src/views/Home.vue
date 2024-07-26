@@ -23,10 +23,10 @@
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
         <div class="account-management">
-          <buttonUser @click="toggleAccountManagement">
+          <button @click="toggleAccountManagement" class="group-button">
             <h2>Benvenuto <br> {{ this.utente }}</h2>
-          </buttonUser>
-          <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false" />
+          </button>
+          <AccountManagement v-show="showAccountManagement" @close="showAccountManagement = false, refreshQuery()" />
         </div>
     </div>
     <!-- Divider Section -->
@@ -289,7 +289,7 @@ export default {
           // Filter out any notes that do not have an id property
           resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
-        if(resNotes != null &&  resNotes.length>0) {
+        if(resNotes != null &&  resNotes.length>0 ) {
           console.log(`After filtering: ${response.notes}`)
           this.notes = resNotes; 
           this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
@@ -393,11 +393,6 @@ export default {
   
 }
 
-.header buttonUser{
-  cursor: pointer;
-  margin: 0;
-  flex-shrink: 0;
-}
 /* Home container */
 .home {
   flex-grow: 1;
@@ -438,6 +433,17 @@ export default {
     cursor: pointer;
     padding: 0;
   }
+.account-management button.group-button {
+  position: relative;
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #7c7c7c00;
+  color: #D9DADC;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
 /* Search container */
 .search-container {

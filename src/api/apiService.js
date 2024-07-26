@@ -146,29 +146,27 @@ async function makeONORequest(endpoint, requestData) {
   }
 }
 
-
-
 // Save groups to the server
 export async function saveGroups(groups, isOccupiedFromServer) {
   console.log(`before try/catch save`)
   try {
     // Prepara i dati delle note
     const validGroups = groups.filter(group => group !== null && group !== undefined);
-    const allGroups = validGroups.map((note) => {
+    const allGroups = validGroups.map((group) => {
         console.log(`Save group`)
         return {
-          id: note.id,
-          title: note.title,
-          content: note.content, // Contenuto della nota classica
-          timestamp: note.timestamp,
-          utente: note.utente,
-          isEditing: note.isEditing,
-          type: note.type,
+          id: group.id,
+          title: group.title,
+          content: group.content, // Contenuto della nota classica
+          timestamp: group.timestamp,
+          utente: group.utente,
+          isEditing: group.isEditing,
+          type: group.type,
         };
     });
     // Prepara i dati da salvare
     const dataToSave = {
-      appCode: appCode,
+      groupCode: groupCode,
       groupName: appGroupName,
       dataValue: JSON.stringify([
         allGroups,
@@ -180,5 +178,77 @@ export async function saveGroups(groups, isOccupiedFromServer) {
   } catch (error) {
     console.error("Errore durante il salvataggio del gruppo:", error);
     throw error;
+  }
+}
+
+// Get all groups from the server
+async function getAllGroups() {
+  const response = await makeONORequest("GetONOAppDataFromCode", {
+    groupCode: groupCode,
+    groupName: appGroupName,
+  });
+  return response.data;
+}
+
+export async function updateGroups(groupId, updatedGroup) {
+  try {
+    const { groups, occupancyStatus } = await loadGroups(); // Load current groups
+    if (!groups) {
+      throw new Error("Failed to load notes");
+    }
+    // Check if the system is occupied
+    if (occupancyStatus) {
+      console.warn("System is occupied, retrying...");
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Sleep 500 milliseconds
+      return updateGroups(groupId, updatedGroup); // Retry the operation
+    }
+    // Update occupancy status to true before modifying
+    await saveGroups(groups, true);
+    // Find index of the note to update
+
+    const validGroups = groups.filter(group => group !== null && group !== undefined);
+
+    const groupIndex = validGroups.findIndex((group) => group.id === groupId);
+    if (groupIndex === -1) {
+      groups.push(updatedGroup);
+    }
+
+    // Update the note
+    groups[groupIndex] = { ...groups[noteIndex], ...updatedGroup };
+
+    // Save updated notes back to server with occupancy status set to false
+
+    await saveGroups(groups, false);
+  } catch (error) {
+    console.error("Error updating notes:", error);
+    throw error;
+  }
+}
+// Load notes from the server
+export async function loadGroups() {
+  try {
+    console.log(`Before filtering`)
+    const groupsResponse = await getAllGroups(); // Fetch notes from API
+
+    const responseArray = JSON.parse(groupsResponse.data);
+    if (
+      responseArray &&
+      Array.isArray(responseArray) &&
+      responseArray.length === 2
+    ) {
+      const groups = responseArray[0]; // Array of notes
+      const occupancyStatus = responseArray[1][0]?.isOccupied || false; // Extract isOccupied value, default to false if not present
+      console.log(`Before filtering 2`)
+      return {
+        groups,
+        occupancyStatus,
+      };
+    } else {
+      console.error("Invalid server response format");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error loading groups:", error);
+    return null;
   }
 }

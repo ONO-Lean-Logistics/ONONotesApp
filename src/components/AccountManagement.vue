@@ -6,14 +6,17 @@
           <img src="../assets/X_icon.svg" alt="Clear" />
         </button>
           <br>
-        <h1>Username:</h1>
+            <div class="groups">
+              <h1>Username:</h1>
+            </div>
           <br>
         <div class="divider" :class="'divider-dark'"></div>
           <br>
           <div class="groups">
-          <button @click="createGroup" class="group-btn">
+            <h1>Groups: </h1>
+          <button @click="" class="group-btn">
             <i class="fa-solid fa-plus"></i>
-        </button><h1>Groups: </h1>
+        </button>
         </div>
       </div>
     </div>

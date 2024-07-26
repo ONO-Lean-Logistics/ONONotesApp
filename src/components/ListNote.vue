@@ -134,6 +134,7 @@ export default {
     items: {
       type: Array,
       required: true,
+      default: () => []
     },
     type: {
       type: String,
