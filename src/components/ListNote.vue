@@ -416,6 +416,7 @@ li {
   position: relative;
   transition: box-shadow 0.3s ease;
   min-height: 120px;
+  max-height:120px;
   width: 100%; /* Note takes full width of its container */
   max-width: 700px;
   display: block;
