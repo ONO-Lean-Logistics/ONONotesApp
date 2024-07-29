@@ -546,7 +546,7 @@ export default {
 }
 
 .add-note:hover{
-  background-color:#5f5f5f9c;
+  background-color: #72707075;
 }
 
 .note-container.dragging,
