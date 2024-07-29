@@ -322,30 +322,28 @@ export default {
   margin-top: 10px; /* Added margin for spacing */
 }
 
-/* Type Indicator */
+
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 2px;
+  left: 5px;
+  font-size: 8px; /* Adjust the font size as needed */
+}
+
+.timestamp {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
+  font-size: 8px;
+}
+
 .type {
   position:absolute;
   top:2px;
   left:5px;
   font-size: 10px; /* Adjust the font size */
-  color: rgb(196, 196, 196);
-}
-
-/* User information */
-.utente {
-  position:absolute;
-  bottom:2px;
-  left:5px;
-  font-size: 8px; /* Adjust the font size as needed */
-  color: rgb(196, 196, 196);
-}
-
-/* Timestamp */
-.timestamp {
-  position:absolute;
-  bottom:2px;
-  right:5px;
-  font-size: 8px;
   color: rgb(196, 196, 196);
 }
 /* Delete Button ciaoo+ */
