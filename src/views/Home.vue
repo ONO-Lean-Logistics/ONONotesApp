@@ -18,42 +18,42 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <div class="account-management">
-          <button @click="toggleAccountManagement" class="group-button">
-            <h2>Benvenuto <br> {{ this.utente }}</h2>
-          </button>
-          <!--<Group 
-          v-show="showAccountManagement" 
-          @close="showAccountManagement = false, refreshQuery()" 
-          :group-id="group.id"
-          :name="group.name"
-          :owner="group.owner"
-          :members="group.members"/>-->
-        </div>
+      <div class="account-management">
+        <button @click="toggleAccountManagement" class="group-button">
+          <h2>Benvenuto <br />{{ this.utente }}</h2>
+        </button>
+        <!--<Group 
+        v-show="showAccountManagement" 
+        @close="showAccountManagement = false, refreshQuery()" 
+        :group-id="group.id"
+        :name="group.name"
+        :owner="group.owner"
+        :members="group.members"/>-->
+      </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
-        <button 
-        class="add-note"
-        @click="addNote('list')" >
-          <i class="fas fa-plus"></i>
-          Lista
-        </button>
-        <button 
-        class="add-note"
-        @click="addNote('classic')" >
-          <i class="fas fa-plus"></i>
-          Nota
-        </button>
+      <button class="add-note" @click="addNote('list')">
+        <i class="fas fa-plus"></i>
+        Lista
+      </button>
+      <button class="add-note" @click="addNote('classic')">
+        <i class="fas fa-plus"></i>
+        Nota
+      </button>
       <div class="notes-control"></div>
 
-      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
+      <SortDropdown
+        class="sort-dropdown"
+        @select-sort-type="updateSortType"
+        @select-sort-order="updateSortOrder"
+      />
     </div>
 
     <div>
       <!-- Draggable component for notes -->
-      <draggable 
+      <draggable
         :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
         group="notes"
@@ -64,21 +64,15 @@
         handle=".note-container"
         @start="handleDragStart"
       >
-
         <div
           v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
-          :class="[
-            'note-container',
-            note.isAddButton ? 'add-note-container' : '',
-            { dragging: noteDragging === note.id },
-          ]"
-          :draggable="!note.isAddButton ? 'true' : 'false'"
+          :class="['note-container', { dragging: noteDragging === note.id }]"
+          :draggable="true"
           @dragstart="noteDragging = note.id"
           @dragend="noteDragging = null"
         >
-          <template v-if="note && !note.isAddButton">
-
+          <template v-if="note">
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -108,6 +102,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import Group from "../components/Group.vue";
@@ -140,25 +135,22 @@ export default {
   },
 
   computed: {
-    filteredNotes() {
-      const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.notes;
+  filteredNotes() {
+    const query = this.searchQuery.toLowerCase().trim();
+    if (!query) return this.notes;
 
-      return this.notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(query);
-        const utenteMatch = note.utente.toLowerCase().includes(query);
-        return titleMatch || utenteMatch;
-      });
-    },
-    filteredNotesWithAddButton() {
-      const notesWithAddButton = [...this.filteredNotes];
-      if (!this.isSearchActive) {
-        notesWithAddButton.push({ isAddButton: true }); 
-      }
-      return this.sortNotes(notesWithAddButton);
-    },
-   
+    return this.notes.filter((note) => {
+      const titleMatch = note.title.toLowerCase().includes(query);
+      const utenteMatch = note.utente.toLowerCase().includes(query);
+      return titleMatch || utenteMatch;
+    });
   },
+  filteredNotesWithAddButton() {
+    // Simply sort the filtered notes without adding an empty container
+    return this.sortNotes(this.filteredNotes);
+  },
+},
+
   created(){
     this.refreshQuery();
   },
