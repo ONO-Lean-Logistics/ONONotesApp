@@ -532,7 +532,7 @@ li {
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
@@ -540,7 +540,7 @@ li {
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   right: 5px;
   font-size: 8px;
 }
