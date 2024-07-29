@@ -1,36 +1,45 @@
 <template>
-    <div class="account-management" @click="handleClickOutside">
-        <div class="account-content">
-        <h2>Manage Account</h2>
-        <button @click="$emit('close')" class="clear-button">
-          <img src="../assets/X_icon.svg" alt="Clear" />
-        </button>
-          <br>
-            <div class="groups">
-              <h1>Username:</h1>
-            </div>
-          <br>
-        <div class="divider" :class="'divider-dark'"></div>
-          <br>
-          <div class="groups">
-            <h1>Groups: </h1>
-          <button @click="" class="group-btn">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-        </div>
-      </div>
-        <div
-        v-if="!editing"
+    <div
+      
         class="group"
         @click.stop="startEdit"
-        @mouseover="showEditingIcon = true"
-        @mouseleave="showEditingIcon = false"
-        >
-            <div v-if="!editing" class="group-content">
-                <h2 v-if="name">{{ groupName }}</h2>
-                <h3 v-else class="placeholder">Group name</h3>
-                <pre style="font-size: 8px" v-if="name">{{truncatedText(name)}}</pre>
-                <h3>Members:</h3>
+    >
+        <div  class="group-content">
+            <h2 v-if="groupId">{{ groupId }}</h2>
+        <div >
+            <ul>
+                <!-- List items for editing -->
+                <li v-for="(member, idx) in newMembers" :key="idx">
+                    <div
+                        @mouseover="hoverIndex = idx"
+                        @mouseleave="hoverIndex = null"
+                        class="item-container"
+                    >   
+                    <!-- Button to remove item -->
+                        <button
+                            v-if="hoverIndex === idx"
+                            @click.stop="removeItem(idx)"
+                            class="remove-btn"
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+            <input
+                v-model="newTitle"
+                placeholder="GroupId"
+                class="edit-title"
+                id="titleInput"
+                :maxlength="maxTitleLength"
+            />
+            <div class="edit-actions">
+                <button class="delete-btn-modal" @click.stop="deletegroup">
+                    <img src="../assets/delete.svg" alt="Clear" />
+                </button>
+                <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
+                <button @click.stop="saveEdit" class="save-btn"><img src="../assets/save.svg" alt="Clear" /></button>
             </div>
         </div>
     </div>
@@ -45,8 +54,8 @@ export default{
             type: [String, Number],
             require: true
         },
-        name: {
-            type: String ,
+        title: {
+            type: String,
             require: true
         },
         owner: {
@@ -61,7 +70,7 @@ export default{
     },
     data() {
         return {
-            newName: this.name,
+            newgroupId: this.groupId,
             newMembers: this.members.map((member) => ({...member})),
             editing: false,
             showEditingIcon: false,
@@ -69,8 +78,11 @@ export default{
         }
     },
     watch: {
-        name(newVal) {
-            this.newName = newVal
+        groupId(newVal){
+            this.newgroupId = newVal
+        },
+        groupId(newVal) {
+            this.newgroupId = newVal
         },
         members(newVal) {
             this.newMembers = newVal.map((member) => ({...member}))
@@ -83,7 +95,7 @@ export default{
         async saveEdit() {
             const editedGroup = {
                 id: this.groupId,
-                name: this.newName,
+                groupId: this.newgroupId,
                 members: this.newMembers
             };
 
@@ -100,7 +112,7 @@ export default{
             try{
                 const { groups } = await loadGroups();
                 const updatedGroups = groups.filter((group) => group.id !== this.groupId);
-                await saveGroups(updatedGroups, false);
+                await saveGroups(updatedGroups);
                 this.editing = false;
                 this.$emit("save")
             }catch (error){
@@ -108,7 +120,7 @@ export default{
             }
         },
         cancelEdit() {
-            this.newName = this.name;
+            this.newgroupId = this.groupId;
             this.newMembers = this.members.map((member) => ({...member}))
             this.editing = false;
             this.showEditingIcon = false;
@@ -117,17 +129,11 @@ export default{
         startEdit() {
             this.editing = true
         },
-        handleClickOutside(event) {
-            if(!event.target.closest(".modal-content")) {
-                this.saveEdit();
-                this.editing = false
-            }
-        },
-        truncatedText(name) {
-            if (name.length <= this.maxTitleLength) {
-                return name;
+        truncatedText(groupId) {
+            if (groupId.length <= this.maxTitleLength) {
+                return groupId;
             } else {
-                return name.substring(0, this.maxTitleLength) + "...";
+                return groupId.substring(0, this.maxTitleLength) + "...";
             }
         },
         generateUniqueId(prefix, index="") {

@@ -18,19 +18,9 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <div class="account-management">
-          <button @click="toggleAccountManagement" class="group-button">
-            <h2>Benvenuto <br> {{ this.utente }}</h2>
-          </button>
-          <!--<Group 
-          v-show="showAccountManagement" 
-          @close="showAccountManagement = false, refreshQuery()" 
-          :group-id="group.id"
-          :name="group.name"
-          :owner="group.owner"
-          :members="group.members"/>-->
+        <AccountManagement :owner="owner"/>
         </div>
-    </div>
+   
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
@@ -110,7 +100,7 @@
 </template>
 
 <script>
-import Group from "../components/Group.vue";
+import AccountManagement from "../components/AccountManagement.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
@@ -124,7 +114,7 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    Group
+    AccountManagement
   },
   data() {
     return {
@@ -132,10 +122,8 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
-      showAccountManagement: false
     };
   },
 
@@ -205,6 +193,9 @@ export default {
       }
       
     },
+    async addGroup(){
+      
+    },
 
     // Clear search query
     clearSearch() {
@@ -268,7 +259,7 @@ export default {
       // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
-      this.utente = `${operatorName} ${operatorSurname}`;
+      this.owner = `${operatorName} ${operatorSurname}`;
       try {
         const response = await loadNotes(); 
         let resNotes = response.notes;
@@ -337,10 +328,6 @@ export default {
     }
     return notes;
   },
-
-    toggleAccountManagement(){
-      this.showAccountManagement = true
-    },
     updateSortType(type) {
       this.sortType = type;
       localStorage.setItem("sortType", type);
@@ -421,17 +408,6 @@ export default {
     cursor: pointer;
     padding: 0;
   }
-.account-management button.group-button {
-  position: relative;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #7c7c7c00;
-  color: #D9DADC;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
 
 .search-container {
   display: flex;
