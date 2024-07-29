@@ -15,20 +15,29 @@
           @input="handleSearchInput"
         />
       </div>
-      <button @click="clearSearch" class="clear-button">
-        <img src="../assets/X_icon.svg" alt="Clear" />
-      </button>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
+      <button class="add-note" @click="addNote('list')">
+        <i class="fas fa-plus"></i>
+        Lista
+      </button>
+      <button class="add-note" @click="addNote('classic')">
+        <i class="fas fa-plus"></i>
+        Nota
+      </button>
       <div class="notes-control"></div>
 
-      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
+      <SortDropdown
+        class="sort-dropdown"
+        @select-sort-type="updateSortType"
+        @select-sort-order="updateSortOrder"
+      />
     </div>
 
     <div>
-
+      <!-- Draggable component for notes -->
       <draggable
         :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
@@ -40,21 +49,15 @@
         handle=".note-container"
         @start="handleDragStart"
       >
-
         <div
           v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
-          :class="[
-            'note-container',
-            note.isAddButton ? 'add-note-container' : '',
-            { dragging: noteDragging === note.id },
-          ]"
-          :draggable="!note.isAddButton ? 'true' : 'false'"
+          :class="['note-container', { dragging: noteDragging === note.id }]"
+          :draggable="true"
           @dragstart="noteDragging = note.id"
           @dragend="noteDragging = null"
         >
-          <template v-if="note && !note.isAddButton">
-
+          <template v-if="note">
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -79,33 +82,12 @@
               @save="refreshQuery()"
             />
           </template>
-          <template v-else-if="note && note.isAddButton">
-          
-            <div v-if="!isSearchActive" class="note add-note">
-              <div @click="addNote('classic')" class="add-button-classic">
-              
-                <i class="fas fa-plus"></i>
-                <span>Nota</span>
-              </div>
-
-             
-              <div class="add-divider"></div>
-
-             
-              <div class="list add-list">
-                <div @click="addNote('list')" class="add-button-list">
-                
-                  <i class="fas fa-plus"></i>
-                  <span>Lista</span>
-                </div>
-              </div>
-            </div>
-          </template>
         </div>
       </draggable>
     </div>
   </div>
 </template>
+
 
 <script>
 import Note from "../components/Note.vue";
@@ -131,37 +113,134 @@ export default {
       utente: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
+      showAccountManagement: false
     };
   },
 
   computed: {
-    filteredNotes() {
-      const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.notes;
+  filteredNotes() {
+    const query = this.searchQuery.toLowerCase().trim();
+    if (!query) return this.notes;
 
-      return this.notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(query);
-        const utenteMatch = note.utente.toLowerCase().includes(query);
-        return titleMatch || utenteMatch;
-      });
-    },
-    filteredNotesWithAddButton() {
-      const notesWithAddButton = [...this.filteredNotes];
-      if (!this.isSearchActive) {
-        notesWithAddButton.push({ isAddButton: true }); 
-      }
-      return this.sortNotes(notesWithAddButton);
-    },
-    isSearchActive() {
-      return this.searchQuery.trim() !== "";
-    }
+    return this.notes.filter((note) => {
+      const titleMatch = note.title.toLowerCase().includes(query);
+      const utenteMatch = note.utente.toLowerCase().includes(query);
+      return titleMatch || utenteMatch;
+    });
   },
+  filteredNotesWithAddButton() {
+    // Simply sort the filtered notes without adding an empty container
+    return this.sortNotes(this.filteredNotes);
+  },
+},
+
   created(){
     this.refreshQuery();
   },
 
   methods: {
+
+    // Add new note function
+    async addNote(type) {
+      let addingNoteType = type;
+      let newNote;
+
+      // Differentiating the type of notes
+      if (addingNoteType === "classic") {
+        newNote = {
+          title: "",
+          content: "",
+          id: this.nextId,
+          timestamp: Date.now(),
+          utente: this.utente,
+
+          type: "classic", // Marking it as a classic note
+        };
+      } else if (addingNoteType === "list") {
+        newNote = {
+          title: "",
+          items: [],
+          id: this.nextId,
+          timestamp: Date.now(),
+          utente: this.utente,
+          type: "list", // Marking it as a list note
+        };
+      }
+
+      this.nextId++; // Increment the next ID
+      if(newNote != null){
+        console.log(newNote);
+        this.notes.push(newNote); // Add the note to the list
+      try {
+        // Save the new note using updateNotes function
+        await updateNotes(newNote.id, newNote);
+      } catch (error) {
+        console.error("Error saving the new note:", error);
+      }
+      }
+      
+    },
+
+    // Clear search query
+    clearSearch() {
+        this.searchQuery = '';
+        this.$emit('input', this.searchQuery);
+      },
+    
+    // Drag end function
+    handleDragEnd(event) {
+      // Ignore drag if the item is an add button
+      if (
+        event.item &&
+        event.item.firstChild &&
+        event.item.firstChild.classList.contains("add-note")
+      ) {
+        event.preventDefault();
+        return;
+      }
+      event.item.style.opacity = "1";
+      document.body.style.cursor = "default";
+      event.item.style.cursor = "grab";
+      this.handleNoteReorder(event);
+      this.saveAllNotes();
+    },
+
+    // Drag start function
+    handleDragStart(event) {
+      // Ignore drag if the item is an add button
+      if (
+        event.item &&
+        event.item.firstChild &&
+        event.item.firstChild.classList.contains("add-note")
+      ) {
+        event.preventDefault();
+        return;
+      }
+      event.item.style.opacity = "0";
+      event.clone.style.opacity = "1000";
+      document.body.style.cursor = "grabbing";
+      event.item.style.cursor = "grabbing";
+    },
+    
+    handleNoteReorder(event) {
+      const movedNote = this.notes.splice(event.oldIndex, 1)[0];
+      this.notes.splice(event.newIndex, 0, movedNote);
+    },
+
+    // Handle input in the search bar
+    handleSearchInput() {
+      // Adjust the search input width based on content
+      const inputElement = document.getElementById("searchInput");
+      if (inputElement) {
+        inputElement.style.width = `${Math.max(
+          100,
+          this.searchQuery.length * 10
+        )}px`;
+      }
+    },
     async refreshQuery() {
+          
+      // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName");
       let operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
@@ -172,7 +251,8 @@ export default {
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
           resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
         }
-        if(resNotes != null &&  resNotes.length>0) {
+        if(resNotes != null &&  resNotes.length>0 ) {
+          console.log(`After filtering: ${response.notes}`)
           this.notes = resNotes; 
           this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
         }else{
@@ -182,6 +262,8 @@ export default {
         console.error("Error loading notes:", error);
       }
     },
+
+    // Save all notes function
     async saveAllNotes() {
       try {
         await saveNotes(this.notes);
@@ -194,6 +276,8 @@ export default {
         this.search();
       }
     },
+
+    // Perform search based on query
     search() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
@@ -204,20 +288,8 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
-    clearSearch() {
-      this.searchQuery = '';
-      this.$emit('input', this.searchQuery);
-    },
-    handleSearchInput() {
-      const inputElement = document.getElementById("searchInput");
-      if (inputElement) {
-        inputElement.style.width = `${Math.max(
-          100,
-          this.searchQuery.length * 10
-        )}px`;
-      }
-    },
     sortNotes(notes) {
+      
   if (this.sortType === "Time") {
     if (this.sortOrder === "Recent") {
       return notes.sort((a, b) => b.timestamp - a.timestamp);
@@ -235,25 +307,14 @@ export default {
       } else if (this.sortOrder === "Least") {
         return aLength - bLength; 
       }
-      return 0; 
-    });
-  }
-  return notes;
-},
-    handleDragStart(event) {
-      event.target.classList.add("dragging");
-    },
-    handleDragEnd(event) {
-      event.target.classList.remove("dragging");
-      this.saveAllNotes();
-    },
-    updateNote(index, action, data) {
-      if (action === "delete") {
-        this.notes.splice(index, 1);
-      } else if (action === "update") {
-        this.$set(this.notes, index, data);
-      }
-      this.saveAllNotes();
+       return 0; 
+      });
+    }
+    return notes;
+  },
+
+    toggleAccountManagement(){
+      this.showAccountManagement = true
     },
     updateSortType(type) {
       this.sortType = type;
@@ -266,7 +327,7 @@ export default {
     addNote(type) {
       const newNote = {
         id: this.nextId++,
-        title: "Nuova Nota",
+        title: "",
         content: "",
         timestamp: Date.now(),
         type: type,
@@ -282,6 +343,15 @@ export default {
 <style scoped>
 @import "../assets/main.css";
 
+.account-management {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: white;
+  
+}
+/* App container */
 .app {
   display: flex;
   flex-direction: column;
@@ -314,6 +384,11 @@ export default {
   flex-shrink: 0;
 }
 
+.header h2 {
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
 .header button.clear-button {
   margin-left: 10px;
     background: none;
@@ -402,6 +477,7 @@ export default {
 .notes-control {
   display: flex;
   align-items: left;
+  background-color: #2a577e;
 }
 
 .sort-dropdown {
@@ -425,50 +501,24 @@ export default {
   display: block;
   justify-content: center;
   background-color: transparent;
-  color: var(--note-text-color);
+  color: var(note-text-color);
   overflow: hidden;
   transition: opacity 0.8s ease;
 }
 
 .add-note {
-  width: 100%;
-  max-width: 300px; 
-  height: 120px;
-  background-color: #f0f0f0;
-  border: #ccc;
-  color: #aaa;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 2px;
-  cursor: pointer;
-  padding: 10px;
-  flex-direction: row-reverse;
-  transition: background-color 0.8s ease, opacity 0.8s ease; 
+  padding: 8px 16px;
+    font-size: 14px;
+    background-color: #7c7c7c00;
+    color: #9c9c9c;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-.add-button-classic,
-.add-button-list {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.8s ease;
-  padding: 10px;
-  margin: 0 5px;
-}
-
-.add-button-classic:hover,
-.add-button-list:hover {
-  background-color: #e0e0e0;
-}
-
-.add-divider {
-  border-left: 1px solid var(--add-divider-color);
-  height: 120%;
-  margin: 0 5px;
+.add-note:hover{
+  background-color:#5f5f5f9c;
 }
 
 .note-container.dragging,
@@ -498,3 +548,4 @@ export default {
 
 }
 </style>
+
