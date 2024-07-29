@@ -343,7 +343,7 @@ export default {
 /* Timestamp */
 .timestamp {
   position:absolute;
-  bottom:5px;
+  bottom:2px;
   right:5px;
   font-size: 8px;
   color: rgb(196, 196, 196);
