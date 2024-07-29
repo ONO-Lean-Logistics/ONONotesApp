@@ -524,7 +524,7 @@ li {
 .type {
   color: rgb(196, 196, 196);
   position: absolute;
-  top: 5px;
+  top: 2px;
   left: 5px;
   font-size: 8px;
 }
@@ -532,7 +532,7 @@ li {
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 2px;
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
@@ -540,14 +540,14 @@ li {
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 2px;
   right: 5px;
   font-size: 8px;
 }
 
 .type {
   position:absolute;
-  top:5px;
+  top:2px;
   left:5px;
   font-size: 10px; /* Adjust the font size */
   color: rgb(196, 196, 196);
