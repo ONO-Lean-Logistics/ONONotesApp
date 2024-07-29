@@ -1,9 +1,7 @@
 <template>
   <div class="home">
     <div class="header">
-      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">
-        Memo
-      </h1>
+      <h1 style="cursor: pointer" :class="'title-dark'" @click="refreshQuery">Memo</h1>
       <div class="search-container">
         <i class="fas fa-search search-icon" @click="startSearch"></i>
         <input
@@ -18,67 +16,68 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <div class="account-management">
-          <button @click="toggleAccountManagement" class="group-button">
-            <h2>Benvenuto <br> {{ this.utente }}</h2>
-          </button>
-          <!--<Group 
-          v-show="showAccountManagement" 
-          @close="showAccountManagement = false, refreshQuery()" 
+      <div class="account-management">
+        <button @click="toggleAccountManagement" class="group-button">
+          <h2>Benvenuto <br /> {{ this.utente }}</h2>
+        </button>
+        <!-- Uncomment and use Group component as needed -->
+        <!--
+        <Group
+          v-show="showAccountManagement"
+          @close="showAccountManagement = false; refreshQuery()"
           :group-id="group.id"
           :name="group.name"
           :owner="group.owner"
-          :members="group.members"/>-->
-        </div>
+          :members="group.members"
+        />
+        -->
+      </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
-        <button 
-        class="add-note"
-        @click="addNote('list')" >
-          <i class="fas fa-plus"></i>
-          Lista
-        </button>
-        <button 
-        class="add-note"
-        @click="addNote('classic')" >
-          <i class="fas fa-plus"></i>
-          Nota
-        </button>
+      <button class="add-note" @click="addNote('list')">
+        <i class="fas fa-plus"></i>
+        Lista
+      </button>
+      <button class="add-note" @click="addNote('classic')">
+        <i class="fas fa-plus"></i>
+        Nota
+      </button>
       <div class="notes-control"></div>
 
-      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
+      <SortDropdown
+        class="sort-dropdown"
+        @select-sort-type="updateSortType"
+        @select-sort-order="updateSortOrder"
+      />
     </div>
 
     <div>
-      <!-- Draggable component for notes -->
-      <draggable 
+      <draggable
         :value="filteredNotes"
         :class="'notes-grid'"
         group="notes"
-        :item-key="(note) => note.id"
+        :item-key="note => note.id"
         @end="handleDragEnd"
         v-bind="$attrs"
         v-on="$listeners"
         handle=".note-container"
         @start="handleDragStart"
       >
-
         <div
           v-for="(note, index) in filteredNotes"
           :key="note.id"
           :class="[
             'note-container',
             note.isAddButton ? 'add-note-container' : '',
-            { dragging: noteDragging === note.id },
+            { dragging: noteDragging === note.id }
           ]"
           :draggable="!note.isAddButton ? 'true' : 'false'"
           @dragstart="noteDragging = note.id"
           @dragend="noteDragging = null"
         >
           <template v-if="note && !note.isAddButton">
-
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -99,8 +98,10 @@
               :utente="note.utente"
               :note-id="note.id"
               :type="note.type"
+              :is-editing="note.id === editingNoteId"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery()"
+              @close-modal="editingNoteId = null"
             />
           </template>
         </div>
@@ -124,7 +125,7 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    Group
+    Group,
   },
   data() {
     return {
@@ -135,10 +136,10 @@ export default {
       utente: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
-      showAccountManagement: false
+      showAccountManagement: false,
+      editingNoteId: null,
     };
   },
-
   computed: {
     filteredNotes() {
       const query = this.searchQuery.toLowerCase().trim();
@@ -151,67 +152,51 @@ export default {
       });
     },
   },
-  created(){
+  created() {
     this.refreshQuery();
   },
-
   methods: {
-
-    // Add new note function
     async addNote(type) {
-      let addingNoteType = type;
       let newNote;
 
-      // Differentiating the type of notes
-      if (addingNoteType === "classic") {
+      if (type === "classic") {
         newNote = {
           title: "",
           content: "",
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-
-          type: "classic", // Marking it as a classic note
+          type: "classic",
         };
-      } else if (addingNoteType === "list") {
+      } else if (type === "list") {
         newNote = {
           title: "",
           items: [],
           id: this.nextId,
           timestamp: Date.now(),
           utente: this.utente,
-          type: "list", // Marking it as a list note
+          type: "list",
         };
       }
 
-      this.nextId++; // Increment the next ID
-      if(newNote != null){
-        console.log(newNote);
-        this.notes.push(newNote); // Add the note to the list
-      try {
-        // Save the new note using updateNotes function
-        await updateNotes(newNote.id, newNote);
-      } catch (error) {
-        console.error("Error saving the new note:", error);
+      this.nextId++;
+      if (newNote) {
+        this.notes.push(newNote);
+        this.editingNoteId = newNote.id; // Set the editing note ID to the new note ID
+        try {
+          await updateNotes(newNote.id, newNote);
+        } catch (error) {
+          console.error("Error saving the new note:", error);
+        }
       }
-      }
-      
     },
 
-    // Clear search query
     clearSearch() {
-        this.searchQuery = '';
-        this.$emit('input', this.searchQuery);
-      },
-    
-    // Drag end function
+      this.searchQuery = "";
+    },
+
     handleDragEnd(event) {
-      // Ignore drag if the item is an add button
-      if (
-        event.item &&
-        event.item.firstChild &&
-        event.item.firstChild.classList.contains("add-note")
-      ) {
+      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
         event.preventDefault();
         return;
       }
@@ -222,14 +207,8 @@ export default {
       this.saveAllNotes();
     },
 
-    // Drag start function
     handleDragStart(event) {
-      // Ignore drag if the item is an add button
-      if (
-        event.item &&
-        event.item.firstChild &&
-        event.item.firstChild.classList.contains("add-note")
-      ) {
+      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
         event.preventDefault();
         return;
       }
@@ -238,49 +217,41 @@ export default {
       document.body.style.cursor = "grabbing";
       event.item.style.cursor = "grabbing";
     },
-    
+
     handleNoteReorder(event) {
       const movedNote = this.notes.splice(event.oldIndex, 1)[0];
       this.notes.splice(event.newIndex, 0, movedNote);
     },
 
-    // Handle input in the search bar
     handleSearchInput() {
-      // Adjust the search input width based on content
       const inputElement = document.getElementById("searchInput");
       if (inputElement) {
-        inputElement.style.width = `${Math.max(
-          100,
-          this.searchQuery.length * 10
-        )}px`;
+        inputElement.style.width = `${Math.max(100, this.searchQuery.length * 10)}px`;
       }
     },
+
     async refreshQuery() {
-          
-      // Retrieve user information from session storage
-      let operatorName = sessionStorage.getItem("operatorName");
-      let operatorSurname = sessionStorage.getItem("operatorSurname");
+      const operatorName = sessionStorage.getItem("operatorName");
+      const operatorSurname = sessionStorage.getItem("operatorSurname");
       this.utente = `${operatorName} ${operatorSurname}`;
       try {
-        const response = await loadNotes(); 
+        const response = await loadNotes();
         let resNotes = response.notes;
 
         if (resNotes && Array.isArray(resNotes) && resNotes.length > 0) {
-          resNotes = resNotes.filter(note => note && note.id !== null && note.id !== undefined);
+          resNotes = resNotes.filter((note) => note && note.id !== null && note.id !== undefined);
         }
-        if(resNotes != null &&  resNotes.length>0 ) {
-          console.log(`After filtering: ${response.notes}`)
-          this.notes = resNotes; 
-          this.nextId =  Math.max(...this.notes.map((note) => note.id)) + 1;
-        }else{
-          this.nextId = 1; 
+        if (resNotes && resNotes.length > 0) {
+          this.notes = resNotes;
+          this.nextId = Math.max(...this.notes.map((note) => note.id)) + 1;
+        } else {
+          this.nextId = 1;
         }
       } catch (error) {
         console.error("Error loading notes:", error);
       }
     },
 
-    // Save all notes function
     async saveAllNotes() {
       try {
         await saveNotes(this.notes);
@@ -288,13 +259,13 @@ export default {
         console.error("Error saving notes:", error);
       }
     },
+
     startSearch() {
       if (this.searchQuery.trim() !== "") {
         this.search();
       }
     },
 
-    // Perform search based on query
     search() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
@@ -305,52 +276,31 @@ export default {
         return titleMatch || utenteMatch;
       });
     },
-    sortNotes(notes) {
-  if (this.sortType === "Time") {
-    if (this.sortOrder === "Recent") {
-      return notes.sort((a, b) => b.timestamp - a.timestamp);
-    } else if (this.sortOrder === "Oldest") {
-      return notes.sort((a, b) => a.timestamp - b.timestamp);
-    }
-  } else if (this.sortType === "Length") {
-    return notes.sort((a, b) => {
-      const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
-      const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
 
-      
-      if (this.sortOrder === "Most") {
-        return bLength - aLength; 
-      } else if (this.sortOrder === "Least") {
-        return aLength - bLength; 
+    toggleAccountManagement() {
+      this.showAccountManagement = !this.showAccountManagement;
+    },
+
+    async updateNote(index, action, data) {
+      if (index >= 0 && index < this.notes.length) {
+        if (action === "delete") {
+          this.notes.splice(index, 1);
+          await this.saveAllNotes();
+        } else if (action === "update" && data) {
+          this.notes.splice(index, 1, data);
+          await this.saveAllNotes();
+        }
       }
-      return 0; 
-    });
-  }
-  return notes;
-},
+    },
 
-    toggleAccountManagement(){
-      this.showAccountManagement = true
+    updateSortType(newSortType) {
+      this.sortType = newSortType;
+      localStorage.setItem("sortType", newSortType);
     },
-    updateSortType(type) {
-      this.sortType = type;
-      localStorage.setItem("sortType", type);
-    },
-    updateSortOrder(order) {
-      this.sortOrder = order;
-      localStorage.setItem("sortOrder", order);
-    },
-    addNote(type) {
-      const newNote = {
-        id: this.nextId++,
-        title: "",
-        content: "",
-        timestamp: Date.now(),
-        type: type,
-        utente: this.utente,
-      };
-      this.notes.push(newNote);
-      this.saveAllNotes();
+
+    updateSortOrder(newSortOrder) {
+      this.sortOrder = newSortOrder;
+      localStorage.setItem("sortOrder", newSortOrder);
     },
   },
 };

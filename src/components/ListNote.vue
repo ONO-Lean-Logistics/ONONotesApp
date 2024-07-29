@@ -1,7 +1,7 @@
 <template>
   <!-- Display note content when not editing -->
   <div
-    v-if="!isEditing"
+    v-if="!isEditingInternal"
     class="note"
     @click.stop="startEdit"
     @mouseover="showEditIcon = true"
@@ -21,7 +21,6 @@
           <input
             :id="generateUniqueId('checkbox', idx)"
             type="checkbox"
-            @click.stop
             v-model="item.completed"
             class="item-checkbox"
           />
@@ -34,14 +33,6 @@
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
     </div>
-    <!-- Delete Button -->
-    <button
-      v-if="showEditIcon && !isEditing"
-      class="delete-btn"
-      @click.stop="deleteNote"
-    >
-    <img src="../assets/delete.svg" alt="Clear" />
-    </button>
   </div>
   <!-- Modal for editing -->
   <div v-else class="modal" @click="handleClickOutside">
@@ -97,19 +88,20 @@
       <!-- Edit actions buttons -->
       <div class="edit-actions">
         <button class="delete-btn-modal" @click.stop="deleteNote">
-          <img src="../assets/delete.svg" alt="Clear" />
+          <img src="../assets/delete.svg" alt="Delete" />
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
-        <button @click.stop="saveEdit" class="save-btn"><img src="../assets/save.svg" alt="Clear" /></button>
+        <button @click.stop="cancelEdit" class="cancel-btn">
+          <img src="../assets/X_icon.svg" alt="Cancel" />
+        </button>
+        <button @click.stop="saveEdit" class="save-btn">
+          <img src="../assets/save.svg" alt="Save" />
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-/* eslint-disable */
-import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
-
 export default {
   name: "ListNote",
   props: {
@@ -141,44 +133,43 @@ export default {
       type: [String, Number],
       required: true,
     },
+    isEditing: {
+      type: Boolean,
+      required: true,
+    }
   },
   data() {
     return {
       newTitle: this.title,
       newItems: this.items.map((item) => ({ ...item })),
-      isEditing: false,
+      isEditingInternal: this.isEditing,
       showEditIcon: false,
-      showIcons: false,
+      hoverIndex: null,
       maxTitleLength: 25, // Default char limit per title
       maxCharsPerLine: 28, // Default char limit per line
-      formattedTimestamp: "",
-      hoverIndex: null, // Add this line to track the index of the hovered item
+      formattedTimestamp: this.formatTimestamp(this.timestamp),
     };
   },
   watch: {
-    // Update newTitle when title prop changes
     title(newVal) {
       this.newTitle = newVal;
     },
-    // Update newItems when items prop changes
     items(newVal) {
       this.newItems = newVal.map((item) => ({ ...item }));
     },
-    // Update formattedTimestamp when timestamp prop changes
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
-  },
-  mounted() {
-    // Format timestamp on component mount
-    this.formattedTimestamp = this.formatTimestamp(this.timestamp);
-    this.isEditing = false;
+    isEditing(newVal) {
+      this.isEditingInternal = newVal;
+    }
   },
   methods: {
-
-    // Save edited note
+    closeModal() {
+      this.isEditingInternal = false;
+      this.$emit('close-modal');
+    },
     async saveEdit() {
-      // Remove empty items before saving
       const filteredItems = this.newItems.filter((item) => item.text.trim() !== "");
 
       const editedNote = {
@@ -191,49 +182,34 @@ export default {
       };
 
       try {
-        await updateNotes(this.noteId, editedNote); // Update the specific note
-
-        this.isEditing = false;
-        this.showEditIcon = false;
+        await this.$emit('update-note', { action: 'update', data: editedNote });
+        this.closeModal();
       } catch (error) {
         console.error("Failed to save note:", error);
       }
-      this.$emit("save");
-        },
-    // Delete note
+    },
     async deleteNote() {
       try {
-        const { notes } = await loadNotes();
-        const updatedNotes = notes.filter((note) => note.id !== this.noteId);
-        await saveNotes(updatedNotes, false);
-        this.isEditing = false;
-        this.showEditIcon = false;
+        await this.$emit('update-note', { action: 'delete', data: { id: this.noteId } });
+        this.closeModal();
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
-      this.$emit("save");
     },
-    // Cancel editing
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
-      this.isEditing = false;
-      this.showEditIcon = false;
-      this.$emit("save");
+      this.closeModal();
     },
-    // Start editing
     startEdit() {
-      this.isEditing = true;
+      this.isEditingInternal = true;
     },
-    // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
-        this.removeEmptyItems();
         this.saveEdit();
-        this.isEditing = false;
+        this.closeModal();
       }
     },
-    // Format timestamp to readable format
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
       const day = date
@@ -248,7 +224,6 @@ export default {
       const seconds = date.getSeconds().toString().padStart(2, "0");
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
-    // Truncate text to fit max characters per line
     truncatedText(text) {
       if (text.length <= this.maxCharsPerLine) {
         return text;
@@ -256,23 +231,18 @@ export default {
         return text.substring(0, this.maxCharsPerLine) + "...";
       }
     },
-    // Generate unique ID
     generateUniqueId(prefix, index = "") {
       return `${prefix}-${this._uid}-${index}`;
     },
-    // Toggle completion status of item
     toggleItemCompleted(index) {
       if (this.newItems[index]) {
         this.newItems[index].completed = !this.newItems[index].completed;
       }
     },
-    // Add new item
     addItem() {
-      // Check if the last item is empty before adding a new one
       if (this.newItems.length === 0 || this.newItems[this.newItems.length - 1].text.trim() !== "") {
         this.newItems.push({ text: "", completed: false });
 
-        // Focus the input of the newly added item
         this.$nextTick(() => {
           const newItemIndex = this.newItems.length - 1;
           const newItemInput = this.$refs.itemInputs[newItemIndex];
@@ -280,28 +250,19 @@ export default {
             newItemInput.focus();
           }
         });
-      } else {
-        alert("Please fill the last item before adding a new one.");
       }
     },
-    // Remove item at index
     removeItem(index) {
       this.newItems.splice(index, 1);
     },
-    // Remove empty item
     removeEmptyItem(index) {
-      if (this.newItems[index] && this.newItems[index].text.trim() === "") {
+      if (this.newItems[index].text.trim() === "") {
         this.newItems.splice(index, 1);
       }
-    },
-    // Remove all empty items
-    removeEmptyItems() {
-      this.newItems = this.newItems.filter((item) => item.text.trim() !== "");
     },
   },
 };
 </script>
-
 
 <style scoped>
 @import "../assets/main.css";
@@ -509,20 +470,6 @@ li {
   right: 80px;
   font-size: 16px;
   padding: 10px 15px;
-  cursor: pointer;
-  color: var(--note-text-color);
-  border: none;
-  background-color: var(--note-background-color);
-  border-radius: 0;
-  transition: background-color 0.3s ease;
-}
-
-.delete-btn {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
-  top: 5px;
-  right: 5px;
-  font-size: 8px;
-  padding: 4px 9px;
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
