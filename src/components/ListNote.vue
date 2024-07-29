@@ -529,7 +529,7 @@ li {
   position:absolute;
   bottom:5px;
   left:5px;
-  font-size: 10px; /* Adjust the font size as needed */
+  font-size: 10px; /* Adust the font size as needed */
   color: rgb(196, 196, 196);
 }
 
