@@ -79,6 +79,7 @@ export default {
     utente: {
       // User who created the note
       type: String,
+      default: '',
       required: true,
     },
     timestamp: {
