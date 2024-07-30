@@ -30,7 +30,8 @@
               ]"
             >
             <Group
-            :group-id="group.id"
+            :groupId="group.id"
+            :title="group.title"
             :utente="group.utente"
             :members="group.members"
             @refresh="refreshGroupsQuery()"

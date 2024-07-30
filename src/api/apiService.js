@@ -146,10 +146,14 @@ async function makeONORequest(endpoint, requestData) {
   }
 }
 
-// Save groups to the server
-export async function saveGroups(groups) {
+export async function saveGroups(groups, occupancyStatus = false) {
   console.log("Before try/catch save");
   try {
+    // Ensure groups is an array
+    if (!Array.isArray(groups)) {
+      throw new Error("Invalid groups data");
+    }
+
     // Filter out null or undefined values
     const validGroups = groups.filter(group => group !== null && group !== undefined);
 
@@ -157,18 +161,18 @@ export async function saveGroups(groups) {
     const dataToSave = {
       appCode: appCode,
       dataName: appGroupName,
-      dataValue: JSON.stringify({ "groups": validGroups }) // Convert groups to JSON string
+      dataValue: JSON.stringify({ groups: validGroups, occupancyStatus }) // Convert groups to JSON string
     };
 
     // Make the request to the server
     await makeONORequest("SetONOAppData", dataToSave);
+    console.log("Groups saved successfully");
   } catch (error) {
     console.error("Error saving groups:", error);
     throw error;
   }
 }
 
-// Get all groups from the server
 async function getAllGroups() {
   try {
     const response = await makeONORequest("GetONOAppDataFromCode", {
@@ -217,12 +221,12 @@ export async function updateGroups(groupId, updatedGroup) {
 
     // Save updated groups back to server with occupancy status set to false
     await saveGroups(validGroups, false);
+    console.log("Groups updated successfully");
   } catch (error) {
     console.error("Error updating groups:", error);
     throw error;
   }
 }
-// Load notes from the server
 export async function loadGroups() {
   try {
     console.log("Before fetching groups");
@@ -243,20 +247,21 @@ export async function loadGroups() {
       console.log("Parsed groups:", groups);
 
       return {
-        groups
+        groups,
       };
     } else {
       // Handle cases where the response is not as expected
       console.error("Invalid server response format: Expected an object with a 'groups' array.");
       console.error("Received data:", responseObject);
       return {
-        groups: []
+        groups: [],
       }; // Return an empty array or handle as appropriate
     }
   } catch (error) {
     console.error("Error loading groups:", error);
     return {
-      groups: []
+      groups: [],
+      occupancyStatus: false
     }; // Return an empty array or handle as appropriate
   }
 }
