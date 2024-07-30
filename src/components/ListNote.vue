@@ -350,7 +350,7 @@ li {
   display: flex;
   align-items: center;
   justify-content: space-between; /* Ensure items are spaced evenly */
-  margin-bottom: 17px;
+  margin-bottom: 20px;
 }
 
 /* Checkbox styling */
