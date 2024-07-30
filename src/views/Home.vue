@@ -1,4 +1,3 @@
-
 <template>
   <div class="home">
     <div class="header">
@@ -23,13 +22,6 @@
         <button @click="toggleAccountManagement" class="group-button">
           <h2>Benvenuto <br />{{ utente }}</h2>
         </button>
-        <!--<Group 
-        v-show="showAccountManagement" 
-        @close="showAccountManagement = false, refreshQuery()" 
-        :group-id="group.id"
-        :name="group.name"
-        :owner="group.owner"
-        :members="group.members"/>-->
       </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
@@ -43,7 +35,9 @@
         <i class="fas fa-plus"></i>
         Nota
       </button>
-      <div class="notes-control"></div>
+      <div class="notes-control">
+        <button class="reset-button" @click="resetSort">Reset Ordinamento</button>
+      </div>
 
       <SortDropdown
         class="sort-dropdown"
@@ -104,13 +98,14 @@
   </div>
 </template>
 
+
 <script>
 import Group from "../components/Group.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
 import draggable from "vuedraggable";
-import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
+import { loadNotes, saveNotes } from "@/api/apiService";
 
 export default {
   name: "Home",
@@ -128,8 +123,8 @@ export default {
       noteDragging: null,
       searchQuery: "",
       utente: "",
-      sortType: localStorage.getItem("sortType") || "Time",
-      sortOrder: localStorage.getItem("sortOrder") || "Oldest",
+      sortType: localStorage.getItem("sortType") || "",
+      sortOrder: localStorage.getItem("sortOrder") || "",
       showAccountManagement: false
     };
   },
@@ -296,6 +291,23 @@ export default {
       localStorage.setItem("sortOrder", order);
     },
 
+    resetSort() {
+      this.sortType = "";
+      this.sortOrder = "";
+      localStorage.removeItem("sortType");
+      localStorage.removeItem("sortOrder");
+    },
+
+    resetSortType() {
+      this.sortType = "";
+      localStorage.removeItem("sortType");
+    },
+
+    resetSortLength() {
+      this.sortOrder = "";
+      localStorage.removeItem("sortOrder");
+    },
+
     toggleAccountManagement() {
       this.showAccountManagement = !this.showAccountManagement;
     },
@@ -312,6 +324,7 @@ export default {
   }
 };
 </script>
+
 
 
 <style scoped>
@@ -491,7 +504,7 @@ export default {
   transition: opacity 0.8s ease;
 }
 
-.add-note {
+.add-note, .reset-button {
   padding: 8px 16px;
     font-size: 14px;
     background-color: #7c7c7c00;
@@ -502,7 +515,7 @@ export default {
     transition: background-color 0.3s ease;
 }
 
-.add-note:hover{
+.add-note:hover, .reset-button:hover{
   background-color: #72707075;
 }
 
