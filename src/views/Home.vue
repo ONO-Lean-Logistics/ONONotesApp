@@ -474,8 +474,8 @@ export default {
 
 .notes-control {
   display: flex;
-  align-items: left;
-  background-color: #2a577e;
+  align-items: right;
+  background-color: #7c7c7c00;
 }
 
 .sort-dropdown {
