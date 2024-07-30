@@ -80,6 +80,7 @@ export default {
       // User who created the note
       type: String,
       required: true,
+      default: ''
     },
     timestamp: {
       // Timestamp when note was created
@@ -141,6 +142,7 @@ export default {
 
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
+        console.log(`deleting: ${this.noteId}`)
         await saveNotes(updatedNotes, false);
         this.isEditing = false;
         this.$emit("save");

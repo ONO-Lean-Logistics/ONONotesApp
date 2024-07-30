@@ -128,6 +128,7 @@ export default {
     utente: {
       type: String,
       required: true,
+      default: ''
     },
     timestamp: {
       type: [String, Number],

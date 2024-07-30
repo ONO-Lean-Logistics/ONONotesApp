@@ -5,7 +5,7 @@
         @click.stop="startEdit"
     >
         <div  class="group-content">
-            <h2 v-if="groupId">{{ groupId }}</h2>
+            <h2 v-if="title">{{ title }}</h2>
         <div >
             <ul>
                 <!-- List items for editing -->
@@ -29,7 +29,7 @@
         </div>
             <input
                 v-model="newTitle"
-                placeholder="GroupId"
+                placeholder="Title"
                 class="edit-title"
                 id="titleInput"
                 :maxlength="maxTitleLength"
@@ -58,9 +58,10 @@ export default{
             type: String,
             require: true
         },
-        owner: {
+        utente: {
             type: String,
-            require: true
+            require: true,
+            default: ''
         },
         members: {
             type: Array,
@@ -70,7 +71,7 @@ export default{
     },
     data() {
         return {
-            newgroupId: this.groupId,
+            newTitle: this.title,
             newMembers: this.members.map((member) => ({...member})),
             editing: false,
             showEditingIcon: false,
@@ -78,11 +79,8 @@ export default{
         }
     },
     watch: {
-        groupId(newVal){
-            this.newgroupId = newVal
-        },
-        groupId(newVal) {
-            this.newgroupId = newVal
+        title(newVal) {
+            this.newTitle = newVal
         },
         members(newVal) {
             this.newMembers = newVal.map((member) => ({...member}))
@@ -93,10 +91,11 @@ export default{
     },
     methods: {
         async saveEdit() {
+            const filteredMembers = this.newMembers.filter((member) => member.text.trim() !== "");
             const editedGroup = {
                 id: this.groupId,
-                groupId: this.newgroupId,
-                members: this.newMembers
+                title: this.newTitle,
+                members: filteredMembers
             };
 
             try {
@@ -106,38 +105,36 @@ export default{
             }catch (error){
                 console.error("Failed to save group", error)
             }
-            this.$emit("save")
+            this.$emit("refresh")
         },
         async deletegroup(){
             try{
                 const { groups } = await loadGroups();
                 const updatedGroups = groups.filter((group) => group.id !== this.groupId);
+                console.log(`deleting  ${this.groupId}`)
                 await saveGroups(updatedGroups);
                 this.editing = false;
-                this.$emit("save")
+                this.$emit("refresh")
+                
             }catch (error){
                 console.error("Failed to delete group:", error)
             }
+            
         },
         cancelEdit() {
-            this.newgroupId = this.groupId;
-            this.newMembers = this.members.map((member) => ({...member}))
             this.editing = false;
             this.showEditingIcon = false;
-            this.$emit("save")
+            this.$emit("refresh")
         },
         startEdit() {
             this.editing = true
         },
-        truncatedText(groupId) {
-            if (groupId.length <= this.maxTitleLength) {
-                return groupId;
+        truncatedText(title) {
+            if (title.length <= this.maxTitleLength) {
+                return title;
             } else {
-                return groupId.substring(0, this.maxTitleLength) + "...";
+                return title.substring(0, this.maxTitleLength) + "...";
             }
-        },
-        generateUniqueId(prefix, index="") {
-            return `${prefix}-${this._uid}-${index}`
         },
         addMember() {
             this.newMembers.push({ op })

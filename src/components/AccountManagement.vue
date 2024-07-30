@@ -12,7 +12,7 @@
           </button>
           <br>
           <div class="groups">
-            <h1>Username: {{ owner }}</h1>
+            <h1>Username: {{ utente }}</h1>
           </div>
           <br>
           <div class="divider" :class="'divider-dark'"></div>
@@ -30,9 +30,10 @@
               ]"
             >
             <Group
-            :owner="group.owner"
+            :group-id="group.id"
+            :utente="group.utente"
             :members="group.members"
-            @save="refreshGroupsQuery()"
+            @refresh="refreshGroupsQuery()"
             />
           </div>
           </div>
@@ -48,9 +49,10 @@ import { loadGroups, saveGroups, updateGroups } from "@/api/apiService";
 
 export default {  
   props: {
-    owner: {
+    utente: {
       type: String,
-      required: true
+      required: true,
+      default: ''
     }
   },
   components: {
@@ -73,8 +75,8 @@ export default {
 
       return this.account.groups.filter((group) => {
         const nameMatch = group.name.toLowerCase().includes(query);
-        const ownerMatch = group.owner.toLowerCase().includes(query);
-        return nameMatch || ownerMatch;
+        const utenteMatch = group.utente.toLowerCase().includes(query);
+        return nameMatch || utenteMatch;
       });
     }
   },
@@ -134,7 +136,6 @@ export default {
           this.nextId = Math.max(...this.account.groups.map((group) => group.groupId)) + 1;
         } else {
           this.account.groups = []; // Ensure groups is always an array
-          this.nextId = 1; 
         }
       } else {
         console.error("No valid groups data returned");
@@ -144,14 +145,15 @@ export default {
     } catch (error) {
       console.error("Error refreshing groups query:", error);
       this.account.groups = []; // Handle error case
-      this.nextId = 1;
     }
   },
 
   async addGroup() {
-    let newGroup = {
-      groupId: this.nextId,
-      owner: this.username,
+    let newGroup;
+    newGroup = {
+      title: "",
+      id: this.nextId,
+      utente: this.utente,
       participants: []
     };
     this.nextId++;
@@ -160,7 +162,7 @@ export default {
       this.account.groups.push(newGroup); // Add the group to the list
       try {
         // Save the new group using updateGroups function
-        await updateGroups(newGroup.groupId, newGroup);
+        await updateGroups(newGroup.id, newGroup);
       } catch (error) {
         console.error("Error saving the new group:", error);
       }

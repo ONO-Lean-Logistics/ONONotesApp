@@ -18,7 +18,7 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <AccountManagement :owner="owner"/>
+        <AccountManagement :utente="utente"/>
         </div>
    
     <div class="divider" :class="'divider-dark'"></div>
@@ -124,6 +124,7 @@ export default {
       searchQuery: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
+  
     };
   },
 
@@ -193,9 +194,7 @@ export default {
       }
       
     },
-    async addGroup(){
-      
-    },
+    
 
     // Clear search query
     clearSearch() {
@@ -257,9 +256,9 @@ export default {
     async refreshQuery() {
           
       // Retrieve user information from session storage
-      let operatorName = sessionStorage.getItem("operatorName");
-      let operatorSurname = sessionStorage.getItem("operatorSurname");
-      this.owner = `${operatorName} ${operatorSurname}`;
+      let operatorName = sessionStorage.getItem("operatorName") || 'Default Name';
+      let operatorSurname = sessionStorage.getItem("operatorSurname") || 'Default Surname';
+      this.utente = `${operatorName} ${operatorSurname}`;
       try {
         const response = await loadNotes(); 
         let resNotes = response.notes;
