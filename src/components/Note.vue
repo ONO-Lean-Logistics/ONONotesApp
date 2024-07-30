@@ -1,22 +1,19 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <!-- Note container -->
   <div
-    v-if="!isEditing"
+    v-if="!isEditingInternal"
     class="note"
     @click.stop="startEdit"
     @mouseover="showEditIcon = true"
     @mouseleave="showEditIcon = false"
   >
     <!-- Display Note Content when not editing -->
-    <div v-if="!isEditing" class="note-content">
+    <div v-if="!isEditingInternal" class="note-content">
       <!-- Display title if exists, otherwise show placeholder -->
       <h2 v-if="title">{{ title }}</h2>
       <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
-      <pre style="font-size: 16px" v-if="content">{{
-        truncateContent(content)
-      }}</pre>
+      <pre style="font-size: 16px" v-if="content">{{ truncateContent(content) }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
@@ -24,11 +21,11 @@
     </div>
     <!-- Display Delete Button when hovering and not editing -->
     <button
-      v-if="showEditIcon && !isEditing"
+      v-if="showEditIcon && !isEditingInternal"
       class="delete-btn"
       @click.stop="deleteNote"
     >
-    <img src="../assets/delete.svg" alt="Clear" />
+      <img src="../assets/delete.svg" alt="Clear" />
     </button>
     <!-- Edit Modal -->
   </div>
@@ -56,8 +53,12 @@
         <button class="delete-btn-modal" @click.stop="deleteNote">
           <img src="../assets/delete.svg" alt="Clear" />
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn"><img src="../assets/X_icon.svg" alt="Clear" /></button>
-        <button @click.stop="saveEdit" class="save-btn"><img src="../assets/save.svg" alt="Clear" /></button>
+        <button @click.stop="cancelEdit" class="cancel-btn">
+          <img src="../assets/X_icon.svg" alt="Clear" />
+        </button>
+        <button @click.stop="saveEdit" class="save-btn">
+          <img src="../assets/save.svg" alt="Clear" />
+        </button>
       </div>
     </div>
   </div>
@@ -69,27 +70,22 @@ import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 export default {
   props: {
     noteId: {
-      // Added noteId prop to identify the note
       type: [String, Number],
       required: true,
     },
     title: {
-      // Title of the note
       type: String,
       required: true,
     },
     content: {
-      // Content of the note
       type: String,
       required: true,
     },
     utente: {
-      // User who created the note
       type: String,
       required: true,
     },
     timestamp: {
-      // Timestamp when note was created
       type: [String, Number],
       required: true,
     },
@@ -100,16 +96,19 @@ export default {
         return ["classic", "list"].includes(value);
       },
     },
+    isEditing: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
-      // State variables for editing
       newTitle: this.title,
       newContent: this.content,
-      isEditing: false,
+      isEditingInternal: this.isEditing,
       showEditIcon: false,
-      maxTitleLength: 25, // Default char limit per title
-      maxCharsPerLine: 32, // Default char limit per line
+      maxTitleLength: 25,
+      maxCharsPerLine: 32,
       formattedTimestamp: "",
     };
   },
@@ -117,70 +116,53 @@ export default {
     content(newVal) {
       this.newContent = newVal;
     },
-    // Watch for changes in title, content, and timestamp
     title(newVal) {
       this.newTitle = newVal;
     },
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
+    isEditing(newVal) {
+      this.isEditingInternal = newVal;
+    }
   },
-  
   mounted() {
-    // Initialize formatted timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
-    this.isEditing = false;
   },
-
   methods: {
-    //disugfeiuiewufdfwgigkiy
     cancelEdit() {
       this.newTitle = this.title;
-      this.isEditing = false;
-      this.showEditIcon = false;
+      this.newContent = this.content;
+      this.closeModal();
       this.$emit("save");
     },
-
-    // Delete the note
     async deleteNote() {
       try {
-        // Load all notes, filter out the deleted note, and save
-
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
         await saveNotes(updatedNotes, false);
-        this.isEditing = false;
+        this.closeModal();
         this.$emit("save");
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
     },
-
-    // Format timestamp into a readable string
     formatTimestamp(timestamp) {
       const date = new Date(timestamp);
-      const day = date
-        .toLocaleDateString("en-US", { day: "numeric" })
-        .padStart(2, "0");
-      const month = date
-        .toLocaleDateString("en-US", { month: "numeric" })
-        .padStart(2, "0");
+      const day = date.toLocaleDateString("en-US", { day: "numeric" }).padStart(2, "0");
+      const month = date.toLocaleDateString("en-US", { month: "numeric" }).padStart(2, "0");
       const year = date.getFullYear();
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
       const seconds = date.getSeconds().toString();
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
-
-    // Handle click outside the modal to save edits
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
-        this.isEditing = false;
+        this.closeModal();
       }
     },
-
-    // Handle textarea input to format text within specified limits
     handleTextareaInput() {
       var box = document.getElementById("textInput");
       const charlimit = this.maxCharsPerLine;
@@ -199,7 +181,6 @@ export default {
         box.value = lines.slice(0, 10).join("\n");
       };
     },
-
     async saveEdit() {
       const editedNote = {
         id: this.noteId,
@@ -209,24 +190,22 @@ export default {
         utente: this.utente,
         type: this.type,
       };
-
       try {
-        // Update the note using API service
-
-        await updateNotes(this.noteId, editedNote); // Update only the specific note
+        await updateNotes(this.noteId, editedNote);
         this.showEditIcon = false;
-        this.isEditing = false;
+        this.closeModal();
       } catch (error) {
         console.error("Failed to save note:", error);
       }
       this.$emit("save");
     },
-    
     startEdit() {
-      this.isEditing = true;
+      this.isEditingInternal = true;
     },
-    
-    // Truncate content to fit within specified character limit per line
+    closeModal() {
+      this.isEditingInternal = false;
+      this.$emit('close-modal');
+    },
     truncateContent(content) {
       if (content.length > 26) {
         return content.substring(0, 26) + "...";
@@ -237,6 +216,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 @import "../assets/main.css";
@@ -456,37 +436,37 @@ export default {
     padding: 10px;
   }
 
-.type {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
+  .type {
+    color: rgb(196, 196, 196);
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 8px;
+  }
 
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
-}
+  .utente {
+    color: rgb(196, 196, 196);
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 8px; /* Adjust the font size as needed */
+  }
 
-/* Specific input and textarea placeholders for scoped styling */
-:-ms-input-placeholder {
-  /* For Internet Explorer 10-11 */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
-}
+  /* Specific input and textarea placeholders for scoped styling */
+  :-ms-input-placeholder {
+    /* For Internet Explorer 10-11 */
+    color: #ccc;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+  }
 
-::-ms-input-placeholder {
-  /* For Microsoft Edge */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
-}
+  ::-ms-input-placeholder {
+    /* For Microsoft Edge */
+    color: #ccc;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+  }
 }
 </style>

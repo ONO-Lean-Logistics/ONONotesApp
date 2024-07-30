@@ -1,3 +1,4 @@
+
 <template>
   <!-- Display note content when not editing -->
   <div
