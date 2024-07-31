@@ -105,6 +105,10 @@ import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 export default {
   name: "ListNote",
   props: {
+    groupName: {
+      type: String,
+      required: true
+    },
     noteId: {
       type: [String, Number],
       required: true,

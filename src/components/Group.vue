@@ -1,7 +1,7 @@
 <template>
     <!-- Display group content when not editing -->
     <div
-      v-if="!editing"
+      v-if="!editing && isAdmin"
       class="group"
       @click.stop="startEdit"
       @mouseover="showEditIcon = true"
@@ -11,17 +11,6 @@
       <div class="group-content">
         <h2 v-if="newTitle">{{ newTitle }}</h2>
         <h3 v-else class="placeholder">Title</h3>
-        <ul>
-          <!-- List items for members -->
-          <li v-for="(member, idx) in members" :key="idx">
-            <div class="item-text">
-              {{ member.text }}
-            </div>
-          </li>
-        </ul>
-        <div class="utente">{{ utente }}</div>
-        <div class="timestamp">{{ formattedTimestamp }}</div>
-        <div class="type">{{ type }}</div>
       </div>
     </div>
   
@@ -133,6 +122,9 @@
       }
     },
     methods: {
+        isAdmin(){
+            this.$emit("admin")
+        },
       async saveEdit() {
         const filteredMembers = this.newMembers.filter(member => member.text.trim() !== '');
         const editedGroup = {
@@ -142,7 +134,7 @@
           timestamp: this.timestamp,
           type: this.type
         };
-  
+
         try {
           await updateGroups(this.groupId, editedGroup);
           this.editing = false;
@@ -189,14 +181,15 @@
         if (!event.target.closest(".modal-content")) {
           this.cancelEdit();
         }
-      }
+      },
     }
-  };
+}
   </script>
   
   <style scoped>
   .group {
-    background-color: #fff;
+    background-color: var(--note-background-color);
+
     padding: 20px;
     width: 100%;
     max-width: 400px; /* Adjust as needed */
@@ -263,7 +256,7 @@
     font-size: 16px;
     padding: 8px;
     margin-right: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--note-background-color);;
     border: none;
   }
   

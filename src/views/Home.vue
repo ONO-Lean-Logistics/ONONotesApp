@@ -38,6 +38,7 @@
         </button>
       <div class="notes-control"></div>
 
+      <div class="group-control"></div>
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
@@ -78,6 +79,7 @@
               :note-id="note.id"
               :index="index"
               :type="note.type"
+              :groupName="groupName"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery()"
             />
@@ -89,6 +91,7 @@
               :utente="note.utente"
               :note-id="note.id"
               :type="note.type"
+              :groupName="note.groupName"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery()"
             />
@@ -162,6 +165,7 @@ export default {
       // Differentiating the type of notes
       if (addingNoteType === "classic") {
         newNote = {
+          group: "",
           title: "",
           content: "",
           id: this.nextId,

@@ -14,16 +14,19 @@
           <div class="user-div">
             <h1>Username: {{ utente }}</h1>
           </div>
-          <br><h1>Groups: </h1>
-            <button v-if="isAdmin" @click="addGroup()" class="group-btn">
-              <i class="fa-solid fa-plus"></i>
-            </button>
+          <br>
           <div class="divider" :class="'divider-dark'"></div>
           <br>
+          <div class="groups-header">
+          <h1>Groups: </h1>
+            <button v-if="isAdmin" @click="addGroup" class="group-btn">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
           <div class="groups">
             <div class="groups-grid">
               <div 
-                v-for="(group, index) in filteredGroups"
+                v-for="group in filteredGroups"
                 :key="group.id"
                 class="group-container"
               >
@@ -32,8 +35,8 @@
                   :title="group.title"
                   :utente="group.utente"
                   :members="group.members"
-                  :isAdmin="isAdmin"
-                  @refresh="refreshGroupsQuery()"
+                  @refresh="refreshGroupsQuery"
+                  @admin="isAdmin"
                 />
               </div>
             </div>
@@ -66,43 +69,41 @@ export default {
         showAccountManagement: false
       },
       searchQuery: '',
-      nextId: 1
+      nextId: 1,
+      isAdminUser: false // Flag to check if the user is an admin
     };
   },
   computed: {
     isAdmin() {
-      // Check if groups are initialized
-      const groups = this.account.groups || [];
-      return groups.some(group =>
-        group.members && group.members.some(member => member.text === this.utente && group.title === "Admins")
+      // Determine if the current user is an admin
+      return this.account.groups.some(group => 
+        Array.isArray(group.members) &&
+        group.members.some(member => member.text === this.utente) &&
+        group.title === "Admins"
       );
     },
     filteredGroups() {
-      const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.account.groups;
+      let filteredGroups = this.account.groups || [];
 
-      return (this.account.groups || []).filter((group) => {
-        const nameMatch = group.title.toLowerCase().includes(query);
-        const utenteMatch = group.utente.toLowerCase().includes(query);
-        return nameMatch || utenteMatch;
-      });
+      // Show all groups if the user is an admin
+      if (this.isAdminUser) {
+        filteredGroups = filteredGroups;
+      } else {
+        // Filter to show only groups where the user is a member and exclude the "Users" group
+        filteredGroups = filteredGroups.filter(group => 
+          Array.isArray(group.members) &&
+          group.members.some(member => member.text === this.utente) &&
+          group.title !== 'Users'
+        );
+      }
+
+      return filteredGroups;
     }
   },
   created() {
     this.refreshGroupsQuery();
   },
   methods: {
-    updateAccount() {
-      console.log('Account updated:', this.account);
-    },
-    handleClickOutside(event) {
-      if (!event.target.closest(".account-content")) {
-        this.account.showAccountManagement = false;
-      }
-    },
-    switchToGroups() {
-      this.account.group = !this.account.group;
-    },
     toggleShowAccountManagement() {
       this.account.showAccountManagement = !this.account.showAccountManagement;
     },
@@ -113,27 +114,16 @@ export default {
         console.error("Error saving groups:", error);
       }
     },
-    startSearch() {
-      if (this.searchQuery.trim() !== "") {
-        this.search();
-      }
-    },
     async refreshGroupsQuery() {
       try {
         const response = await loadGroups();
         if (response && response.groups) {
-          let resGroups = response.groups;
-          if (resGroups && Array.isArray(resGroups) && resGroups.length > 0) {
-            resGroups = resGroups.filter(group => group && group.id !== null);
-          }
-          if (resGroups != null && resGroups.length > 0) {
-            this.account.groups = resGroups;
-            this.nextId = Math.max(...this.account.groups.map(group => group.id)) + 1;
-          } else {
-            this.account.groups = [];
-          }
+          this.account.groups = response.groups;
+          this.nextId = Math.max(...this.account.groups.map(group => group.id)) + 1;
+
+          // Update the admin status
+          this.isAdminUser = this.isAdmin;
         } else {
-          console.error("No valid groups data returned");
           this.account.groups = [];
           this.nextId = 1;
         }
@@ -143,8 +133,6 @@ export default {
       }
     },
     async addGroup() {
-      if (!this.isAdmin) return; // Only admins can add groups
-      
       const newGroup = {
         title: "",
         id: this.nextId,
@@ -157,6 +145,11 @@ export default {
         await updateGroups(newGroup.id, newGroup);
       } catch (error) {
         console.error("Error saving the new group:", error);
+      }
+    },
+    handleClickOutside(event) {
+      if (!event.target.closest(".account-content")) {
+        this.account.showAccountManagement = false;
       }
     }
   }
@@ -191,7 +184,7 @@ export default {
   display: block;
   justify-content: center;
   background-color: transparent;
-  color: var(--note-text-color);
+  color: var(note-text-color);
   overflow: hidden;
   transition: opacity 0.8s ease;
 }
@@ -204,14 +197,15 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  justify-content: absolute;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 999; /* Ensures the modal is above everything else */
   cursor: default;
 }
 .account-content {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
+  background-color: var(--note-background-color); /* Use your custom note background color */
+  color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 20px;
   width: 80%;
@@ -233,7 +227,7 @@ label {
   margin-bottom: 5px;
 }
 .clear-button {
-  position: absolute;
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
   top: 5px;
   right: 5px;
   font-size: 8px;
@@ -245,16 +239,21 @@ label {
   border-radius: 0;
 }
 .group-container {
-  min-height: 200px;
+  min-height: 200px; /* Increased height */
   width: 100%;
-  max-width: 400px;
+  max-width: 400px; /* Increased width */
   margin-bottom: 20px;
   cursor: grab;
   display: block;
   justify-content: center;
   background-color: transparent;
-  color: var(--note-text-color);
+  color: var(note-text-color);
   overflow: hidden;
+}
+.groups-header {
+  display: flex;
+  align-items: center;
+  text-align: center;
 }
 .group-btn {
   color: #4caf50;
@@ -274,7 +273,7 @@ h1 {
 }
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
   gap: 20px;
 }
 @media (max-width: 768px) {
@@ -283,7 +282,7 @@ h1 {
     align-items: flex-start;
   }
   .groups-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* 1 column for small screens */
   }
 }
 </style>
