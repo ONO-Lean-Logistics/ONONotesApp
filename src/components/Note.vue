@@ -1,4 +1,4 @@
-<!-- eslint-disable vue/multi-word-component-names -->
+
 <template>
   <!-- Note container -->
   <div
@@ -11,7 +11,7 @@
     <!-- Display Note Content when not editing -->
     <div v-if="!isEditing" class="note-content">
       <!-- Display title if exists, otherwise show placeholder -->
-      <h2 v-if="title">{{ title }}</h2>
+      <h2 v-if="title" class="note-title">{{ title }}</h2>
       <!-- Display truncated content or placeholder if empty -->
       <h3 v-else class="placeholder">Title</h3>
       <pre style="font-size: 16px" v-if="content">{{
@@ -55,6 +55,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
@@ -312,6 +313,11 @@ export default {
   flex-grow: 1; /* Allow the content to take up remaining space */
 }
 
+/* Add spacing between title and content */
+.note-title {
+  margin-bottom: 3px; /* Adds 2px of space below the title */
+}
+
 /* Note Footer (Type, User, Timestamp, Delete) */
 .note-footer {
   display: flex;
@@ -448,37 +454,37 @@ export default {
     padding: 10px;
   }
 
-.type {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: 8px;
-}
+  .type {
+    color: rgb(196, 196, 196);
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 8px;
+  }
 
-.utente {
-  color: rgb(196, 196, 196);
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  font-size: 8px; /* Adjust the font size as needed */
-}
+  .utente {
+    color: rgb(196, 196, 196);
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 8px; /* Adjust the font size as needed */
+  }
 
-/* Specific input and textarea placeholders for scoped styling */
-:-ms-input-placeholder {
-  /* For Internet Explorer 10-11 */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
-}
+  /* Specific input and textarea placeholders for scoped styling */
+  :-ms-input-placeholder {
+    /* For Internet Explorer 10-11 */
+    color: #ccc;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+  }
 
-::-ms-input-placeholder {
-  /* For Microsoft Edge */
-  color: #ccc;
-  font-style: italic;
-  font-weight: 300;
-  font-size: 14px;
-}
+  ::-ms-input-placeholder {
+    /* For Microsoft Edge */
+    color: #ccc;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+  }
 }
 </style>
