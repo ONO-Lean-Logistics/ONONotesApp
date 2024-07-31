@@ -699,7 +699,7 @@ body {
   flex-grow: 1;
   overflow-y: auto;
   grid-template-columns: repeat(3, 1fr); /* Sempre 3 colonne */
-  grid-auto-rows: minmax(100px, auto); /* Altezza minima per le righe */
+  grid-auto-rows: minmax(auto, auto); /* Altezza minima per le righe */
 }
 
 /* Contenitore nota */
