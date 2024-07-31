@@ -35,17 +35,15 @@
         <i class="fas fa-plus"></i>
         Nota
       </button>
-      <div class="notes-control">
+      <div class="sort-menu">
         <button class="reset-button" @click="resetSort">Reset Ordinamento</button>
-      </div>
 
       <SortDropdown
-        class="sort-dropdown"
         @select-sort-type="updateSortType"
         @select-sort-order="updateSortOrder"
       />
     </div>
-
+  </div>
     <div>
       <!-- Draggable component for notes -->
       <draggable
@@ -478,7 +476,9 @@ export default {
   background-color: #7c7c7c00;
 }
 
-.sort-dropdown {
+.sort-menu {
+  display: flex;
+  align-items:horizontal;
   margin-left: auto;
 }
 
