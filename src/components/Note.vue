@@ -449,43 +449,306 @@ export default {
   border-radius: 0;
 }
 
-/* Media Queries */
+
 @media (max-width: 600px) {
+  @import "../assets/main.css";
+
+/* Placeholder Styling */
+::placeholder {
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+  opacity: 1;
+}
+
+.placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Modal Overlay */
+.modal {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  cursor: default;
+  overflow-y: auto; /* Permette lo scroll su schermi piccoli */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  border: 1px solid transparent;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(-20px);
+  border-radius: 8px; /* Angoli arrotondati per un design moderno */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Aggiunge un'ombra */
+}
+
+/* Note Container */
+.note {
+  background-color: var(--note-background-color);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Spazio tra gli elementi */
+  padding: 20px;
+  border: 1px solid transparent;
+  transition: box-shadow 0.3s ease;
+  min-height: 120px;
+  max-height: 120px;
+  width: 100%;
+  max-width: 700px;
+  user-select: none;
+  box-sizing: border-box; /* Padding incluso nella larghezza/altezza totale */
+  border-radius: 0px; /* Rimuove arrotondamento angoli */
+  position: relative; /* Necessario per il posizionamento assoluto degli elementi nel footer */
+}
+.type {
+  color: #c4c4c4;
+  position: absolute;
+  top: 1px; /* A 1px dal bordo superiore della nota */
+  left: 1px;
+  font-size: 8px;
+}
+
+/* Utente */
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 1px; /* A 1px dal bordo inferiore della nota */
+  left: 1px;
+  font-size: 5px;
+}
+
+/* Timestamp */
+.timestamp {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 1px; /* A 1px dal bordo inferiore della nota */
+  right: 1px;
+  font-size: 5px;
+}
+
+.note:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Note Content */
+.note-content {
+  white-space: pre-wrap;
+  max-width: 100%;
+  max-height: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2em;
+  flex-grow: 1; /* Riempie lo spazio rimanente */
+}
+
+/* Spaziatura tra titolo e contenuto */
+.note-title {
+  margin-top: 3px;
+  margin-bottom: 3px; /* Spaziatura sotto il titolo */
+  font-size: 16px; /* Dimensione font maggiore per leggibilità */
+  font-weight: bold; /* Grassetto per differenziare il titolo */
+}
+
+/* Note Footer (Tipo, Utente, Timestamp, Elimina) */
+.note-footer {
+  display: flex;
+  justify-content: space-between; /* Spazio tra gli elementi */
+  align-items: center;
+  width: 100%;
+  color: rgb(196, 196, 196); /* Colore grigio per il footer */
+  position: absolute;
+}
+/* Pulsante Elimina */
+.delete-btn {
+  right: 5px;
+  top: 5px;
+  position: absolute;
+  font-size: 12px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 4px; /* Arrotondati per un tocco migliore */
+  flex-basis: 20%; /* Spaziatura coerente */
+  text-align: right; /* Testo allineato a destra */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transizioni */
+}
+
+.delete-btn:hover {
+  background-color: rgba(255, 0, 0, 0.1); /* Indica azione distruttiva */
+  color: red; /* Evidenzia il pulsante Elimina */
+}
+
+/* Titolo Modifica */
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Aggiunge un bordo sottile */
+  border-radius: 4px; /* Arrotondati per l'input */
+  outline: none;
+}
+
+/* Area di testo Modifica */
+.edit-textarea {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 10px;
+  resize: none;
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Aggiunge un bordo sottile */
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Azioni Modifica */
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.edit-actions button {
+  margin-left: 10px;
+  padding: 8px 12px; /* Aumenta l'area cliccabile */
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 4px;
+}
+
+.edit-actions button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Pulsante Salva */
+.save-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.save-btn:hover {
+  background-color: rgba(0, 255, 0, 0.1); /* Indica l'azione di salvataggio */
+  color: green;
+}
+
+/* Pulsante Elimina per Modal */
+.delete-btn-modal {
+  position: absolute;
+  bottom: 5px;
+  right: 80px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.delete-btn-modal:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: red;
+}
+
+/* Pulsante Annulla */
+.cancel-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(255, 255, 0, 0.1); /* Colore indicativo di annullamento */
+  color: orange;
+}
+
+/* Responsiveness per dispositivi touch */
+@media (max-width: 768px) {
+  .modal-content,
   .note {
-    padding: 10px;
+    width: 90%; /* Più spazio su schermi piccoli */
+    max-width: none; /* Rimuove limite di larghezza su dispositivi piccoli */
   }
 
-  .type {
-    color: rgb(196, 196, 196);
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    font-size: 8px;
+  .note {
+    min-height: 100px; /* Riduce altezza minima su dispositivi piccoli */
+    padding: 15px; /* Riduce padding per spazio compatto */
   }
 
-  .utente {
-    color: rgb(196, 196, 196);
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 8px; /* Adjust the font size as needed */
+  .note-title {
+    font-size: 14px; /* Riduce dimensione font per dispositivi piccoli */
   }
 
-  /* Specific input and textarea placeholders for scoped styling */
-  :-ms-input-placeholder {
-    /* For Internet Explorer 10-11 */
-    color: #ccc;
-    font-style: italic;
-    font-weight: 300;
-    font-size: 14px;
+  .delete-btn,
+  .save-btn,
+  .delete-btn-modal,
+  .cancel-btn {
+    font-size: 14px; /* Riduce dimensione font pulsanti per dispositivi piccoli */
+    padding: 8px 12px; /* Riduce padding per spazio compatto */
   }
 
-  ::-ms-input-placeholder {
-    /* For Microsoft Edge */
-    color: #ccc;
-    font-style: italic;
-    font-weight: 300;
-    font-size: 14px;
+  .edit-title,
+  .edit-textarea {
+    padding: 8px; /* Riduce padding input per spazio compatto */
+    font-size: 16px; /* Dimensione font maggiore per leggibilità su dispositivi touch */
   }
+
+  .edit-actions button {
+    font-size: 12px; /* Riduce dimensione font per pulsanti azioni */
+  }
+}
+
+/* Limitazione visibilità delle note */
+ul {
+  max-height: calc(2 * 120px + 10px); /* Altezza massima per visualizzare solo 2 note alla volta */
+  overflow: hidden; /* Nasconde le note extra */
+}
 }
 </style>

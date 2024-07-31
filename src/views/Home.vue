@@ -530,20 +530,217 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .notes-grid {
-    grid-template-columns: repeat(3, 1fr); 
-  }
-  .search-container {
-    margin-left: 0;
-  }
+  @import "../assets/main.css";
 
-  .search-input {
-    margin-left: 0;
-  }
+body {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: white;
+  background-color: #333; /* Colore di sfondo neutro per l'interfaccia */
+}
 
+/* Container principale dell'app */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0 15px; /* Spazio laterale */
+}
+
+/* Home */
+.home {
+  flex-grow: 1;
+  padding: 15px; /* Spazio interno */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-bottom: 1.5%;
+  height: 60px; /* Altezza aumentata per migliore interazione touch */
+  position: relative;
+  width: 100%;
+  padding: 0 15px;
+}
+
+.header h1,
+.header h2 {
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 18px; /* Dimensione font ottimizzata per leggibilità */
+}
+
+.header button.clear-button {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Pulsanti di gruppo */
+.account-management button.group-button {
+  padding: 10px 18px;
+  font-size: 16px;
+  background-color: #7c7c7c00;
+  color: #d9dadc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Contenitore di ricerca */
+.search-container {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  position: relative;
+  min-width: none;
+  margin-left: 10px;
+  height: 40px; /* Altezza regolata per touch */
+}
+
+.search-icon {
+  cursor: pointer;
+  position: absolute;
+  left: 10px;
+  font-size: 20px; /* Dimensione icona aumentata */
+  color: #fff;
+}
+
+.search-text {
+  position: absolute;
+  top: -8px;
+  left: 15px;
+  background-color: var(--background-color);
+  padding: 0 5px;
+  color: var(--text-color);
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-input {
+  height: 50px; /* Altezza regolata per touch */
+  flex-grow: 1;
+  font-size: 18px; /* Dimensione del font regolata */
+  padding: 10px 50px; /* Spazio aggiuntivo per icona e testo */
+  background-color: var(--search-bar-background-color);
+  border: 2px solid;
+  border-color: var(--note-background-color);
+  border-radius: 10px;
+  color: var(--text-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+  caret-color: #4a7daa;
+}
+
+.search-input:focus {
+  border-color: #2a577e;
+  box-shadow: 0 0 5px transparent;
+}
+
+.search-input:not(:placeholder-shown) + .clear-icon {
+  opacity: 1;
+  right: 10px;
+}
+
+.clear-icon {
+  font-size: 30px; /* Dimensione icona aumentata per touch */
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #fff;
+  background-color: transparent;
+  transition: opacity 0.3s ease, right 0.3s ease;
+  opacity: 0;
+}
+
+/* Controlli */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-right: 0.5%;
+  padding: 0 10px;
+}
+
+.notes-control {
+  display: flex;
+  align-items: center;
+  background-color: #7c7c7c00;
+}
+
+.sort-menu {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-top: 3px;
+}
+
+/* Griglia delle note */
+.notes-grid {
+  display: grid;
+  gap: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
+  grid-template-columns: repeat(3, 1fr); /* Sempre 3 colonne */
+  grid-auto-rows: minmax(120px, auto); /* Altezza minima per le righe */
+}
+
+/* Contenitore nota */
+.note-container {
+  min-height: 120px; /* Altezza regolata per piccoli schermi */
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 15px;
+  cursor: grab;
+  display: block;
+  background-color: transparent;
+  color: var(--note-text-color);
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+}
+
+/* Pulsanti aggiungi e reset */
+.add-note,
+.reset-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  background-color: #7c7c7c00;
+  color: #9c9c9c;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-note:hover,
+.reset-button:hover {
+  background-color: #72707075;
+}
+
+/* Note in fase di trascinamento */
+.note-container.dragging,
+.add-note.dragging {
+  opacity: 100%;
+}
+
+.dragging {
+  opacity: 100%;
+}
 }
 </style>
