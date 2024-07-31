@@ -315,6 +315,7 @@ export default {
 
 /* Add spacing between title and content */
 .note-title {
+  margin-top:3px;
   margin-bottom: 3px; /* Adds 2px of space below the title */
 }
 
