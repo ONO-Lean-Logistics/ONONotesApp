@@ -607,8 +607,7 @@ export default {
   font-size: 18px;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.1); /* Aggiunge un bordo sottile */
-  border-radius: 4px; /* Arrotondati per l'input */
+  border-radius: 0px; /* Arrotondati per l'input */
   outline: none;
 }
 
@@ -621,8 +620,7 @@ export default {
   font-size: 14px;
   padding: 10px;
   resize: none;
-  border: 1px solid rgba(0, 0, 0, 0.1); /* Aggiunge un bordo sottile */
-  border-radius: 4px;
+  border-radius: 0px;
   outline: none;
 }
 
@@ -714,7 +712,8 @@ export default {
   .modal-content,
   .note {
     width: 90%; /* Più spazio su schermi piccoli */
-    max-width: none; /* Rimuove limite di larghezza su dispositivi piccoli */
+    max-width: none;
+    border-radius:0px; /* Rimuove limite di larghezza su dispositivi piccoli */
   }
 
   .note {

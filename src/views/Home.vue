@@ -539,6 +539,8 @@ body {
   text-align: center;
   color: white;
   background-color: #333; /* Colore di sfondo neutro per l'interfaccia */
+  margin: 0;
+  padding: 0;
 }
 
 /* Container principale dell'app */
@@ -546,13 +548,13 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 0 15px; /* Spazio laterale */
+  padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
 }
 
 /* Home */
 .home {
   flex-grow: 1;
-  padding: 15px; /* Spazio interno */
+  padding: 10px; /* Ridotto per adattarsi agli schermi piccoli */
   display: flex;
   flex-direction: column;
 }
@@ -561,14 +563,14 @@ body {
 .header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px; /* Ridotto per ottimizzare lo spazio */
   background-color: var(--background-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-  margin-bottom: 1.5%;
-  height: 60px; /* Altezza aumentata per migliore interazione touch */
+  margin-bottom: 1%;
+  height: 50px; /* Ridotto per spazi più contenuti */
   position: relative;
   width: 100%;
-  padding: 0 15px;
+  padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
 }
 
 .header h1,
@@ -576,11 +578,11 @@ body {
   cursor: pointer;
   margin: 0;
   flex-shrink: 0;
-  font-size: 18px; /* Dimensione font ottimizzata per leggibilità */
+  font-size: 16px; /* Ridotto per spazi più contenuti */
 }
 
 .header button.clear-button {
-  margin-left: 10px;
+  margin-left: 8px; /* Ridotto per ottimizzare lo spazio */
   background: none;
   border: none;
   cursor: pointer;
@@ -589,8 +591,8 @@ body {
 
 /* Pulsanti di gruppo */
 .account-management button.group-button {
-  padding: 10px 18px;
-  font-size: 16px;
+  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
+  font-size: 14px; /* Ridotto per dimensioni più contenute */
   background-color: #7c7c7c00;
   color: #d9dadc;
   border: none;
@@ -606,39 +608,39 @@ body {
   flex-grow: 1;
   position: relative;
   min-width: none;
-  margin-left: 10px;
-  height: 40px; /* Altezza regolata per touch */
+  margin-left: 8px; /* Ridotto per ottimizzare lo spazio */
+  height: 35px; /* Ridotto per dimensioni più contenute */
 }
 
 .search-icon {
   cursor: pointer;
   position: absolute;
-  left: 10px;
-  font-size: 20px; /* Dimensione icona aumentata */
+  left: 8px; /* Ridotto per ottimizzare lo spazio */
+  font-size: 18px; /* Ridotto per dimensioni più contenute */
   color: #fff;
 }
 
 .search-text {
   position: absolute;
-  top: -8px;
-  left: 15px;
+  top: -6px;
+  left: 12px; /* Ridotto per ottimizzare lo spazio */
   background-color: var(--background-color);
-  padding: 0 5px;
+  padding: 0 4px; /* Ridotto per dimensioni più contenute */
   color: var(--text-color);
-  font-size: 12px;
+  font-size: 10px; /* Ridotto per dimensioni più contenute */
   pointer-events: none;
   z-index: 1;
 }
 
 .search-input {
-  height: 50px; /* Altezza regolata per touch */
+  height: 40px; /* Ridotto per dimensioni più contenute */
   flex-grow: 1;
-  font-size: 18px; /* Dimensione del font regolata */
-  padding: 10px 50px; /* Spazio aggiuntivo per icona e testo */
+  font-size: 16px; /* Ridotto per dimensioni più contenute */
+  padding: 8px 40px; /* Ridotto per dimensioni più contenute */
   background-color: var(--search-bar-background-color);
   border: 2px solid;
   border-color: var(--note-background-color);
-  border-radius: 10px;
+  border-radius: 8px; /* Ridotto per dimensioni più contenute */
   color: var(--text-color);
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   outline: none;
@@ -652,13 +654,13 @@ body {
 
 .search-input:not(:placeholder-shown) + .clear-icon {
   opacity: 1;
-  right: 10px;
+  right: 8px; /* Ridotto per dimensioni più contenute */
 }
 
 .clear-icon {
-  font-size: 30px; /* Dimensione icona aumentata per touch */
+  font-size: 24px; /* Ridotto per dimensioni più contenute */
   position: absolute;
-  right: 50px;
+  right: 40px; /* Ridotto per dimensioni più contenute */
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
@@ -673,9 +675,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
-  margin-right: 0.5%;
-  padding: 0 10px;
+  margin-bottom: 8px; /* Ridotto per ottimizzare lo spazio */
+  padding: 0 8px; /* Ridotto per ottimizzare lo spazio */
 }
 
 .notes-control {
@@ -688,25 +689,25 @@ body {
   display: flex;
   align-items: center;
   margin-left: auto;
-  margin-top: 3px;
+  margin-top: 2px; /* Ridotto per dimensioni più contenute */
 }
 
 /* Griglia delle note */
 .notes-grid {
   display: grid;
-  gap: 10px;
+  gap: 8px; /* Ridotto per dimensioni più contenute */
   flex-grow: 1;
   overflow-y: auto;
   grid-template-columns: repeat(3, 1fr); /* Sempre 3 colonne */
-  grid-auto-rows: minmax(120px, auto); /* Altezza minima per le righe */
+  grid-auto-rows: minmax(100px, auto); /* Altezza minima per le righe */
 }
 
 /* Contenitore nota */
 .note-container {
-  min-height: 120px; /* Altezza regolata per piccoli schermi */
+  min-height: 100px; /* Ridotto per dimensioni più contenute */
   width: 100%;
   max-width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px; /* Ridotto per dimensioni più contenute */
   cursor: grab;
   display: block;
   background-color: transparent;
@@ -718,8 +719,8 @@ body {
 /* Pulsanti aggiungi e reset */
 .add-note,
 .reset-button {
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
+  font-size: 12px; /* Ridotto per dimensioni più contenute */
   background-color: #7c7c7c00;
   color: #9c9c9c;
   border: none;

@@ -720,7 +720,7 @@ li:hover {
   margin-bottom: 10px;
   border: none;
   outline: none;
-  border-radius: 4px; /* Arrotonda gli angoli per coerenza */
+  border-radius: 0px; 
   transition: background-color 0.3s ease;
 }
 
@@ -735,7 +735,7 @@ li:hover {
   resize: none;
   border: none;
   outline: none;
-  border-radius: 4px; /* Arrotonda gli angoli per coerenza */
+  border-radius: 0px; 
   transition: background-color 0.3s ease;
 }
 
@@ -885,7 +885,8 @@ li:hover {
   .modal-content,
   .note {
     width: 90%; /* Maggiore spazio su schermi piccoli */
-    max-width: none; /* Rimuove limite di larghezza su dispositivi piccoli */
+    max-width: none; 
+    border-radius: 0px;
   }
 
   .note {
