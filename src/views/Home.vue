@@ -480,6 +480,7 @@ export default {
   display: flex;
   align-items:horizontal;
   margin-left: auto;
+  margin-top:3px;
 }
 
 .notes-grid {
