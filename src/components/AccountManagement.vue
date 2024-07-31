@@ -11,32 +11,32 @@
             <img src="../assets/X_icon.svg" alt="Clear" />
           </button>
           <br>
-          <div class="groups">
+          <div class="user-div">
             <h1>Username: {{ utente }}</h1>
           </div>
-          <br>
+          <br><h1>Groups: </h1>
+            <button v-if="isAdmin" @click="addGroup()" class="group-btn">
+              <i class="fa-solid fa-plus"></i>
+            </button>
           <div class="divider" :class="'divider-dark'"></div>
           <br>
           <div class="groups">
-            <h1>Groups: </h1>
-            <button @click="addGroup()" class="group-btn">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-            <div 
-              v-for="(group, index) in filteredGroups"
-              :key="group.id"
-              :class="[
-              'group-container'
-              ]"
-            >
-            <Group
-            :groupId="group.id"
-            :title="group.title"
-            :utente="group.utente"
-            :members="group.members"
-            @refresh="refreshGroupsQuery()"
-            />
-          </div>
+            <div class="groups-grid">
+              <div 
+                v-for="(group, index) in filteredGroups"
+                :key="group.id"
+                class="group-container"
+              >
+                <Group
+                  :groupId="group.id"
+                  :title="group.title"
+                  :utente="group.utente"
+                  :members="group.members"
+                  :isAdmin="isAdmin"
+                  @refresh="refreshGroupsQuery()"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
 import Group from './Group.vue';
 import { loadGroups, saveGroups, updateGroups } from "@/api/apiService";
 
-export default {  
+export default {
   props: {
     utente: {
       type: String,
@@ -66,16 +66,23 @@ export default {
         showAccountManagement: false
       },
       searchQuery: '',
-      nextId: 1 // Initialize with 1
+      nextId: 1
     };
   },
   computed: {
+    isAdmin() {
+      // Check if groups are initialized
+      const groups = this.account.groups || [];
+      return groups.some(group =>
+        group.members && group.members.some(member => member.text === this.utente && group.title === "Admins")
+      );
+    },
     filteredGroups() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.account.groups;
 
-      return this.account.groups.filter((group) => {
-        const nameMatch = group.name.toLowerCase().includes(query);
+      return (this.account.groups || []).filter((group) => {
+        const nameMatch = group.title.toLowerCase().includes(query);
         const utenteMatch = group.utente.toLowerCase().includes(query);
         return nameMatch || utenteMatch;
       });
@@ -86,26 +93,19 @@ export default {
   },
   methods: {
     updateAccount() {
-      // Handle the account update logic here
       console.log('Account updated:', this.account);
     },
-
-    // Handle click outside modal
     handleClickOutside(event) {
       if (!event.target.closest(".account-content")) {
         this.account.showAccountManagement = false;
       }
     },
-
-    // Switch thru groups and account
     switchToGroups() {
       this.account.group = !this.account.group;
     },
-
     toggleShowAccountManagement() {
       this.account.showAccountManagement = !this.account.showAccountManagement;
     },
-
     async saveAllGroups() {
       try {
         await saveGroups(this.account.groups);
@@ -113,62 +113,52 @@ export default {
         console.error("Error saving groups:", error);
       }
     },
-
     startSearch() {
       if (this.searchQuery.trim() !== "") {
         this.search();
       }
     },
-
     async refreshGroupsQuery() {
-    try {
-      const response = await loadGroups(); 
-
-      if (response && response.groups) {
-        let resGroups = response.groups;
-
-        if (resGroups && Array.isArray(resGroups) && resGroups.length > 0) {
-          resGroups = resGroups.filter(group => group && group.groupId !== null && group.groupId !== undefined);
-        }
-
-        if (resGroups != null && resGroups.length > 0) {
-          console.log(`After filtering: ${resGroups}`);
-          this.account.groups = resGroups; 
-          this.nextId = Math.max(...this.account.groups.map((group) => group.groupId)) + 1;
-        } else {
-          this.account.groups = []; // Ensure groups is always an array
-        }
-      } else {
-        console.error("No valid groups data returned");
-        this.account.groups = []; // Handle null or invalid response
-        this.nextId = 1;
-      }
-    } catch (error) {
-      console.error("Error refreshing groups query:", error);
-      this.account.groups = []; // Handle error case
-    }
-  },
-
-  async addGroup() {
-    let newGroup;
-    newGroup = {
-      title: "",
-      id: this.nextId,
-      utente: this.utente,
-      participants: []
-    };
-    this.nextId++;
-    if (newGroup != null) {
-      console.log(newGroup);
-      this.account.groups.push(newGroup); // Add the group to the list
       try {
-        // Save the new group using updateGroups function
+        const response = await loadGroups();
+        if (response && response.groups) {
+          let resGroups = response.groups;
+          if (resGroups && Array.isArray(resGroups) && resGroups.length > 0) {
+            resGroups = resGroups.filter(group => group && group.id !== null);
+          }
+          if (resGroups != null && resGroups.length > 0) {
+            this.account.groups = resGroups;
+            this.nextId = Math.max(...this.account.groups.map(group => group.id)) + 1;
+          } else {
+            this.account.groups = [];
+          }
+        } else {
+          console.error("No valid groups data returned");
+          this.account.groups = [];
+          this.nextId = 1;
+        }
+      } catch (error) {
+        console.error("Error refreshing groups query:", error);
+        this.account.groups = [];
+      }
+    },
+    async addGroup() {
+      if (!this.isAdmin) return; // Only admins can add groups
+      
+      const newGroup = {
+        title: "",
+        id: this.nextId,
+        utente: this.utente,
+        members: []
+      };
+      this.nextId++;
+      this.account.groups.push(newGroup);
+      try {
         await updateGroups(newGroup.id, newGroup);
       } catch (error) {
         console.error("Error saving the new group:", error);
       }
     }
-  }
   }
 };
 </script>
@@ -192,6 +182,20 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+.group-container {
+  min-height: 120px;
+  width: 100%;
+  max-width: 300px; 
+  margin-bottom: 20px;
+  cursor: grab;
+  display: block;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--note-text-color);
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+}
+
 .account-management {
   position: fixed;
   background-color: rgba(0, 0, 0, 0.5);
@@ -200,15 +204,14 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: absolute;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Ensures the modal is above everything else */
+  z-index: 999;
   cursor: default;
 }
 .account-content {
-  background-color: var(--note-background-color); /* Use your custom note background color */
-  color: var(--note-text-color); /* Use your custom note text color */
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
   border: 1px solid transparent;
   padding: 20px;
   width: 80%;
@@ -230,7 +233,7 @@ label {
   margin-bottom: 5px;
 }
 .clear-button {
-  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  position: absolute;
   top: 5px;
   right: 5px;
   font-size: 8px;
@@ -242,15 +245,15 @@ label {
   border-radius: 0;
 }
 .group-container {
-  min-height: 120px;
+  min-height: 200px;
   width: 100%;
-  max-width: 300px; 
+  max-width: 400px;
   margin-bottom: 20px;
   cursor: grab;
   display: block;
   justify-content: center;
   background-color: transparent;
-  color: var(note-text-color);
+  color: var(--note-text-color);
   overflow: hidden;
 }
 .group-btn {
@@ -268,5 +271,19 @@ label {
 }
 h1 {
   font-size: 16px;
+}
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .groups-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

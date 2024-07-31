@@ -36,7 +36,7 @@ export async function loadNotes() {
         occupancyStatus,
       };
     } else {
-      console.error("Invalid server response format");
+      console.error("Invalid server response format", responseArray);
       return null;
     }
   } catch (error) {
