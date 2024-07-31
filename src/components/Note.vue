@@ -522,7 +522,7 @@ export default {
   color: #c4c4c4;
   position: absolute;
   top: 1px; /* A 1px dal bordo superiore della nota */
-  left: 1px;
+  left: 5px;
   font-size: 8px;
 }
 
@@ -531,7 +531,7 @@ export default {
   color: rgb(196, 196, 196);
   position: absolute;
   bottom: 1px; /* A 1px dal bordo inferiore della nota */
-  left: 1px;
+  left: 5px;
   font-size: 5px;
 }
 
@@ -540,7 +540,7 @@ export default {
   color: rgb(196, 196, 196);
   position: absolute;
   bottom: 1px; /* A 1px dal bordo inferiore della nota */
-  right: 1px;
+  right: 5px;
   font-size: 5px;
 }
 
