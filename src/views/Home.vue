@@ -566,8 +566,8 @@ body {
   gap: 8px; /* Ridotto per ottimizzare lo spazio */
   background-color: var(--background-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-  margin-bottom: 10px; /* Margine inferiore per separare dalla barra di ricerca */
-  height: 50px; /* Ridotto per spazi più contenuti */
+  margin-bottom: 0; /* Rimosso margine inferiore per allineare esattamente */
+  height: 50px; /* Altezza dell'header */
   position: relative;
   width: 100%;
   padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
@@ -584,8 +584,10 @@ body {
 
 /* Barra di ricerca sotto l'header */
 .search-container {
-  margin-top: 10px; /* Sposta la barra di ricerca sotto l'header */
+  position: relative; /* Assicurati che la posizione sia relativa per il posizionamento assoluto */
+  top: 3px; /* Spostato sopra per allinearsi con la X */
   width: 100%; /* Occupa tutta la larghezza disponibile */
+  margin-bottom: 8px; /* Margine inferiore per separare dalla sezione successiva */
 }
 
 /* Contenitore di ricerca */
