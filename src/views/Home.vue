@@ -18,15 +18,8 @@
       </button>
       <div class="account-management">
         <button @click="toggleAccountManagement" class="group-button">
-          <h2>Benvenuto <br />{{ this.utente }}</h2>
+          <h2>Benvenuto <br />{{ utente }}</h2>
         </button>
-        <!--<Group 
-        v-show="showAccountManagement" 
-        @close="showAccountManagement = false, refreshQuery()" 
-        :group-id="group.id"
-        :name="group.name"
-        :owner="group.owner"
-        :members="group.members"/>-->
       </div>
     </div>
     <div class="divider" :class="'divider-dark'"></div>
@@ -40,15 +33,15 @@
         <i class="fas fa-plus"></i>
         Nota
       </button>
-      <div class="notes-control"></div>
+      <div class="sort-menu">
+        <button class="reset-button" @click="resetSort">Reset Ordinamento</button>
 
       <SortDropdown
-        class="sort-dropdown"
         @select-sort-type="updateSortType"
         @select-sort-order="updateSortOrder"
       />
     </div>
-
+  </div>
     <div>
       <!-- Draggable component for notes -->
       <draggable
@@ -73,10 +66,10 @@
           <template v-if="note">
             <Note
               v-if="note.type === 'classic'"
-              :title="note.title"
-              :content="note.content"
-              :timestamp="note.timestamp"
-              :utente="note.utente"
+              :title="note.title || ''"
+              :content="note.content || ''"
+              :timestamp="note.timestamp || Date.now()"
+              :utente="note.utente || ''"
               :note-id="note.id"
               :index="index"
               :type="note.type"
@@ -86,10 +79,10 @@
             />
             <ListNote
               v-else-if="note.type === 'list'"
-              :title="note.title"
-              :items="note.items"
-              :timestamp="note.timestamp"
-              :utente="note.utente"
+              :title="note.title || ''"
+              :items="note.items || []"
+              :timestamp="note.timestamp || Date.now()"
+              :utente="note.utente || ''"
               :note-id="note.id"
               :type="note.type"
               :is-editing="note.id === editingNoteId"
@@ -135,16 +128,21 @@ export default {
     };
   },
   computed: {
-  filteredNotes() {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (!query) return this.notes;
+    filteredNotes() {
+      const query = this.searchQuery.toLowerCase().trim();
+      if (!query) return this.notes;
 
-    return this.notes.filter((note) => {
-      const titleMatch = note.title.toLowerCase().includes(query);
-      const utenteMatch = note.utente.toLowerCase().includes(query);
-      return titleMatch || utenteMatch;
-    });
+      return this.notes.filter((note) => {
+        const titleMatch = (note.title || "").toLowerCase().includes(query);
+        const utenteMatch = (note.utente || "").toLowerCase().includes(query);
+        return titleMatch || utenteMatch;
+      });
+    },
+    filteredNotesWithAddButton() {
+      return this.sortNotes(this.filteredNotes);
+    }
   },
+
   created() {
     this.refreshQuery();
   },
@@ -219,12 +217,14 @@ export default {
       const movedNote = this.notes.splice(event.oldIndex, 1)[0];
       this.notes.splice(event.newIndex, 0, movedNote);
     },
+
     handleSearchInput() {
       const inputElement = document.getElementById("searchInput");
       if (inputElement) {
         inputElement.style.width = `${Math.max(100, this.searchQuery.length * 10)}px`;
       }
     },
+
     async refreshQuery() {
           
       // Retrieve user information from session storage
@@ -244,10 +244,14 @@ export default {
         } else {
           this.nextId = 1;
         }
+
+        this.notes = resNotes;
+        this.nextId = resNotes.length ? Math.max(...resNotes.map(note => note.id)) + 1 : 1;
       } catch (error) {
         console.error("Error loading notes:", error);
       }
     },
+
     async saveAllNotes() {
       try {
         await saveNotes(this.notes);
@@ -255,39 +259,43 @@ export default {
         console.error("Error saving notes:", error);
       }
     },
+
     startSearch() {
       if (this.searchQuery.trim() !== "") {
         this.search();
       }
     },
+
     search() {
       const query = this.searchQuery.toLowerCase().trim();
       if (!query) return this.notes;
 
       return this.notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(query);
-        const utenteMatch = note.utente.toLowerCase().includes(query);
+        const titleMatch = (note.title || "").toLowerCase().includes(query);
+        const utenteMatch = (note.utente || "").toLowerCase().includes(query);
         return titleMatch || utenteMatch;
       });
     },
-    sortNotes(notes) {
-      
-  if (this.sortType === "Time") {
-    if (this.sortOrder === "Recent") {
-      return notes.sort((a, b) => b.timestamp - a.timestamp);
-    } else if (this.sortOrder === "Oldest") {
-      return notes.sort((a, b) => a.timestamp - b.timestamp);
-    }
-  } else if (this.sortType === "Length") {
-    return notes.sort((a, b) => {
-      const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
-      const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
 
-      
-      if (this.sortOrder === "Most") {
-        return bLength - aLength; 
-      } else if (this.sortOrder === "Least") {
-        return aLength - bLength; 
+    sortNotes(notes) {
+      if (this.sortType === "Time") {
+        if (this.sortOrder === "Recent") {
+          return notes.sort((a, b) => b.timestamp - a.timestamp);
+        } else if (this.sortOrder === "Oldest") {
+          return notes.sort((a, b) => a.timestamp - b.timestamp);
+        }
+      } else if (this.sortType === "Length") {
+        return notes.sort((a, b) => {
+          const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
+          const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
+
+          if (this.sortOrder === "Most") {
+            return bLength - aLength; 
+          } else if (this.sortOrder === "Least") {
+            return aLength - bLength; 
+          }
+          return 0; 
+        });
       }
        return 0; 
       });
@@ -298,13 +306,47 @@ export default {
       this.sortType = type;
       localStorage.setItem("sortType", type);
     },
-    updateSortOrder(newSortOrder) {
-      this.sortOrder = newSortOrder;
-      localStorage.setItem("sortOrder", newSortOrder);
+
+    updateSortOrder(order) {
+      this.sortOrder = order;
+      localStorage.setItem("sortOrder", order);
     },
-  },
+
+    resetSort() {
+      this.sortType = "";
+      this.sortOrder = "";
+      localStorage.removeItem("sortType");
+      localStorage.removeItem("sortOrder");
+    },
+
+    resetSortType() {
+      this.sortType = "";
+      localStorage.removeItem("sortType");
+    },
+
+    resetSortLength() {
+      this.sortOrder = "";
+      localStorage.removeItem("sortOrder");
+    },
+
+    toggleAccountManagement() {
+      this.showAccountManagement = !this.showAccountManagement;
+    },
+
+    updateNotes(index, action, data) {
+      const note = this.notes[index];
+      if (action === 'update') {
+        Object.assign(note, data);
+      } else if (action === 'delete') {
+        this.notes.splice(index, 1);
+      }
+      this.saveAllNotes();
+    }
+  }
 };
 </script>
+
+
 
 <style scoped>
 @import "../assets/main.css";
@@ -442,12 +484,15 @@ export default {
 
 .notes-control {
   display: flex;
-  align-items: left;
-  background-color: #2a577e;
+  align-items: right;
+  background-color: #7c7c7c00;
 }
 
-.sort-dropdown {
+.sort-menu {
+  display: flex;
+  align-items:horizontal;
   margin-left: auto;
+  margin-top:3px;
 }
 
 .notes-grid {
@@ -472,7 +517,7 @@ export default {
   transition: opacity 0.8s ease;
 }
 
-.add-note {
+.add-note, .reset-button {
   padding: 8px 16px;
   font-size: 14px;
   background-color: #7c7c7c00;
@@ -483,7 +528,7 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.add-note:hover{
+.add-note:hover, .reset-button:hover{
   background-color: #72707075;
 }
 
@@ -497,20 +542,196 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .notes-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .search-container {
-    margin-left: 0;
-  }
+@import "../assets/main.css";
 
-  .search-input {
-    margin-left: 0;
-  }
+body {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: white;
+  background-color: #333; /* Colore di sfondo neutro per l'interfaccia */
+  margin: 0;
+  padding: 0;
+}
+
+/* Container principale dell'app */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
+}
+
+/* Home */
+.home {
+  flex-grow: 1;
+  padding: 10px; /* Ridotto per adattarsi agli schermi piccoli */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Ridotto per ottimizzare lo spazio */
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-bottom: 0; /* Rimosso margine inferiore per allineare esattamente */
+  height: 50px; /* Altezza dell'header */
+  position: relative;
+  width: 100%;
+  padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
+  text-align: center; /* Allinea al centro */
+}
+
+/* Spaziatura per il logo e il messaggio di benvenuto */
+.header h1,
+.header h2 {
+  cursor: pointer;
+  margin: 0;
+  font-size: 16px; /* Ridotto per spazi più contenuti */
+}
+
+/* Barra di ricerca sotto l'header */
+.search-container {
+  position: relative; /* Assicurati che la posizione sia relativa per il posizionamento assoluto */
+  top: 3px; /* Spostato sopra per allinearsi con la X */
+  width: 100%; /* Occupa tutta la larghezza disponibile */
+  margin-bottom: 8px; /* Margine inferiore per separare dalla sezione successiva */
+}
+
+/* Contenitore di ricerca */
+.search-container {
+  display: flex; /* Cambiato da block a flex per mantenere l'allineamento */
+  align-items: center;
+}
+
+/* Modifiche per l'input di ricerca */
+.search-input {
+  height: 40px; /* Ridotto per dimensioni più contenute */
+  font-size: 16px; /* Ridotto per dimensioni più contenute */
+  padding: 8px 40px; /* Ridotto per dimensioni più contenute */
+  background-color: var(--search-bar-background-color);
+  border: 2px solid;
+  border-color: var(--note-background-color);
+  border-radius: 8px; /* Ridotto per dimensioni più contenute */
+  color: var(--text-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+  caret-color: #4a7daa;
+  width: 100%; /* Occupa tutta la larghezza disponibile */
+}
+
+.search-input:focus {
+  border-color: #2a577e;
+  box-shadow: 0 0 5px transparent;
+}
+
+.search-input:not(:placeholder-shown) + .clear-icon {
+  opacity: 1;
+  right: 8px; /* Ridotto per dimensioni più contenute */
+}
+
+.clear-icon {
+  font-size: 24px; /* Ridotto per dimensioni più contenute */
+  position: absolute;
+  right: 40px; /* Ridotto per dimensioni più contenute */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #fff;
+  background-color: transparent;
+  transition: opacity 0.3s ease, right 0.3s ease;
+  opacity: 0;
+}
+
+/* Pulsanti di gruppo */
+.account-management button.group-button {
+  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
+  font-size: 14px; /* Ridotto per dimensioni più contenute */
+  background-color: #7c7c7c00;
+  color: #d9dadc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Controlli */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px; /* Ridotto per ottimizzare lo spazio */
+  padding: 0 8px; /* Ridotto per ottimizzare lo spazio */
+}
+
+.notes-control {
+  display: flex;
+  align-items: center;
+  background-color: #7c7c7c00;
+}
+
+.sort-menu {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-top: 2px; /* Ridotto per dimensioni più contenute */
+}
+
+/* Griglia delle note */
+.notes-grid {
+  display: grid;
+  gap: 8px; /* Ridotto per dimensioni più contenute */
+  flex-grow: 1;
+  overflow-y: auto;
+  grid-template-columns: repeat(3, 1fr); /* Sempre 3 colonne */
+  grid-auto-rows: minmax(auto, auto); /* Altezza minima per le righe */
+}
+
+/* Contenitore nota */
+.note-container {
+  min-height: 100px; /* Ridotto per dimensioni più contenute */
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 10px; /* Ridotto per dimensioni più contenute */
+  cursor: grab;
+  display: block;
+  background-color: transparent;
+  color: var(--note-text-color);
+  overflow: hidden;
+  transition: opacity 0.8s ease;
+}
+
+/* Pulsanti aggiungi e reset */
+.add-note,
+.reset-button {
+  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
+  font-size: 12px; /* Ridotto per dimensioni più contenute */
+  background-color: #7c7c7c00;
+  color: #9c9c9c;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-note:hover,
+.reset-button:hover {
+  background-color: #72707075;
+}
+
+/* Note in fase di trascinamento */
+.note-container.dragging,
+.add-note.dragging {
+  opacity: 100%;
+}
+
+.dragging {
+  opacity: 100%;
+}
 
 }
 </style>
