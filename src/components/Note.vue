@@ -18,8 +18,7 @@
         truncateContent(content)
       }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
-      <div class="group">{{ groupName }}</div>
-      <div class="utente">{{ utente }}</div>
+      <div class="ugroup">{{ group }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
     </div>
@@ -62,10 +61,6 @@ import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
   props: {
-    groupName: {
-      type: String,
-      required: true
-    },
     noteId: {
       // Added noteId prop to identify the note
       type: [String, Number],
@@ -81,7 +76,7 @@ export default {
       type: String,
       required: true,
     },
-    utente: {
+    group: {
       // User who created the note
       type: String,
       required: true,
@@ -206,7 +201,7 @@ export default {
         title: this.newTitle,
         content: this.newContent,
         timestamp: Date.now(),
-        utente: this.utente,
+        group: this.group,
         type: this.type,
       };
 
@@ -339,7 +334,7 @@ export default {
 }
 
 /* User information */
-.utente {
+.group {
   position:absolute;
   bottom:5px;
   left:5px;
@@ -464,7 +459,7 @@ export default {
   font-size: 8px;
 }
 
-.utente {
+.group {
   color: rgb(196, 196, 196);
   position: absolute;
   bottom: 5px;
