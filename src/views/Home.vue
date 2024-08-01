@@ -530,7 +530,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-  @import "../assets/main.css";
+@import "../assets/main.css";
 
 body {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -566,75 +566,37 @@ body {
   gap: 8px; /* Ridotto per ottimizzare lo spazio */
   background-color: var(--background-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-  margin-bottom: 1%;
+  margin-bottom: 10px; /* Margine inferiore per separare dalla barra di ricerca */
   height: 50px; /* Ridotto per spazi più contenuti */
   position: relative;
   width: 100%;
   padding: 0 10px; /* Ridotto per ottimizzare lo spazio */
+  text-align: center; /* Allinea al centro */
 }
 
+/* Spaziatura per il logo e il messaggio di benvenuto */
 .header h1,
 .header h2 {
   cursor: pointer;
   margin: 0;
-  flex-shrink: 0;
   font-size: 16px; /* Ridotto per spazi più contenuti */
 }
 
-.header button.clear-button {
-  margin-left: 8px; /* Ridotto per ottimizzare lo spazio */
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Pulsanti di gruppo */
-.account-management button.group-button {
-  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
-  font-size: 14px; /* Ridotto per dimensioni più contenute */
-  background-color: #7c7c7c00;
-  color: #d9dadc;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+/* Barra di ricerca sotto l'header */
+.search-container {
+  margin-top: 10px; /* Sposta la barra di ricerca sotto l'header */
+  width: 100%; /* Occupa tutta la larghezza disponibile */
 }
 
 /* Contenitore di ricerca */
 .search-container {
-  display: flex;
+  display: flex; /* Cambiato da block a flex per mantenere l'allineamento */
   align-items: center;
-  flex-grow: 1;
-  position: relative;
-  min-width: none;
-  margin-left: 8px; /* Ridotto per ottimizzare lo spazio */
-  height: 35px; /* Ridotto per dimensioni più contenute */
 }
 
-.search-icon {
-  cursor: pointer;
-  position: absolute;
-  left: 8px; /* Ridotto per ottimizzare lo spazio */
-  font-size: 18px; /* Ridotto per dimensioni più contenute */
-  color: #fff;
-}
-
-.search-text {
-  position: absolute;
-  top: -6px;
-  left: 12px; /* Ridotto per ottimizzare lo spazio */
-  background-color: var(--background-color);
-  padding: 0 4px; /* Ridotto per dimensioni più contenute */
-  color: var(--text-color);
-  font-size: 10px; /* Ridotto per dimensioni più contenute */
-  pointer-events: none;
-  z-index: 1;
-}
-
+/* Modifiche per l'input di ricerca */
 .search-input {
   height: 40px; /* Ridotto per dimensioni più contenute */
-  flex-grow: 1;
   font-size: 16px; /* Ridotto per dimensioni più contenute */
   padding: 8px 40px; /* Ridotto per dimensioni più contenute */
   background-color: var(--search-bar-background-color);
@@ -645,6 +607,7 @@ body {
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   outline: none;
   caret-color: #4a7daa;
+  width: 100%; /* Occupa tutta la larghezza disponibile */
 }
 
 .search-input:focus {
@@ -668,6 +631,18 @@ body {
   background-color: transparent;
   transition: opacity 0.3s ease, right 0.3s ease;
   opacity: 0;
+}
+
+/* Pulsanti di gruppo */
+.account-management button.group-button {
+  padding: 8px 14px; /* Ridotto per dimensioni più contenute */
+  font-size: 14px; /* Ridotto per dimensioni più contenute */
+  background-color: #7c7c7c00;
+  color: #d9dadc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 /* Controlli */
@@ -743,5 +718,6 @@ body {
 .dragging {
   opacity: 100%;
 }
+
 }
 </style>
