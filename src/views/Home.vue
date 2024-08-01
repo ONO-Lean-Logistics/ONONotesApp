@@ -35,7 +35,7 @@
       <div class="group-control"></div>
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
-  </div>
+  
     <div>
       <!-- Draggable component for notes -->
       <draggable
@@ -286,9 +286,6 @@ export default {
           }
           return 0; 
         });
-      }
-       return 0; 
-      });
     }
     return notes;
   }, 
