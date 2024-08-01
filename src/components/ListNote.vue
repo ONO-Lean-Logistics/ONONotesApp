@@ -612,13 +612,10 @@ li {
   justify-content: space-between; /* Spazia uniformemente gli elementi */
   margin-bottom: 10px;
   padding: 10px; /* Aggiunge padding per una migliore usabilità su touch */
-  border-radius: 4px; /* Arrotonda gli angoli per uno stile uniforme */
-  transition: background-color 0.3s ease;
+  border-radius: 0px; 
+  background-color: var(--note-background-color);
 }
 
-li:hover {
-  background-color: rgba(0, 0, 0, 0.05); /* Colore di sfondo al passaggio del mouse */
-}
 
 /* Contenitore Checkbox */
 .item-container {
