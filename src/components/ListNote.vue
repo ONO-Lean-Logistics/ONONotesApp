@@ -106,6 +106,10 @@
 export default {
   name: "ListNote",
   props: {
+    groupName: {
+      type: String,
+      required: true
+    },
     noteId: {
       type: [String, Number],
       required: true,
@@ -129,6 +133,7 @@ export default {
     utente: {
       type: String,
       required: true,
+      default: ''
     },
     timestamp: {
       type: [String, Number],

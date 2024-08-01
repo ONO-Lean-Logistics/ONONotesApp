@@ -15,7 +15,7 @@
       <h3 v-else class="placeholder">Title</h3>
       <pre style="font-size: 16px" v-if="content">{{ truncateContent(content) }}</pre>
       <pre v-else class="placeholder">Write a note</pre>
-      <div class="utente">{{ utente }}</div>
+      <div class="ugroup">{{ group }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
     </div>
@@ -81,9 +81,11 @@ export default {
       type: String,
       required: true,
     },
-    utente: {
+    group: {
+      // User who created the note
       type: String,
       required: true,
+      default: ''
     },
     timestamp: {
       type: [String, Number],
@@ -140,6 +142,7 @@ export default {
       try {
         const { notes } = await loadNotes();
         const updatedNotes = notes.filter((note) => note.id !== this.noteId);
+        console.log(`deleting: ${this.noteId}`)
         await saveNotes(updatedNotes, false);
         this.closeModal();
         this.$emit("save");
@@ -187,7 +190,7 @@ export default {
         title: this.newTitle,
         content: this.newContent,
         timestamp: Date.now(),
-        utente: this.utente,
+        group: this.group,
         type: this.type,
       };
       try {
@@ -319,7 +322,7 @@ export default {
 }
 
 /* User information */
-.utente {
+.group {
   position:absolute;
   bottom:5px;
   left:5px;
@@ -444,13 +447,13 @@ export default {
     font-size: 8px;
   }
 
-  .utente {
-    color: rgb(196, 196, 196);
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 8px; /* Adjust the font size as needed */
-  }
+.group {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 8px; /* Adjust the font size as needed */
+}
 
   /* Specific input and textarea placeholders for scoped styling */
   :-ms-input-placeholder {

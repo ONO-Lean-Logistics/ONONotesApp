@@ -16,12 +16,9 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-      <div class="account-management">
-        <button @click="toggleAccountManagement" class="group-button">
-          <h2>Benvenuto <br /> {{ this.utente }}</h2>
-        </button>
-      </div>
-    </div>
+        <AccountManagement :utente="utente"/>
+        </div>
+   
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
@@ -35,11 +32,8 @@
       </button>
       <div class="notes-control"></div>
 
-      <SortDropdown
-        class="sort-dropdown"
-        @select-sort-type="updateSortType"
-        @select-sort-order="updateSortOrder"
-      />
+      <div class="group-control"></div>
+      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
     <div>
@@ -104,7 +98,7 @@
 </template>
 
 <script>
-import Group from "../components/Group.vue";
+import AccountManagement from "../components/AccountManagement.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
@@ -118,7 +112,7 @@ export default {
     ListNote,
     SortDropdown,
     draggable,
-    Group,
+    AccountManagement
   },
   data() {
     return {
@@ -126,7 +120,6 @@ export default {
       nextId: 1,
       noteDragging: null,
       searchQuery: "",
-      utente: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
       showAccountManagement: false,
@@ -162,6 +155,7 @@ export default {
 
       if (type === "classic") {
         newNote = {
+          group: "",
           title: "",
           content: "",
           id: this.nextId,
@@ -193,6 +187,9 @@ export default {
         }
       }
     },
+    
+
+    // Clear search query
     clearSearch() {
       this.searchQuery = "";
     },
@@ -228,8 +225,10 @@ export default {
       }
     },
     async refreshQuery() {
-      const operatorName = sessionStorage.getItem("operatorName");
-      const operatorSurname = sessionStorage.getItem("operatorSurname");
+          
+      // Retrieve user information from session storage
+      let operatorName = sessionStorage.getItem("operatorName") || 'Default Name';
+      let operatorSurname = sessionStorage.getItem("operatorSurname") || 'Default Surname';
       this.utente = `${operatorName} ${operatorSurname}`;
       try {
         const response = await loadNotes();
@@ -294,13 +293,9 @@ export default {
     }
     return notes;
   },
-
-    toggleAccountManagement(){
-      this.showAccountManagement = true
-    },
-    updateSortType(newSortType) {
-      this.sortType = newSortType;
-      localStorage.setItem("sortType", newSortType);
+    updateSortType(type) {
+      this.sortType = type;
+      localStorage.setItem("sortType", type);
     },
     updateSortOrder(newSortOrder) {
       this.sortOrder = newSortOrder;
@@ -361,22 +356,11 @@ export default {
 }
 .header button.clear-button {
   margin-left: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-.account-management button.group-button {
-  position: relative;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #7c7c7c00;
-  color: #D9DADC;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
 
 .search-container {
   display: flex;
