@@ -1,4 +1,4 @@
-<!-- eslint-disable vue/no-multiple-template-root -->
+<!-- eslint disable vue/no-multiple-template-root -->
 <template>
   <div id="app"><router-view></router-view></div>
 </template>

@@ -134,6 +134,7 @@ export default {
     },
     utente: {
       type: String,
+      default: '',
       required: true,
       default: ''
     },
@@ -349,7 +350,7 @@ li {
   display: flex;
   align-items: center;
   justify-content: space-between; /* Ensure items are spaced evenly */
-  margin-bottom: 17px;
+  margin-bottom: 20px;
 }
 
 /* Checkbox styling */
@@ -525,13 +526,13 @@ li {
   position: absolute;
   top: 5px;
   left: 5px;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
@@ -539,40 +540,399 @@ li {
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   right: 5px;
   font-size: 8px;
 }
 
-.type {
-  position:absolute;
-  top:5px;
-  left:5px;
-  font-size: 10px; /* Adjust the font size */
-  color: rgb(196, 196, 196);
+@media (max-width: 600px) {
+  @import "../assets/main.css";
+
+/* Placeholder Styling */
+::placeholder {
+  color: #ccc;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+  opacity: 1;
 }
 
+.placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Modal Overlay */
+.modal {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Assicura che il modal sia sopra tutto il resto */
+  cursor: default;
+  overflow-y: auto; /* Permette lo scroll su schermi più piccoli */
+  padding: 20px; /* Aggiunge padding per un miglior layout su schermi touch */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: var(--note-background-color); /* Colore di sfondo personalizzato */
+  color: var(--note-text-color); /* Colore del testo personalizzato */
+  border: 1px solid transparent;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(-20px);
+  border-radius: 8px; /* Aggiunta di angoli arrotondati per un design moderno */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Aggiunge un'ombra per maggiore profondità */
+}
+
+/* Lista */
+ul {
+  list-style-type: none;
+  padding-left: 0; /* Rimuove il padding predefinito */
+  margin: 0; /* Rimuove il margine predefinito */
+  max-height: calc(2 * 40px + 10px); /* Altezza massima per visualizzare solo 2 elementi alla volta */
+  overflow: hidden; /* Nasconde gli elementi extra */
+}
+
+/* Elementi della Lista */
+li {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Spazia uniformemente gli elementi */
+  margin-bottom: 10px;
+  padding: 10px; /* Aggiunge padding per una migliore usabilità su touch */
+  border-radius: 0px; 
+  background-color: var(--note-background-color);
+}
+
+
+/* Contenitore Checkbox */
+.item-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: flex-start; /* Allinea gli elementi a sinistra */
+}
+
+/* Checkbox */
+.item-checkbox {
+  -webkit-appearance: none; /* Rimuove l'aspetto predefinito */
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px; /* Aumenta la dimensione per un'interazione più facile */
+  height: 20px;
+  border: 1px solid #878a8e;
+  margin-right: 10px;
+  background-color: var(--note-background-color); /* Colore di sfondo della nota */
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  border-radius: 4px; /* Arrotonda la checkbox per un aspetto coerente */
+}
+
+.item-checkbox:checked {
+  background-color: #40eb4696; /* Cambia il colore di sfondo quando selezionato */
+  border-color: #878a8e;
+  border-width: 1.3px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='2' d='M2 8l4 4 8-8'/%3E%3C/svg%3E"); /* Aggiunge un'icona di check */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Testo dell'Elemento */
+.item-text {
+  font-size: 16px;
+  flex: 1; /* Per fare in modo che il testo dell'elemento occupi lo spazio rimanente */
+  line-height: 1.5; /* Migliora la leggibilità del testo */
+  color: var(--note-text-color); /* Usa il colore del testo della nota */
+}
+
+.completed {
+  opacity: 0.7; /* Riduce l'opacità per gli elementi completati */
+  text-decoration: line-through; /* Linea attraverso gli elementi completati */
+}
+
+.completed .item-checkbox {
+  background-color: #40eb4696; /* Cambia il colore di sfondo quando selezionato */
+  border-color: #ffffff;
+  border-width: 1.3px;
+}
+
+.completed .item-text {
+  opacity: 0.7; /* Riduce l'opacità del testo per gli elementi completati */
+}
+
+/* Contenitore Note */
+.note {
+  background-color: var(--note-background-color);
+  position: relative; /* Posizionamento relativo per gestire l'icona */
+  z-index: 1; /* Assicura che le note siano sopra il modal */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1px solid transparent;
+  transition: box-shadow 0.3s ease;
+  min-height: 120px;
+  max-height: 120px;
+  width: 100%; /* La nota prende tutta la larghezza del contenitore */
+  max-width: 700px;
+  user-select: none;
+  border-radius: 0px; /* Rimuove l'arrotondamento degli angoli per un design squadrato */
+  margin-bottom: 20px; /* Spazio tra le note */
+}
+
+.note:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombra al passaggio del mouse */
+}
+
+.note-content {
+  white-space: pre-wrap;
+  max-width: 100%;
+  margin-bottom: 10px; /* Aumenta lo spazio tra titolo e lista */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Troncamento del testo con i puntini */
+  line-height: 1.4;
+}
+
+/* Titolo Modifica */
+.edit-title {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  outline: none;
+  border-radius: 0px; 
+  transition: background-color 0.3s ease;
+}
+
+/* Area di Testo Modifica */
+.edit-textarea {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 10px;
+  resize: none;
+  border: none;
+  outline: none;
+  border-radius: 0px; 
+  transition: background-color 0.3s ease;
+}
+
+/* Pulsanti Aggiungi/Elimina */
+.add-btn,
+.remove-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 18px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.add-btn {
+  color: #4caf50;
+}
+
+.add-btn:hover {
+  color: #388e3c; /* Scuro verde al passaggio del mouse */
+}
+
+.remove-btn {
+  color: red;
+}
+
+.remove-btn:hover {
+  color: darkred; /* Scuro rosso al passaggio del mouse */
+}
+
+/* Azioni Modifica */
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.edit-actions button {
+  margin-left: 10px;
+  padding: 10px 15px; /* Aumenta l'area cliccabile */
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 4px;
+}
+
+.edit-actions button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Pulsante Salva */
+.save-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.save-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Pulsante Elimina nel Modal */
+.delete-btn-modal {
+  position: absolute; /* Posiziona in basso a destra rispetto al contenitore */
+  bottom: 5px;
+  right: 80px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.delete-btn-modal:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* Pulsante Annulla */
+.cancel-btn {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 16px;
+  padding: 10px 15px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Tipo */
+.type {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 8px;
+  user-select: none;
+}
+
+/* Utente */
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 7px;
+  left: 5px;
+  font-size: 5px;
+  user-select: none;
+}
+
+/* Timestamp */
+.timestamp {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 7px;
+  right: 5px;
+  font-size: 5px;
+  user-select: none;
+}
+
+/* Media Queries per Responsività */
+@media (max-width: 768px) {
+  .modal-content,
+  .note {
+    width: 90%; /* Maggiore spazio su schermi piccoli */
+    max-width: none; 
+    border-radius: 0px;
+  }
+
+  .note {
+    min-height: 100px; /* Riduce altezza minima su dispositivi piccoli */
+    padding: 15px; /* Riduce padding per spazio compatto */
+  }
+
+  .note-content {
+    font-size: 14px; /* Riduce dimensione font per miglior leggibilità */
+  }
+
+  .edit-title {
+    font-size: 16px; /* Riduce dimensione font per spazio compatto */
+  }
+
+  .edit-textarea {
+    font-size: 14px; /* Riduce dimensione font per spazio compatto */
+  }
+
+  .item-checkbox {
+    width: 18px; /* Riduce dimensione checkbox per adattarsi a schermi più piccoli */
+    height: 18px;
+  }
+
+  .save-btn,
+  .delete-btn-modal,
+  .cancel-btn {
+    font-size: 14px; /* Riduce dimensione font pulsanti per dispositivi piccoli */
+    padding: 8px 12px; /* Riduce padding per spazio compatto */
+  }
+
+  .edit-actions button {
+    font-size: 12px; /* Riduce dimensione font per pulsanti azioni */
+    padding: 8px 12px; /* Riduce padding per spazio compatto */
+  }
+}
+
+/* Media Queries per Schermi Molto Piccoli */
 @media (max-width: 600px) {
   .note {
-    padding: 10px;
+    flex-direction: row; /* Dispone gli elementi in fila su schermi molto piccoli */
+    align-items: flex-start; /* Allinea gli elementi all'inizio verticale */
   }
 
-  .edit-title,
-  .edit-textarea {
-    font-size: 14px;
+  .note-content {
+    max-height: 60px; /* Limita l'altezza del contenuto della nota */
+    overflow-y: auto; /* Abilita lo scroll verticale */
   }
+
 }
-
-@media (min-width: 601px) and (max-width: 900px) {
-  .note {
-    padding: 15px;
-  }
-}
-
-@media (min-width: 901px) {
-  .note {
-    padding: 20px;
-  }
 }
 </style>
 
