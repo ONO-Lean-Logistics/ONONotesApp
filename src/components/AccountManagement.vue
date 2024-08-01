@@ -6,14 +6,11 @@
       </button>
       <div v-if="account.showAccountManagement" class="account-management" @click="handleClickOutside">
         <div class="account-content">
-          <h2>Manage Account</h2>
+          <h2>Username: {{ utente }}</h2>
           <button @click="toggleShowAccountManagement()" class="clear-button">
             <img src="../assets/X_icon.svg" alt="Clear" />
           </button>
-          <br>
-          <div class="user-div">
-            <h1>Username: {{ utente }}</h1>
-          </div>
+
           <br>
           <div class="divider" :class="'divider-dark'"></div>
           <br>

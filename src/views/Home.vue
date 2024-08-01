@@ -37,8 +37,6 @@
     </div>
 
     <div>
-      <draggable
-        :value="filteredNotes"
       <!-- Draggable component for notes -->
       <draggable 
         :value="filteredNotesWithAddButton"
@@ -103,7 +101,7 @@ import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
 import draggable from "vuedraggable";
-import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
+import { loadNotes, saveNotes, updateNotes} from "@/api/apiService";
 
 export default {
   name: "Home",
@@ -150,6 +148,9 @@ export default {
     this.refreshQuery();
   },
   methods: {
+    async getGroups(){
+      this.getAllGroups()
+    },
     async addNote(type) {
       let newNote;
 
@@ -188,7 +189,6 @@ export default {
       }
     },
     
-
     // Clear search query
     clearSearch() {
       this.searchQuery = "";

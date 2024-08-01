@@ -33,6 +33,7 @@
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
+      <div class="group">{{ groupName }}</div>
     </div>
   </div>
   <!-- Modal for editing -->
@@ -88,13 +89,13 @@
       </button>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
-        <button class="delete-btn-modal" @click.stop="deleteNote">
+        <button class="delete-btn-modal" @click="deleteNote()">
           <img src="../assets/delete.svg" alt="Delete" />
         </button>
-        <button @click.stop="cancelEdit" class="cancel-btn">
+        <button @click="cancelEdit()" class="cancel-btn">
           <img src="../assets/X_icon.svg" alt="Cancel" />
         </button>
-        <button @click.stop="saveEdit" class="save-btn">
+        <button @click="saveEdit()" class="save-btn">
           <img src="../assets/save.svg" alt="Save" />
         </button>
       </div>
@@ -103,6 +104,7 @@
 </template>
 
 <script>
+import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 export default {
   name: "ListNote",
   props: {
@@ -176,7 +178,7 @@ export default {
       this.$emit('close-modal');
     },
     async saveEdit() {
-      const filteredItems = this.newItems.filter((item) => item.text.trim() !== "");
+      const filteredItems = this.newItems.filter(item => item.text.trim() !== "");
 
       const editedNote = {
         id: this.noteId,
@@ -188,16 +190,36 @@ export default {
       };
 
       try {
-        await this.$emit('update-note', { action: 'update', data: editedNote });
+        const { notes } = await loadNotes();
+        const updatedNotes = notes.filter(note => note.id !== this.noteId);
+        updatedNotes.push(editedNote); // Add the edited note
+        await saveNotes(updatedNotes, false);
         this.closeModal();
+        this.$emit('save');
       } catch (error) {
         console.error("Failed to save note:", error);
       }
     },
     async deleteNote() {
       try {
-        await this.$emit('update-note', { action: 'delete', data: { id: this.noteId } });
-        this.closeModal();
+        // Load all notes
+        const { notes } = await loadNotes();
+
+        // Filter out the deleted note
+        const updatedNotes = notes.filter(note => note.id !== this.noteId);
+
+        // Save updated notes
+        await saveNotes(updatedNotes, false);
+
+        // Check if there are no notes left
+        if (updatedNotes.length === 0) {
+          // Refresh the page if no notes are left
+          window.location.reload();
+        } else {
+          // Close the modal and emit save event if there are still notes
+          this.closeModal();
+          this.$emit('save');
+        }
       } catch (error) {
         console.error("Failed to delete note:", error);
       }
@@ -205,7 +227,8 @@ export default {
     cancelEdit() {
       this.newTitle = this.title;
       this.newItems = this.items.map((item) => ({ ...item }));
-      this.closeModal();
+      this.isEditingInternal = false;
+      this.$emit('close-modal');
     },
     startEdit() {
       this.isEditingInternal = true;
