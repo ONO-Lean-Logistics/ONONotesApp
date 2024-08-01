@@ -21,7 +21,7 @@
    
     <div class="divider" :class="'divider-dark'"></div>
 
-    <div class="controls">
+      <div class=notes-control>
       <button class="add-note" @click="addNote('list')">
         <i class="fas fa-plus"></i>
         Lista
@@ -31,6 +31,8 @@
         Nota
       </button>
       <div class="notes-control"></div>
+      
+      <div class="controls"></div>
 
       <div class="group-control"></div>
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
@@ -466,6 +468,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+  margin-left:auto;
   margin-right: 0.5%;
 }
 
