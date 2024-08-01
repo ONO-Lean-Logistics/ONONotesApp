@@ -292,7 +292,7 @@ export default {
       });
     }
     return notes;
-  },
+  }, 
     updateSortType(type) {
       this.sortType = type;
       localStorage.setItem("sortType", type);
