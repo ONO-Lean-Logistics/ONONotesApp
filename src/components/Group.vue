@@ -185,111 +185,151 @@
     }
 }
   </script>
-  
-  <style scoped>
-  .group {
-    background-color: var(--note-background-color);
+<style scoped>
+/* General Styles */
+.group, .group-content, .modal-content, .edit-title, .edit-textarea {
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+}
 
-    padding: 20px;
-    width: 100%;
-    max-width: 400px; /* Adjust as needed */
-    margin-bottom: 20px;
-    cursor: grab;
-    
-  }
-  
-  .group-content {
-    background-color: var(--note-background-color);
-    color: var(--note-text-color);
-    padding: 20px;
-    border-radius: 8px;
-    position: relative;
-  }
-  
-  .group-content h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .group-content .item-text {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
-  
-  .group-content .placeholder {
-    color: #888;
-  }
-  
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .modal-content {
-    background-color: var(--note-background-color);
-    color: var(--note-text-color);
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 600px;
-    position: relative;
-  }
-  
-  .edit-title {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 18px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: none;
-    outline: none;
-  }
-  
-  .edit-textarea {
-    font-size: 16px;
-    padding: 8px;
-    margin-right: 10px;
-    border: 1px solid var(--note-background-color);;
-    border: none;
-  }
-  
-  .remove-btn {
-    background: none;
-    border: none;
-    color: red;
-    cursor: pointer;
-  }
-  
-  .add-btn {
-    display: flex;
-    align-items: center;
-    background-color: #4caf50;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  .edit-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-  
-  .delete-btn-modal,
-  .cancel-btn,
-  .save-btn {
-    background: none;
-    border: none;
-    margin-left: 10px;
-    cursor: pointer;
-  }
-  </style>
-  
+.group {
+  padding: 20px;
+  width: 100%;
+  max-width: 400px; /* Adjust as needed */
+  margin-bottom: 20px;
+  cursor: grab;
+  position: relative;
+  /* Ensure the group is not overlapped by other elements */
+  z-index: 1;
+}
+
+.group-content {
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  /* Ensure the content has proper spacing */
+}
+
+.group-content h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.group-content .item-text {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.group-content .placeholder {
+  color: #888;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the modal is on top of other elements */
+}
+
+.modal-content {
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+}
+
+.close-btn, .cancel-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  color: red;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.edit-title {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  outline: none;
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+}
+
+.edit-textarea {
+  font-size: 16px;
+  padding: 8px;
+  margin-right: 10px;
+  border: 1px solid var(--note-background-color); /* Ensure no visible border */
+  border-radius: 4px; /* Optional: Add border-radius for better aesthetics */
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  display: none; /* Hide remove button by default */
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px; /* Add border-radius for consistency */
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.delete-btn-modal,
+.save-btn {
+  background: none;
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+
+/* Show remove button only for the active group */
+.group.active .remove-btn {
+  display: block;
+}
+
+/* Optional: Add hover and focus styles for better UX */
+.add-btn:hover, .add-btn:focus {
+  background-color: #45a049;
+}
+
+.remove-btn:hover, .remove-btn:focus {
+  color: darkred;
+}
+
+.edit-title:focus, .edit-textarea:focus {
+  border-color: #888;
+  outline: none;
+}
+</style>
