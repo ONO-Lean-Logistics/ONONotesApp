@@ -177,7 +177,7 @@ export default {
       const year = date.getFullYear();
       const hours = date.getHours().toString().padStart(2, "0");
       const minutes = date.getMinutes().toString().padStart(2, "0");
-      const seconds = date.getSeconds().toString();
+      const seconds = date.getSeconds().toString().padStart(2, "0");
       return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
     },
 
@@ -338,10 +338,26 @@ export default {
   margin-top: 10px; /* Added margin for spacing */
 }
 
-/* Type Indicator */
+
+.utente {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 1px;
+  left: 5px;
+  font-size: 8px; /* Adjust the font size as needed */
+}
+
+.timestamp {
+  color: rgb(196, 196, 196);
+  position: absolute;
+  bottom: 1px;
+  right: 5px;
+  font-size: 8px;
+}
+
 .type {
   position:absolute;
-  top:5px;
+  top:1px;
   left:5px;
   font-size: 10px; /* Adjust the font size */
   color: rgb(196, 196, 196);

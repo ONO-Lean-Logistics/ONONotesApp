@@ -16,9 +16,19 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <AccountManagement :utente="utente"/>
-        </div>
-   
+      <div class="account-management">
+        <button @click="toggleAccountManagement" class="group-button">
+          <h2>Benvenuto <br />{{ this.utente }}</h2>
+        </button>
+        <!--<Group 
+        v-show="showAccountManagement" 
+        @close="showAccountManagement = false, refreshQuery()" 
+        :group-id="group.id"
+        :name="group.name"
+        :owner="group.owner"
+        :members="group.members"/>-->
+      </div>
+    </div>
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
@@ -32,13 +42,16 @@
       </button>
       <div class="notes-control"></div>
 
-      <div class="group-control"></div>
-      <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
+      <SortDropdown
+        class="sort-dropdown"
+        @select-sort-type="updateSortType"
+        @select-sort-order="updateSortOrder"
+      />
     </div>
 
     <div>
       <!-- Draggable component for notes -->
-      <draggable 
+      <draggable
         :value="filteredNotesWithAddButton"
         :class="'notes-grid'"
         group="notes"
@@ -52,16 +65,12 @@
         <div
           v-for="(note, index) in filteredNotesWithAddButton"
           :key="note.id"
-          :class="[
-            'note-container',
-            note.isAddButton ? 'add-note-container' : '',
-            { dragging: noteDragging === note.id }
-          ]"
-          :draggable="!note.isAddButton ? 'true' : 'false'"
+          :class="['note-container', { dragging: noteDragging === note.id }]"
+          :draggable="true"
           @dragstart="noteDragging = note.id"
           @dragend="noteDragging = null"
         >
-          <template v-if="note && !note.isAddButton">
+          <template v-if="note">
             <Note
               v-if="note.type === 'classic'"
               :title="note.title"
@@ -95,6 +104,7 @@
   </div>
 </template>
 
+
 <script>
 import AccountManagement from "../components/AccountManagement.vue";
 import Note from "../components/Note.vue";
@@ -125,24 +135,15 @@ export default {
     };
   },
   computed: {
-    filteredNotes() {
-      const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.notes;
+  filteredNotes() {
+    const query = this.searchQuery.toLowerCase().trim();
+    if (!query) return this.notes;
 
-      return this.notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(query);
-        const utenteMatch = note.utente.toLowerCase().includes(query);
-        return titleMatch || utenteMatch;
-      });
-    },
-    filteredNotesWithAddButton() {
-      const notesWithAddButton = [...this.filteredNotes];
-      if (!this.isSearchActive) {
-        notesWithAddButton.push({ isAddButton: true }); 
-      }
-      return this.sortNotes(notesWithAddButton);
-    },
-   
+    return this.notes.filter((note) => {
+      const titleMatch = note.title.toLowerCase().includes(query);
+      const utenteMatch = note.utente.toLowerCase().includes(query);
+      return titleMatch || utenteMatch;
+    });
   },
   created() {
     this.refreshQuery();
@@ -482,27 +483,8 @@ export default {
   transition: background-color 0.3s ease;
 }
 
-.add-button-classic,
-.add-button-list {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.8s ease;
-  padding: 10px;
-  margin: 0 5px;
-}
-
-.add-button-classic:hover,
-.add-button-list:hover {
-  background-color: #e0e0e0;
-}
-
-.add-divider {
-  border-left: 1px solid var(--add-divider-color);
-  height: 120%;
-  margin: 0 5px;
+.add-note:hover{
+  background-color: #72707075;
 }
 
 .note-container.dragging,

@@ -525,13 +525,13 @@ li {
   position: absolute;
   top: 5px;
   left: 5px;
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   left: 5px;
   font-size: 8px; /* Adjust the font size as needed */
 }
@@ -539,17 +539,9 @@ li {
 .timestamp {
   color: rgb(196, 196, 196);
   position: absolute;
-  bottom: 5px;
+  bottom: 6px;
   right: 5px;
   font-size: 8px;
-}
-
-.type {
-  position:absolute;
-  top:5px;
-  left:5px;
-  font-size: 10px; /* Adjust the font size */
-  color: rgb(196, 196, 196);
 }
 
 @media (max-width: 600px) {
