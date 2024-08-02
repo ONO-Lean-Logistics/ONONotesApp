@@ -1,57 +1,57 @@
 <template>
   <div class="groups-and-other">
-  <div class="options">
-    <div>
-      <button @click="toggleShowAccountManagement()" class="group-button">
-        <img src="../assets/settings.svg" alt="Clear" />
-      </button>
-      <div v-if="account.showAccountManagement" class="account-management" @click="handleClickOutside">
-        <div class="account-content">
-          <h2>Username: {{ utente }}</h2>
-          <button @click="toggleShowAccountManagement()" class="clear-button">
-            <img src="../assets/X_icon.svg" alt="Clear" />
-          </button>
-
-          <br>
-          <div class="divider" :class="'divider-dark'"></div>
-          <br>
-          <div class="groups-header">
-          <h1>Groups: </h1>
-            <button v-if="isAdmin" @click="addGroup" class="group-btn">
-              <i class="fa-solid fa-plus"></i>
+    <div class="options">
+      <div>
+        <button @click="toggleShowAccountManagement()" class="group-button">
+          <img src="../assets/settings.svg" alt="Clear" />
+        </button>
+        <div v-if="account.showAccountManagement" class="account-management" @click="handleClickOutside">
+          <div class="account-content">
+            <h2>Username: {{ utente }}</h2>
+            <button @click="toggleShowAccountManagement()" class="clear-button">
+              <img src="../assets/X_icon.svg" alt="Clear" />
             </button>
-          </div>
-          <div class="groups">
-            <div class="groups-grid">
-              <div 
-                v-for="group in filteredGroups"
-                :key="group.id"
-                class="group-container"
-              >
-                <Group
-                  :groupId="group.id"
-                  :title="group.title"
-                  :utente="group.utente"
-                  :members="group.members"
-                  @refresh="refreshGroupsQuery"
-                  @admin="isAdmin"
-                />
+
+            <br>
+            <div class="divider" :class="'divider-dark'"></div>
+            <br>
+            <div class="groups-header">
+              <h1>Groups: </h1>
+              <button v-if="isAdmin" @click="addGroup" class="group-btn">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+            <div class="groups">
+              <div class="groups-grid">
+                <div 
+                  v-for="group in filteredGroups"
+                  :key="group.id"
+                  class="group-container"
+                >
+                  <Group
+                    :groupId="group.id"
+                    :title="group.title"
+                    :utente="group.utente"
+                    :members="group.members"
+                    @refresh="refreshGroupsQuery"
+                    @admin="isAdmin"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="select-group">
-    <!-- Dropdown for selecting group -->
-    <select v-model="selectedGroupId" class="group-selector" @change="onGroupChange">
+    <div class="select-group">
+      <!-- Dropdown for selecting group -->
+      <select v-model="selectedGroupId" class="group-selector" @change="onGroupChange">
         <option v-for="group in filteredGroups" :key="group.id" :value="group.id">
           {{ group.title }}
         </option>
       </select>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -185,19 +185,18 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
   top: 11px;
-  right: 4px
+  right: 4px;
 }
 .group-container {
-  min-height: 120px;
-  width: 100%;
-  max-width: 300px; 
+  min-height: 20px;
+  max-width: 20px; 
+  max-height: 20px;
   margin-bottom: 20px;
   cursor: grab;
   display: block;
   justify-content: center;
   background-color: transparent;
   color: var(note-text-color);
-  overflow: hidden;
   transition: opacity 0.8s ease;
 }
 
@@ -209,7 +208,6 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: absolute;
   justify-content: center;
   align-items: center;
   z-index: 999; /* Ensures the modal is above everything else */
@@ -219,9 +217,11 @@ export default {
   background-color: var(--note-background-color); /* Use your custom note background color */
   color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
-  padding: 20px;
-  width: 80%;
-  max-width: 600px;
+  padding: 10px; /* Adjust padding as needed */
+  width: 500px; /* Set width to 1000px */
+  height: 250px; /* Set height to 300px */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
   position: relative;
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateY(-20px);
@@ -263,13 +263,13 @@ label {
   overflow: hidden;
 }
 
-.group-selector,.select-items {
+.group-selector, .select-items {
   background-color: #283442;
   color: #9c9c9c;
   border: none;
   position: relative;
   top: 39px;
-  right: 170px
+  right: 170px;
 }
 .groups-header {
   display: flex;
@@ -307,3 +307,5 @@ h1 {
   }
 }
 </style>
+
+

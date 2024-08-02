@@ -269,19 +269,16 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax for responsiveness */
   gap: 20px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 200px;
   overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
   border-radius: var(--border-radius);
 }
-
 /* Group Card Styles */
 .group {
-  display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   background-color: var(--note-background-color);
   color: var(--note-text-color);
   padding: 15px;
@@ -297,8 +294,14 @@ export default {
   /* box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); */
 }
 
+
+
 .group-content {
-  width: 100%;
+  width: 0%;
+  margin-left: 35px;
+  margin-top: 10px;
+  margin-right: 90px;
+  margin-bottom:10px;
 }
 
 .group-content h2 {
