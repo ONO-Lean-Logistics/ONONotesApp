@@ -172,41 +172,154 @@ export default {
 </script>
 
 <style scoped>
-.group, .group-content, .modal-content, .edit-title, .edit-textarea {
-  background-color: var(--note-background-color);
-  color: var(--note-text-color);
+:root {
+  --note-background-color: #2c2f38; /* Colore di sfondo delle card */
+  --note-text-color: #ffffff; /* Colore del testo principale */
+  --accent-color: #4caf50; /* Colore accentato per pulsanti e link */
+  --placeholder-color: #888888; /* Colore del testo segnaposto */
+  --border-radius: 8px; /* Raggio del bordo per elementi arrotondati */
+  /* --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); Ombra per profondità */
 }
 
-.group {
+/* Main Container */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1a1d23; /* Background principale */
+  overflow: hidden;
   padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Barra di Navigazione */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  max-width: 400px;
+  padding: 10px 20px;
+  background-color: #1a1d23;
+  /* box-shadow: var(--box-shadow); */
   margin-bottom: 20px;
-  cursor: grab;
+}
+
+.navbar img {
+  height: 40px; /* Altezza logo */
+}
+
+.navbar .nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.navbar button {
+  background: none;
+  border: none;
+  color: var(--note-text-color);
+  cursor: pointer;
+  font-size: 18px;
+  transition: color 0.2s ease;
+}
+
+.navbar button:hover {
+  color: var(--accent-color);
+}
+
+/* Barra di Ricerca */
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #2c2f38;
+  border-radius: var(--border-radius);
+  padding: 5px 10px;
+  width: 100%;
+  max-width: 600px;
+  /* box-shadow: var(--box-shadow); */
+}
+
+.search-bar input {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: var(--note-text-color);
+  padding: 8px;
+  font-size: 16px;
+  outline: none;
+}
+
+.search-bar button {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-size: 24px;
+  transition: color 0.2s ease;
+}
+
+.search-bar button:hover {
+  color: darken(var(--accent-color), 10%);
+}
+
+/* Options Grid Container */
+.options-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax for responsiveness */
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: var(--border-radius);
+}
+
+/* Group Card Styles */
+.group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: var(--note-background-color);
+  color: var(--note-text-color);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  /* box-shadow: var(--box-shadow); */
+  cursor: pointer;
+  transition: transform 0.2s ease;
   position: relative;
-  z-index: 1;
+}
+
+.group:hover {
+  transform: translateY(-5px);
+  /* box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); */
 }
 
 .group-content {
-  padding: 20px;
-  border-radius: 8px;
-  position: relative;
+  width: 100%;
 }
 
 .group-content h2 {
-  font-size: 20px;
-  margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--note-text-color);
 }
 
 .group-content .item-text {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--note-text-color);
 }
 
 .group-content .placeholder {
-  color: #888;
+  color: var(--placeholder-color);
+  font-size: 14px;
+  font-style: italic;
 }
 
+/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -222,31 +335,35 @@ export default {
 
 .modal-content {
   padding: 20px;
-  border-radius: 8px;
-  width: 80%;
-  max-width: 600px;
-  position: relative;
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 500px;
   background-color: var(--note-background-color);
   color: var(--note-text-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  /* box-shadow: var(--box-shadow); */
+  position: relative;
 }
 
+/* Close Button */
 .close-btn {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: var(--note-background-color);
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
   border: none;
-  color: #4caf50;
+  color: var(--accent-color);
   font-size: 24px;
   cursor: pointer;
   line-height: 1;
 }
 
+/* List Styles */
 ul {
   padding: 0;
+  margin: 0;
   list-style: none; /* Remove default list style */
 }
 
@@ -255,103 +372,133 @@ li {
   align-items: center;
   position: relative;
   padding-left: 30px; /* Adjust based on icon size */
+  margin-bottom: 10px;
 }
 
 li::before {
   content: '•'; /* Custom marker */
-  font-size: 20px; /* Adjust to match the size of fa-solid fa-plus */
+  font-size: 20px;
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%); /* Center marker vertically */
-  color: var(--note-text-color); /* Match the color to your design */
+  color: var(--accent-color);
 }
 
+/* Add Button */
 .add-btn {
   display: flex;
   align-items: center;
-  color: #4caf50;
-  background-color: var(--note-background-color);
+  justify-content: center;
+  color:  #4caf50;
+  background-color: var(--accent-color);
   border: none;
-  padding: 10px;
+  padding: 10px 20px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s ease;
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 15px;
+  left: 8px;
 }
 
+.add-btn:hover,
+.add-btn:focus {
+  background-color: darken(var(--accent-color), 10%);
+}
+
+/* Remove Button */
 .remove-btn {
   background: none;
   border: none;
   color: red;
   cursor: pointer;
-  display: none;
   margin-left: 10px;
+  transition: color 0.2s ease;
 }
 
+.remove-btn:hover,
+.remove-btn:focus {
+  color: darkred;
+}
+
+/* Editable Title */
 .edit-title {
   width: 100%;
   box-sizing: border-box;
   font-size: 18px;
   padding: 10px;
   margin-bottom: 10px;
-  border: none;
-  outline: none;
+  border: 1px solid var(--placeholder-color);
+  border-radius: var(--border-radius);
   background-color: var(--note-background-color);
   color: var(--note-text-color);
+  transition: border-color 0.2s ease;
 }
 
+.edit-title:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+/* Editable Text Area */
 .edit-textarea {
+  width: 100%;
   font-size: 16px;
   padding: 8px;
-  margin-right: 10px;
-  border: 1px solid var(--note-background-color);
-  border-radius: 4px;
+  margin-bottom: 10px;
+  border: 1px solid var(--placeholder-color);
+  border-radius: var(--border-radius);
   background-color: var(--note-background-color);
   color: var(--note-text-color);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
 }
 
+.edit-textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+/* Cancel Button */
 .cancel-btn {
   background: none;
   border: none;
   margin-left: 10px;
   cursor: pointer;
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 10px;
+  right: 10px;
+  color: var(--accent-color);
+  transition: color 0.2s ease;
 }
 
+.cancel-btn:hover {
+  color: darken(var(--accent-color), 10%);
+}
+
+/* Edit Actions */
 .edit-actions {
   display: flex;
   justify-content: flex-end;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
+/* Delete and Save Buttons */
 .delete-btn-modal,
 .save-btn {
   background: none;
   border: none;
   margin-left: 10px;
   cursor: pointer;
-  color: var(--note-text-color);
+  color: var(--accent-color);
+  transition: color 0.2s ease;
 }
 
-.group.active .remove-btn {
-  display: block;
+.delete-btn-modal:hover,
+.save-btn:hover {
+  color: darken(var(--accent-color), 10%);
 }
 
-.add-btn:hover, .add-btn:focus {
-  background-color: var(--note-background-color);
-}
-
-.remove-btn:hover, .remove-btn:focus {
-  color: darkred;
-}
-
-.edit-title:focus, .edit-textarea:focus {
-  border-color: #888;
-  outline: none;
-}
 </style>
