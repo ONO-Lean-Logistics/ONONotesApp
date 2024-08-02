@@ -298,9 +298,9 @@ export default {
 
 .group-content {
   width: 0%;
-  margin-left: 53px;
+  margin-left: 145px;
   margin-top: 10px;
-  margin-right: 90px;
+  margin-right: 100px;
   margin-bottom:10px;
 }
 
