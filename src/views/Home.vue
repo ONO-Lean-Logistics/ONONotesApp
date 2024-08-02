@@ -39,7 +39,7 @@
     <div>
       <!-- Draggable component for notes -->
       <draggable
-        :value="filteredNotes"
+        :value="sortedFilteredNotes"
         :class="'notes-grid'"
         groupId="notes"
         :item-key="note => note.id"
@@ -50,7 +50,7 @@
         @start="handleDragStart"
       >
         <div
-          v-for="(note, index) in filteredNotes"
+          v-for="(note, index) in sortedFilteredNotes"
           :key="note.id"
           :class="['note-container', { dragging: noteDragging === note.id }]"
           :draggable="true"
@@ -125,16 +125,37 @@ export default {
     };
   },
   computed: {
-    
-    filteredNotes() {
+    sortedFilteredNotes() {
       const query = this.searchQuery.toLowerCase().trim();
-      return this.notes.filter((note) => {
+      const filtered = this.notes.filter((note) => {
         const titleMatch = (note.title || "").toLowerCase().includes(query);
         const utenteMatch = (note.utente || "").toLowerCase().includes(query);
         const groupMatch = this.selectedGroupId === null || note.groupId === this.selectedGroupId;
         return (titleMatch || utenteMatch) && groupMatch;
       });
-    },
+
+      if (this.sortType === "Time") {
+        if (this.sortOrder === "Recent") {
+          return filtered.sort((a, b) => b.timestamp - a.timestamp);
+        } else if (this.sortOrder === "Oldest") {
+          return filtered.sort((a, b) => a.timestamp - b.timestamp);
+        }
+      } else if (this.sortType === "Length") {
+        return filtered.sort((a, b) => {
+          const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
+          const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
+
+          if (this.sortOrder === "Most") {
+            return bLength - aLength; 
+          } else if (this.sortOrder === "Least") {
+            return aLength - bLength; 
+          }
+          return 0; 
+        });
+      }
+
+      return filtered;
+    }
   },
   
   created() {
@@ -263,12 +284,6 @@ export default {
     updateSortOrder(order) {
       this.sortOrder = order;
       localStorage.setItem("sortOrder", order);
-    },
-    sortNotes(notes) {
-      if (this.sortType === "Time") {
-        notes.sort((a, b) => (this.sortOrder === "Oldest" ? a.timestamp - b.timestamp : b.timestamp - a.timestamp));
-      }
-      return notes;
     },
     startSearch() {
       // Trigger search functionality if needed

@@ -78,7 +78,7 @@ export default {
       searchQuery: '',
       nextId: 1,
       isAdminUser: false, // Flag to check if the user is an admin
-      selectedGroupId: 'General', // Default group
+      selectedGroupId: null, // Default group
     };
   },
   computed: {
@@ -107,10 +107,37 @@ export default {
       return filteredGroups;
     }
   },
-  created() {
-    this.refreshGroupsQuery();
+  async created() {
+    await this.refreshGroupsQuery();
   },
   methods: {
+    async refreshGroupsQuery() {
+      try {
+        const response = await loadGroups();
+        if (response && response.groups) {
+          this.account.groups = response.groups;
+          this.nextId = Math.max(...this.account.groups.map(group => group.id)) + 1;
+
+          // Update the admin status
+          this.isAdminUser = this.isAdmin;
+
+          this.selectedGroupId = this.getDefaultGroupId();
+          this.onGroupChange(); // Emit the default selected group ID
+        } else {
+          this.account.groups = [];
+          this.nextId = 1;
+        }
+      } catch (error) {
+        console.error("Error refreshing groups query:", error);
+        this.account.groups = [];
+      }
+    },
+    getDefaultGroupId() {
+      // Search for the group named 'General'
+      const generalGroup = this.account.groups.find(group => group.title === 'General');
+      // Return the ID of the 'General' group, or a fallback value if not found
+      return generalGroup ? generalGroup.id : null;
+    },
     toggleShowAccountManagement() {
       this.account.showAccountManagement = !this.account.showAccountManagement;
     },
@@ -123,24 +150,6 @@ export default {
     },
     onGroupChange(){
       this.$emit('getSelectedGroup', this.selectedGroupId)
-    },
-    async refreshGroupsQuery() {
-      try {
-        const response = await loadGroups();
-        if (response && response.groups) {
-          this.account.groups = response.groups;
-          this.nextId = Math.max(...this.account.groups.map(group => group.id)) + 1;
-
-          // Update the admin status
-          this.isAdminUser = this.isAdmin;
-        } else {
-          this.account.groups = [];
-          this.nextId = 1;
-        }
-      } catch (error) {
-        console.error("Error refreshing groups query:", error);
-        this.account.groups = [];
-      }
     },
     async addGroup() {
       const newGroup = {
@@ -177,14 +186,14 @@ export default {
 .options button.group-button {
   position: relative;
   padding: 8px 16px;
-  font-size: 14px;
+  font-size: 8px;
   background-color: #283442;
   color: #D9DADC;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  top: 11px;
+  top: 8px;
   right: 4px
 }
 .group-container {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!editing && isAdmin" class="group" @click.stop="startEdit" @mouseover="showEditIcon = true" @mouseleave="showEditIcon = false">
+  <div v-if="!editingInternal && isAdmin" class="group" @click.stop="startEdit" @mouseover="showEditIcon = true" @mouseleave="showEditIcon = false">
     <div class="group-content">
       <h2 v-if="newTitle">{{ newTitle }}</h2>
       <h3 v-else class="placeholder">Title</h3>
@@ -94,7 +94,7 @@ export default {
     return {
       newTitle: this.title,
       newMembers: this.members.map(member => ({ text: member.text || '' })),
-      editing: false,
+      editingInternal: this.editing,
       showEditIcon: false,
       hoverIndex: null,
       maxTitleLength: 50
@@ -106,7 +106,16 @@ export default {
       return date.toLocaleString();
     }
   },
+  watch: {
+    editing(newVal){
+      this.editingInternal = newVal
+    }
+  },
   methods: {
+    closeModal(){
+      this.editingInternal = false;
+      this.$emit('close-modal')
+    },
     isAdmin(){
       this.$emit("admin")
     },
@@ -122,7 +131,7 @@ export default {
 
       try {
         await updateGroups(this.groupId, editedGroup);
-        this.editing = false;
+        this.editingInternal = false;
         this.showEditIcon = false;
         this.$emit('refresh');
       } catch (error) {
@@ -134,7 +143,7 @@ export default {
         const { groups } = await loadGroups();
         const updatedGroups = groups.filter(group => group.id !== this.groupId);
         await saveGroups(updatedGroups);
-        this.editing = false;
+        this.editingInternal = false;
         this.$emit('refresh');
       } catch (error) {
         console.error("Failed to delete group:", error);
@@ -143,7 +152,7 @@ export default {
     cancelEdit() {
       this.newTitle = this.title;
       this.newMembers = this.members.map(member => ({ text: member.text || '' }));
-      this.editing = false;
+      this.editingInternal = false;
       this.showEditIcon = false;
       this.$emit('refresh');
     },
@@ -151,7 +160,7 @@ export default {
       return `${prefix}-${this._uid}-${index}`;
     },
     startEdit() {
-      this.editing = true;
+      this.editingInternal = true;
     },
     addMember() {
       this.newMembers.push({ text: '' });
