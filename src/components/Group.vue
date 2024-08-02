@@ -298,7 +298,7 @@ export default {
 
 .group-content {
   width: 0%;
-  margin-left: 35px;
+  margin-left: 53px;
   margin-top: 10px;
   margin-right: 90px;
   margin-bottom:10px;

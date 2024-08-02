@@ -218,7 +218,7 @@ export default {
   color: var(--note-text-color); /* Use your custom note text color */
   border: 1px solid transparent;
   padding: 10px; /* Adjust padding as needed */
-  width: 500px; /* Set width to 1000px */
+  width: 700px; /* Set width to 1000px */
   height: 250px; /* Set height to 300px */
   overflow-y: auto; /* Enable vertical scrolling */
   overflow-x: hidden; /* Disable horizontal scrolling */
