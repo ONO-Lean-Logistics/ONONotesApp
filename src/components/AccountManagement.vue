@@ -314,7 +314,138 @@ h1 {
   .groups-grid {
     grid-template-columns: 1fr; /* 1 column for small screens */
   }
+  .options {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  background-color: #283442; 
 }
+.options button.group-button {
+  position: relative;
+  padding: 8px 16px;
+  font-size: 8px;
+  background-color: #283442;
+  color: #D9DADC;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  top: 8px;
+  right: 4px
+}
+.group-container {
+  min-height: 20px;
+  max-width: 20px; 
+  max-height: 20px;
+  margin-bottom: 20px;
+  cursor: grab;
+  display: block;
+  justify-content: center;
+  background-color: transparent;
+  color: var(note-text-color);
+  transition: opacity 0.8s ease;
+}
+
+.account-management {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; /* Ensures the modal is above everything else */
+  cursor: default;
+}
+.account-content {
+  background-color: var(--note-background-color); /* Use your custom note background color */
+  color: var(--note-text-color); /* Use your custom note text color */
+  border: 1px solid transparent;
+  padding: 10px; /* Adjust padding as needed */
+  width: 90%; /* Set width to 1000px */
+  height: 90%; /* Set height to 300px */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  position: relative;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(-20px);
+}
+.add-divider {
+  border-left: 1px solid var(--add-divider-color);
+  height: 120%;
+  margin: 0 5px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+.clear-button {
+  position: absolute; /* Posiziona in alto a destra rispetto al contenitore */
+  top: 5px;
+  right: 5px;
+  font-size: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--note-text-color);
+  border: none;
+  background-color: var(--note-background-color);
+  border-radius: 0;
+}
+.group-container {
+  min-height: 200px; /* Increased height */
+  width: 100%;
+  max-width: 400px; /* Increased width */
+  margin-bottom: 20px;
+  cursor: grab;
+  display: block;
+  justify-content: center;
+  background-color: transparent;
+  color: var(note-text-color);
+  overflow: hidden;
+}
+
+.group-selector, .select-items {
+  background-color: #283442;
+  color: #9c9c9c;
+  border: none;
+  position: relative;
+  top: 37px;
+  right: 170px;
+}
+.groups-header {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+.group-btn {
+  color: #4caf50;
+  background-color: var(--note-background-color);
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 10px;
+  margin-right: 10px;
+}
+.groups {
+  display: flex;
+  align-items: center;
+}
+h1 {
+  font-size: 16px;
+}
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  gap: 20px;
+}
+}
+
 </style>
 
 
