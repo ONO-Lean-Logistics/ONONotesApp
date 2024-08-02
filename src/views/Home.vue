@@ -43,19 +43,14 @@
         :class="'notes-grid'"
         groupId="notes"
         :item-key="note => note.id"
-        @end="handleDragEnd"
         v-bind="$attrs"
         v-on="$listeners"
         handle=".note-container"
-        @start="handleDragStart"
       >
         <div
           v-for="(note, index) in sortedFilteredNotes"
           :key="note.id"
-          :class="['note-container', { dragging: noteDragging === note.id }]"
-          :draggable="true"
-          @dragstart="noteDragging = note.id"
-          @dragend="noteDragging = null"
+          :class="['note-container']"
         >
           <template v-if="note">
             <Note
@@ -99,7 +94,6 @@ import AccountManagement from "../components/AccountManagement.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
-import draggable from "vuedraggable";
 import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
 
 export default {
@@ -108,14 +102,12 @@ export default {
     Note,
     ListNote,
     SortDropdown,
-    draggable,
     AccountManagement
   },
   data() {
     return {
       notes: [],
       nextId: 1,
-      noteDragging: null,
       searchQuery: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
@@ -205,27 +197,6 @@ export default {
     },
     clearSearch() {
       this.searchQuery = "";
-    },
-    handleDragEnd(event) {
-      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "1";
-      document.body.style.cursor = "default";
-      event.item.style.cursor = "grab";
-      this.handleNoteReorder(event);
-      this.saveAllNotes();
-    },
-    handleDragStart(event) {
-      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "0";
-      event.clone.style.opacity = "1000";
-      document.body.style.cursor = "grabbing";
-      event.item.style.cursor = "grabbing";
     },
     handleNoteReorder(event) {
       const movedNote = this.notes.splice(event.oldIndex, 1)[0];

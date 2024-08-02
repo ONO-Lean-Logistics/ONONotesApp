@@ -33,7 +33,7 @@
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
-      
+
     </div>
   </div>
   <!-- Modal for editing -->
@@ -542,7 +542,7 @@ li {
     font-size: 6px; /* Reduce size for smaller screens */
     bottom: 10px; /* Adjust spacing */
   }
-  
+
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;
@@ -625,7 +625,7 @@ li {
   justify-content: space-between; /* Spazia uniformemente gli elementi */
   margin-bottom: 10px;
   padding: 10px; /* Aggiunge padding per una migliore usabilità su touch */
-  border-radius: 0px; 
+  border-radius: 0px;
   background-color: var(--note-background-color);
 }
 
@@ -730,7 +730,7 @@ li {
   margin-bottom: 10px;
   border: none;
   outline: none;
-  border-radius: 0px; 
+  border-radius: 0px;
   transition: background-color 0.3s ease;
 }
 
@@ -745,7 +745,7 @@ li {
   resize: none;
   border: none;
   outline: none;
-  border-radius: 0px; 
+  border-radius: 0px;
   transition: background-color 0.3s ease;
 }
 
@@ -895,7 +895,7 @@ li {
   .modal-content,
   .note {
     width: 90%; /* Maggiore spazio su schermi piccoli */
-    max-width: none; 
+    max-width: none;
     border-radius: 0px;
   }
 
