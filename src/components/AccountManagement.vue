@@ -197,16 +197,16 @@ export default {
   right: 4px
 }
 .group-container {
-  min-height: 20px;
-  max-width: 20px; 
-  max-height: 20px;
+  min-height: 200px; /* Increased height */
+  width: 100%;
+  max-width: 400px; /* Increased width */
   margin-bottom: 20px;
   cursor: grab;
   display: block;
   justify-content: center;
   background-color: transparent;
   color: var(note-text-color);
-  transition: opacity 0.8s ease;
+  overflow: hidden;
 }
 
 .account-management {
@@ -303,7 +303,7 @@ h1 {
 }
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-template-columns: repeat(4, 1fr); /* 3 columns */
   gap: 20px;
 }
 @media (max-width: 768px) {

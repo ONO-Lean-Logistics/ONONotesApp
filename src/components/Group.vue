@@ -37,8 +37,8 @@
         <i class="fa-solid fa-plus"></i>
       </button>
       <div class="edit-actions">
-        <button class="delete-btn-modal" @click.stop="deleteGroup">
-          <img src="../assets/delete.svg" alt="Delete" />
+        <button class="delete-btn-modal" @click.stop="deleteGroup" v-if="!(newTitle=='Admins') && !(newTitle=='General')">
+          <img src="../assets/delete.svg" alt="Delete"/>
         </button>
         <button @click.stop="cancelEdit" class="cancel-btn">
           <img src="../assets/X_icon.svg" alt="Cancel" />
@@ -160,9 +160,6 @@ export default {
     },
     removeEmptyMember() {
       this.newMembers = this.newMembers.filter(member => member.text.trim() !== '');
-    },
-    removeMember(idx) {
-      this.newMembers.splice(idx, 1);
     },
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
