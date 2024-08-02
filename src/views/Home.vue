@@ -21,7 +21,7 @@
 
     <div class="divider" :class="'divider-dark'"></div>
 
-      <div class=notes-control>
+    <div class="notes-control">
       <button class="add-note" @click="addNote('list')">
         <i class="fas fa-plus"></i>
         Lista
@@ -36,70 +36,52 @@
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
 
-    <div>
-      <!-- Draggable component for notes -->
-      <draggable
-        :value="sortedFilteredNotes"
-        :class="'notes-grid'"
-        groupId="notes"
-        :item-key="note => note.id"
-        @end="handleDragEnd"
-        v-bind="$attrs"
-        v-on="$listeners"
-        handle=".note-container"
-        @start="handleDragStart"
+    <div class="notes-grid">
+      <div
+        v-for="(note, index) in sortedFilteredNotes"
+        :key="note.id"
+        :class="['note-container']"
       >
-        <div
-          v-for="(note, index) in sortedFilteredNotes"
-          :key="note.id"
-          :class="['note-container', { dragging: noteDragging === note.id }]"
-          :draggable="true"
-          @dragstart="noteDragging = note.id"
-          @dragend="noteDragging = null"
-        >
-          <template v-if="note">
-            <Note
-              v-if="note.type === 'classic'"
-              :title="note.title || ''"
-              :content="note.content || ''"
-              :timestamp="note.timestamp || Date.now()"
-              :utente="note.utente || ''"
-              :note-id="note.id"
-              :index="index"
-              :type="note.type"
-              :is-editing="note.id === editingNoteId"
-              :groupId="note.groupId || ''"
-              @update-note="updateNote(index, $event.action, $event.data)"
-              @save="refreshQuery"
-            />
-            <ListNote
-              v-else-if="note.type === 'list'"
-              :title="note.title || ''"
-              :items="note.items || []"
-              :timestamp="note.timestamp || Date.now()"
-              :utente="note.utente || ''"
-              :note-id="note.id"
-              :type="note.type"
-              :is-editing="note.id === editingNoteId"
-              :groupId="note.groupId || ''"
-              @update-note="updateNote(index, $event.action, $event.data)"
-              @save="refreshQuery"
-              @close-modal="editingNoteId = null"
-            />
-          </template>
-        </div>
-      </draggable>
+        <template v-if="note">
+          <Note
+            v-if="note.type === 'classic'"
+            :title="note.title || ''"
+            :content="note.content || ''"
+            :timestamp="note.timestamp || Date.now()"
+            :utente="note.utente || ''"
+            :note-id="note.id"
+            :index="index"
+            :type="note.type"
+            :is-editing="note.id === editingNoteId"
+            :groupId="note.groupId || ''"
+            @update-note="updateNote(index, $event.action, $event.data)"
+            @save="refreshQuery"
+          />
+          <ListNote
+            v-else-if="note.type === 'list'"
+            :title="note.title || ''"
+            :items="note.items || []"
+            :timestamp="note.timestamp || Date.now()"
+            :utente="note.utente || ''"
+            :note-id="note.id"
+            :type="note.type"
+            :is-editing="note.id === editingNoteId"
+            :groupId="note.groupId || ''"
+            @update-note="updateNote(index, $event.action, $event.data)"
+            @save="refreshQuery"
+            @close-modal="editingNoteId = null"
+          />
+        </template>
+      </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import AccountManagement from "../components/AccountManagement.vue";
 import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
-import draggable from "vuedraggable";
 import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
 
 export default {
@@ -108,14 +90,12 @@ export default {
     Note,
     ListNote,
     SortDropdown,
-    draggable,
     AccountManagement
   },
   data() {
     return {
       notes: [],
       nextId: 1,
-      noteDragging: null,
       searchQuery: "",
       sortType: localStorage.getItem("sortType") || "Time",
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
@@ -206,38 +186,12 @@ export default {
     clearSearch() {
       this.searchQuery = "";
     },
-    handleDragEnd(event) {
-      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "1";
-      document.body.style.cursor = "default";
-      event.item.style.cursor = "grab";
-      this.handleNoteReorder(event);
-      this.saveAllNotes();
-    },
-    handleDragStart(event) {
-      if (event.item && event.item.firstChild && event.item.firstChild.classList.contains("add-note")) {
-        event.preventDefault();
-        return;
-      }
-      event.item.style.opacity = "0";
-      event.clone.style.opacity = "1000";
-      document.body.style.cursor = "grabbing";
-      event.item.style.cursor = "grabbing";
-    },
-    handleNoteReorder(event) {
-      const movedNote = this.notes.splice(event.oldIndex, 1)[0];
-      this.notes.splice(event.newIndex, 0, movedNote);
-    },
     handleSearchInput() {
       const inputElement = document.getElementById("searchInput");
       if (inputElement) {
         inputElement.style.width = `${Math.max(100, this.searchQuery.length * 10)}px`;
       }
     },
-
     async refreshQuery() {
       let operatorName = sessionStorage.getItem("operatorName") || 'Default Name';
       let operatorSurname = sessionStorage.getItem("operatorSurname") || 'Default Surname';
@@ -291,9 +245,6 @@ export default {
   }
 };
 </script>
-
-
-
 
 <style scoped>
 @import "../assets/main.css";
@@ -457,7 +408,7 @@ export default {
   width: 100%;
   max-width: 300px;
   margin-bottom: 20px;
-  cursor: grab;
+  cursor: pointer;
   display: block;
   justify-content: center;
   background-color: transparent;
@@ -481,14 +432,7 @@ export default {
   background-color: #72707075;
 }
 
-.note-container.dragging,
-.add-note.dragging {
-  opacity: 100%;
-}
 
-.dragging {
-  opacity: 100%;
-}
 
 @media (max-width: 768px) {
 @import "../assets/main.css";
@@ -678,16 +622,5 @@ body {
 .reset-button:hover {
   background-color: #72707075;
 }
-
-/* Note in fase di trascinamento */
-.note-container.dragging,
-.add-note.dragging {
-  opacity: 100%;
-}
-
-.dragging {
-  opacity: 100%;
-}
-
 }
 </style>
