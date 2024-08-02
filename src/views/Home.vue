@@ -428,7 +428,7 @@ export default {
   width: 100%;
   max-width: 300px;
   margin-bottom: 20px;
-  cursor: grab;
+  cursor: pointer;
   display: block;
   justify-content: center;
   background-color: transparent;
@@ -452,14 +452,9 @@ export default {
   background-color: #72707075;
 }
 
-.note-container.dragging,
-.add-note.dragging {
-  opacity: 100%;
-}
 
-.dragging {
-  opacity: 100%;
-}
+
+
 
 @media (max-width: 768px) {
 @import "../assets/main.css";
@@ -624,7 +619,7 @@ body {
   width: 100%;
   max-width: 100%;
   margin-bottom: 10px; /* Ridotto per dimensioni più contenute */
-  cursor: grab;
+  cursor: pointer;
   display: block;
   background-color: transparent;
   color: var(--note-text-color);
@@ -651,14 +646,9 @@ body {
 }
 
 /* Note in fase di trascinamento */
-.note-container.dragging,
-.add-note.dragging {
-  opacity: 100%;
-}
 
-.dragging {
-  opacity: 100%;
-}
+
+
 
 }
 </style>

@@ -51,8 +51,7 @@
         <!-- List items for editing -->
         <li v-for="(item, idx) in newItems" :key="idx">
           <div
-            @mouseover="hoverIndex = idx"
-            @mouseleave="hoverIndex = null"
+
             class="item-container"
           >
             <!-- Checkbox for each item -->

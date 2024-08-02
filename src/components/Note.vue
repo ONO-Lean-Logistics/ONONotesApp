@@ -5,8 +5,7 @@
     v-if="!isEditingInternal"
     class="note"
     @click.stop="startEdit"
-    @mouseover="showEditIcon = true"
-    @mouseleave="showEditIcon = false"
+
   >
     <!-- Display Note Content when not editing -->
     <div class="note-content">
