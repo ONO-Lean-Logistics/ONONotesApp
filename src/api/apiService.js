@@ -3,8 +3,8 @@ import axios from "axios";
 const appCode = "note_test"; // Codice dell'applicazione ONO
 const appDataName = "test"; // Nome unico per l'appData che conterrà tutte le note
 const appGroupName = "group";
-sessionStorage.setItem("operatorName", "Mamma");
-sessionStorage.setItem("operatorSurname", "Mia");
+sessionStorage.setItem("operatorName", "Tommaso");
+sessionStorage.setItem("operatorSurname", "Ronconi");
 
 const apiClient = axios.create({
   baseURL: "http://139.59.150.152:7576/grpc/",

@@ -2,14 +2,14 @@
 <template>
   <!-- Note container -->
   <div
-    v-if="!isEditing"
+    v-if="!isEditingInternal"
     class="note"
     @click.stop="startEdit"
     @mouseover="showEditIcon = true"
     @mouseleave="showEditIcon = false"
   >
     <!-- Display Note Content when not editing -->
-    <div v-if="!isEditing" class="note-content">
+    <div class="note-content">
       <!-- Display title if exists, otherwise show placeholder -->
       <h2 v-if="title" class="note-title">{{ title }}</h2>
       <!-- Display truncated content or placeholder if empty -->
@@ -100,13 +100,17 @@ export default {
         return ["classic", "list"].includes(value);
       },
     },
+    isEditing:{
+      type:Boolean,
+      required: true
+    }
   },
   data() {
     return {
       // State variables for editing
       newTitle: this.title,
       newContent: this.content,
-      isEditing: false,
+      isEditingInternal: this.isEditing,
       showEditIcon: false,
       maxTitleLength: 25, // Default char limit per title
       maxCharsPerLine: 32, // Default char limit per line
@@ -124,20 +128,26 @@ export default {
     timestamp(newVal) {
       this.formattedTimestamp = this.formatTimestamp(newVal);
     },
+    isEditing(newVal){
+      this.isEditingInternal = newVal
+    }
   },
   
   mounted() {
     // Initialize formatted timestamp on component mount
     this.formattedTimestamp = this.formatTimestamp(this.timestamp);
-    this.isEditing = false;
   },
 
   methods: {
-    //disugfeiuiewufdfwgigkiy
+    closeModal(){
+      this.isEditingInternal = false;
+      this.$emit('close-modal');
+    },
     cancelEdit() {
       this.newTitle = this.title;
-      this.isEditing = false;
+      this.isEditingInternal = false;
       this.showEditIcon = false;
+      this.closeModal();
       this.$emit("save");
     },
 
@@ -158,7 +168,7 @@ export default {
           // Refresh the page if no notes are left
           window.location.reload();
         } else {
-          this.isEditing = false;
+          this.closeModal();
           this.$emit("save");
         }
       } catch (error) {
@@ -186,7 +196,7 @@ export default {
     handleClickOutside(event) {
       if (!event.target.closest(".modal-content")) {
         this.saveEdit();
-        this.isEditing = false;
+        this.closeModal();
       }
     },
 
@@ -225,7 +235,7 @@ export default {
 
         await updateNotes(this.noteId, editedNote); // Update only the specific note
         this.showEditIcon = false;
-        this.isEditing = false;
+        this.closeModal();
       } catch (error) {
         console.error("Failed to save note:", error);
       }
@@ -233,7 +243,7 @@ export default {
     },
     
     startEdit() {
-      this.isEditing = true;
+      this.isEditingInternal = true;
     },
     
     // Truncate content to fit within specified character limit per line
