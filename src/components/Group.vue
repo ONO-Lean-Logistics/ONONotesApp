@@ -30,13 +30,7 @@
               ref="itemInputs"
               @blur="removeEmptyMember(idx)"
             />
-            <button
-              v-if="hoverIndex === idx"
-              @click.stop="removeMember(idx)"
-              class="remove-btn"
-            >
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+            <i class="fa-solid fa-xmark"></i>
           </div>
         </li>
       </ul>
@@ -410,20 +404,6 @@ li::before {
   background-color: darken(var(--accent-color), 10%);
 }
 
-/* Remove Button */
-.remove-btn {
-  background: none;
-  border: none;
-  color: red;
-  cursor: pointer;
-  margin-left: 10px;
-  transition: color 0.2s ease;
-}
-
-.remove-btn:hover,
-.remove-btn:focus {
-  color: darkred;
-}
 
 /* Editable Title */
 .edit-title {
