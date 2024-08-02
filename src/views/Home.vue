@@ -31,6 +31,7 @@
         Nota
       </button>
       <div class="notes-control"></div>
+      <div class="controls"></div>
       <div class="group-control"></div>
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
