@@ -30,7 +30,6 @@
               ref="itemInputs"
               @blur="removeEmptyMember(idx)"
             />
-            <i class="fa-solid fa-xmark"></i>
           </div>
         </li>
       </ul>

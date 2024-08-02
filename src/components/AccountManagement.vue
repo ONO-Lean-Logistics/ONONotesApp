@@ -277,7 +277,7 @@ label {
   color: #9c9c9c;
   border: none;
   position: relative;
-  top: 39px;
+  top: 37px;
   right: 170px;
 }
 .groups-header {
