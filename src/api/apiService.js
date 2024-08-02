@@ -61,6 +61,7 @@ export async function saveNotes(notes, isOccupiedFromServer) {
           utente: note.utente,
           isEditing: note.isEditing,
           type: note.type,
+          groupId: note.groupId
         };
       } else if (note.type === "list") {
         console.log(`save list`)
@@ -72,6 +73,7 @@ export async function saveNotes(notes, isOccupiedFromServer) {
           utente: note.utente,
           isEditing: note.isEditing,
           type: note.type,
+          groupId: note.groupId
         };
       }
       

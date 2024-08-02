@@ -33,7 +33,7 @@
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
-      <div class="group">{{ groupName }}</div>
+      
     </div>
   </div>
   <!-- Modal for editing -->
@@ -108,8 +108,8 @@ import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 export default {
   name: "ListNote",
   props: {
-    groupName: {
-      type: String,
+    groupId: {
+      type: [String, Number],
       required: true
     },
     noteId: {
@@ -136,7 +136,6 @@ export default {
       type: String,
       default: '',
       required: true,
-      default: ''
     },
     timestamp: {
       type: [String, Number],
@@ -188,6 +187,7 @@ export default {
         timestamp: Date.now(),
         utente: this.utente,
         type: this.type,
+        groupId: this.groupId,
       };
 
       try {
@@ -227,9 +227,11 @@ export default {
     },
     cancelEdit() {
       this.newTitle = this.title;
-      this.newItems = this.items.map((item) => ({ ...item }));
+      this.newItems = this.items.map((item) => ({ ...item })); // Reset items
       this.isEditingInternal = false;
-      this.$emit('close-modal');
+      this.showEditIcon = false;
+      this.closeModal();
+      this.$emit('save');
     },
     startEdit() {
       this.isEditingInternal = true;
@@ -528,7 +530,19 @@ li {
   left: 5px;
   font-size: 10px;
 }
+.group {
+  color: rgb(196, 196, 196); /* Match existing color scheme */
+  font-size: 8px; /* Adjust as needed */
+  position: absolute;
+  bottom: 20px; /* Adjust positioning as needed */
+  left: 5px; /* Adjust positioning as needed */
+}
 
+.group {
+    font-size: 6px; /* Reduce size for smaller screens */
+    bottom: 10px; /* Adjust spacing */
+  }
+  
 .utente {
   color: rgb(196, 196, 196);
   position: absolute;

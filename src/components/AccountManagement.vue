@@ -1,8 +1,9 @@
 <template>
+  <div class="groups-and-other">
   <div class="options">
     <div>
       <button @click="toggleShowAccountManagement()" class="group-button">
-        <h2>Options</h2>
+        <img src="../assets/settings.svg" alt="Clear" />
       </button>
       <div v-if="account.showAccountManagement" class="account-management" @click="handleClickOutside">
         <div class="account-content">
@@ -42,6 +43,15 @@
       </div>
     </div>
   </div>
+  <div class="select-group">
+    <!-- Dropdown for selecting group -->
+    <select v-model="selectedGroupId" class="group-selector" @change="onGroupChange">
+        <option v-for="group in filteredGroups" :key="group.id" :value="group.id">
+          {{ group.title }}
+        </option>
+      </select>
+  </div>
+</div>
 </template>
 
 <script>
@@ -63,11 +73,12 @@ export default {
     return {
       account: {
         groups: [],
-        showAccountManagement: false
+        showAccountManagement: false,
       },
       searchQuery: '',
       nextId: 1,
-      isAdminUser: false // Flag to check if the user is an admin
+      isAdminUser: false, // Flag to check if the user is an admin
+      selectedGroupId: 'General', // Default group
     };
   },
   computed: {
@@ -89,8 +100,7 @@ export default {
         // Filter to show only groups where the user is a member and exclude the "Users" group
         filteredGroups = filteredGroups.filter(group => 
           Array.isArray(group.members) &&
-          group.members.some(member => member.text === this.utente) &&
-          group.title !== 'Users'
+          group.members.some(member => member.text === this.utente) 
         );
       }
 
@@ -110,6 +120,9 @@ export default {
       } catch (error) {
         console.error("Error saving groups:", error);
       }
+    },
+    onGroupChange(){
+      this.$emit('getSelectedGroup', this.selectedGroupId)
     },
     async refreshGroupsQuery() {
       try {
@@ -159,7 +172,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  background-color: var(--note-background-color); 
+  background-color: #283442; 
 }
 .options button.group-button {
   position: relative;
@@ -171,6 +184,8 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  top: 11px;
+  right: 4px
 }
 .group-container {
   min-height: 120px;
@@ -246,6 +261,15 @@ label {
   background-color: transparent;
   color: var(note-text-color);
   overflow: hidden;
+}
+
+.group-selector,.select-items {
+  background-color: #283442;
+  color: #9c9c9c;
+  border: none;
+  position: relative;
+  top: 39px;
+  right: 170px
 }
 .groups-header {
   display: flex;

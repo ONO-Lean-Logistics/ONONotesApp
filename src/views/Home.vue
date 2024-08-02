@@ -16,12 +16,13 @@
       <button @click="clearSearch" class="clear-button">
         <img src="../assets/X_icon.svg" alt="Clear" />
       </button>
-        <AccountManagement :utente="utente"/>
-        </div>
-   
+      <AccountManagement :utente="utente" @getSelectedGroup="getSelectedGroup"/>
+    </div>
+
     <div class="divider" :class="'divider-dark'"></div>
 
     <div class="controls">
+      
       <button class="add-note" @click="addNote('list')">
         <i class="fas fa-plus"></i>
         Lista
@@ -31,17 +32,16 @@
         Nota
       </button>
       <div class="notes-control"></div>
-
       <div class="group-control"></div>
       <SortDropdown class="sort-dropdown" @select-sort-type="updateSortType" @select-sort-order="updateSortOrder" />
     </div>
-  
+
     <div>
       <!-- Draggable component for notes -->
       <draggable
-        :value="filteredNotesWithAddButton"
+        :value="filteredNotes"
         :class="'notes-grid'"
-        group="notes"
+        groupId="notes"
         :item-key="note => note.id"
         @end="handleDragEnd"
         v-bind="$attrs"
@@ -50,7 +50,7 @@
         @start="handleDragStart"
       >
         <div
-          v-for="(note, index) in filteredNotesWithAddButton"
+          v-for="(note, index) in filteredNotes"
           :key="note.id"
           :class="['note-container', { dragging: noteDragging === note.id }]"
           :draggable="true"
@@ -68,6 +68,7 @@
               :index="index"
               :type="note.type"
               :is-editing="note.id === editingNoteId"
+              :groupId="note.groupId || ''"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery"
             />
@@ -80,6 +81,7 @@
               :note-id="note.id"
               :type="note.type"
               :is-editing="note.id === editingNoteId"
+              :groupId="note.groupId || ''"
               @update-note="updateNote(index, $event.action, $event.data)"
               @save="refreshQuery"
               @close-modal="editingNoteId = null"
@@ -98,7 +100,7 @@ import Note from "../components/Note.vue";
 import ListNote from "../components/ListNote.vue";
 import SortDropdown from "../components/SortDropdown.vue";
 import draggable from "vuedraggable";
-import { loadNotes, saveNotes, updateNotes} from "@/api/apiService";
+import { loadNotes, saveNotes, updateNotes } from "@/api/apiService";
 
 export default {
   name: "Home",
@@ -119,36 +121,32 @@ export default {
       sortOrder: localStorage.getItem("sortOrder") || "Oldest",
       showAccountManagement: false,
       editingNoteId: null,
+      selectedGroupId: 'Users'
     };
   },
   computed: {
+    
     filteredNotes() {
       const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.notes;
-
       return this.notes.filter((note) => {
         const titleMatch = (note.title || "").toLowerCase().includes(query);
         const utenteMatch = (note.utente || "").toLowerCase().includes(query);
-        return titleMatch || utenteMatch;
+        const groupMatch = this.selectedGroupId === null || note.groupId === this.selectedGroupId;
+        return (titleMatch || utenteMatch) && groupMatch;
       });
     },
-    filteredNotesWithAddButton() {
-      return this.sortNotes(this.filteredNotes);
-    }
   },
+  
   created() {
     this.refreshQuery();
   },
   methods: {
-    async getGroups(){
-      this.getAllGroups()
-    },
     async addNote(type) {
       let newNote;
-
+      
       if (type === "classic") {
         newNote = {
-          group: "",
+          groupId: this.selectedGroupId,
           title: "",
           content: "",
           id: this.nextId,
@@ -159,6 +157,7 @@ export default {
         };
       } else if (type === "list") {
         newNote = {
+          groupId: this.selectedGroupId,
           title: "",
           items: [],
           id: this.nextId,
@@ -180,8 +179,9 @@ export default {
         }
       }
     },
-    
-    // Clear search query
+    async getSelectedGroup(data){
+      this.selectedGroupId = data
+    },
     clearSearch() {
       this.searchQuery = "";
     },
@@ -218,8 +218,6 @@ export default {
     },
 
     async refreshQuery() {
-          
-      // Retrieve user information from session storage
       let operatorName = sessionStorage.getItem("operatorName") || 'Default Name';
       let operatorSurname = sessionStorage.getItem("operatorSurname") || 'Default Surname';
       this.utente = `${operatorName} ${operatorSurname}`;
@@ -237,8 +235,6 @@ export default {
           this.nextId = 1;
         }
 
-        this.notes = resNotes;
-        this.nextId = resNotes.length ? Math.max(...resNotes.map(note => note.id)) + 1 : 1;
       } catch (error) {
         console.error("Error loading notes:", error);
       }
@@ -250,88 +246,37 @@ export default {
         console.error("Error saving notes:", error);
       }
     },
-
-    startSearch() {
-      if (this.searchQuery.trim() !== "") {
-        this.search();
+    updateNote(index, action, data) {
+      const note = this.notes[index];
+      if (note) {
+        if (action === "update") {
+          Object.assign(note, data);
+        } else if (action === "delete") {
+          this.notes.splice(index, 1);
+        }
       }
     },
-    search() {
-      const query = this.searchQuery.toLowerCase().trim();
-      if (!query) return this.notes;
-
-      return this.notes.filter((note) => {
-        const titleMatch = (note.title || "").toLowerCase().includes(query);
-        const utenteMatch = (note.utente || "").toLowerCase().includes(query);
-        return titleMatch || utenteMatch;
-      });
-    },
-
-    sortNotes(notes) {
-      if (this.sortType === "Time") {
-        if (this.sortOrder === "Recent") {
-          return notes.sort((a, b) => b.timestamp - a.timestamp);
-        } else if (this.sortOrder === "Oldest") {
-          return notes.sort((a, b) => a.timestamp - b.timestamp);
-        }
-      } else if (this.sortType === "Length") {
-        return notes.sort((a, b) => {
-          const aLength = a.type === "classic" ? a.content.length : (a.items ? a.items.length : 0);
-          const bLength = b.type === "classic" ? b.content.length : (b.items ? b.items.length : 0);
-
-          if (this.sortOrder === "Most") {
-            return bLength - aLength; 
-          } else if (this.sortOrder === "Least") {
-            return aLength - bLength; 
-          }
-          return 0; 
-        });
-    }
-    return notes;
-  }, 
     updateSortType(type) {
       this.sortType = type;
       localStorage.setItem("sortType", type);
     },
-
     updateSortOrder(order) {
       this.sortOrder = order;
       localStorage.setItem("sortOrder", order);
     },
-
-    resetSort() {
-      this.sortType = "";
-      this.sortOrder = "";
-      localStorage.removeItem("sortType");
-      localStorage.removeItem("sortOrder");
-    },
-
-    resetSortType() {
-      this.sortType = "";
-      localStorage.removeItem("sortType");
-    },
-
-    resetSortLength() {
-      this.sortOrder = "";
-      localStorage.removeItem("sortOrder");
-    },
-
-    toggleAccountManagement() {
-      this.showAccountManagement = !this.showAccountManagement;
-    },
-
-    updateNotes(index, action, data) {
-      const note = this.notes[index];
-      if (action === 'update') {
-        Object.assign(note, data);
-      } else if (action === 'delete') {
-        this.notes.splice(index, 1);
+    sortNotes(notes) {
+      if (this.sortType === "Time") {
+        notes.sort((a, b) => (this.sortOrder === "Oldest" ? a.timestamp - b.timestamp : b.timestamp - a.timestamp));
       }
-      this.saveAllNotes();
+      return notes;
+    },
+    startSearch() {
+      // Trigger search functionality if needed
     }
   }
 };
 </script>
+
 
 
 
@@ -390,6 +335,7 @@ export default {
     border: none;
     cursor: pointer;
     padding: 0;
+    top: 7px
   }
 
 .search-container {
@@ -581,6 +527,13 @@ body {
   font-size: 16px; /* Ridotto per spazi più contenuti */
 }
 
+.group-selector {
+  margin-right: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
 /* Barra di ricerca sotto l'header */
 .search-container {
   position: relative; /* Assicurati che la posizione sia relativa per il posizionamento assoluto */

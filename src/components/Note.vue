@@ -21,7 +21,6 @@
       <div class="utente">{{ utente }}</div>
       <div class="timestamp">{{ formattedTimestamp }}</div>
       <div class="type">{{ type }}</div>
-      <div class="group">{{ groupName }}</div>
     </div>
     
     <!-- Edit Modal -->
@@ -63,8 +62,8 @@ import { loadNotes, saveNotes, updateNotes } from "../api/apiService.js";
 
 export default {
   props: {
-    groupName: {
-      type: String,
+    groupId: {
+      type: [String, Number],
       required: true
     },
     noteId: {
@@ -293,6 +292,13 @@ export default {
   transition: opacity 0.3s ease, transform 0.3s ease;
   transform: translateY(-20px);
 }
+.group {
+  color: rgb(196, 196, 196); /* Match existing color scheme */
+  font-size: 8px; /* Adjust as needed */
+  position: absolute;
+  bottom: 20px; /* Adjust positioning as needed */
+  left: 5px; /* Adjust positioning as needed */
+}
 
 /* Note Container */
 .note {
@@ -477,6 +483,11 @@ export default {
   font-size: 14px;
   opacity: 1;
 }
+
+.group {
+    font-size: 6px; /* Reduce size for smaller screens */
+    bottom: 10px; /* Adjust spacing */
+  }
 
 .placeholder {
   color: #aaa;
