@@ -467,8 +467,8 @@ li::before {
   margin-left: 10px;
   cursor: pointer;
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   color: var(--accent-color);
   transition: color 0.2s ease;
 }
