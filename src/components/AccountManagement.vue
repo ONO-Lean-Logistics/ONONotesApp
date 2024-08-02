@@ -247,7 +247,7 @@ label {
   cursor: pointer;
   color: var(--note-text-color);
   border: none;
-  background-color: #b9b9b92f;
+  background-color: var(--note-background-color);
   border-radius: 0;
 }
 .group-container {
