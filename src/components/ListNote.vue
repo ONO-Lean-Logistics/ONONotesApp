@@ -89,7 +89,7 @@
       </button>
       <!-- Edit actions buttons -->
       <div class="edit-actions">
-        <button class="delete-btn-modal" @click="deleteNote()">
+        <button @click="deleteNote()" class="delete-btn-modal" >
           <img src="../assets/delete.svg" alt="Delete" />
         </button>
         <button @click="cancelEdit()" class="cancel-btn">
